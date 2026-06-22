@@ -368,8 +368,8 @@ loadListings();
 
 {% if user.is_authenticated %}
 <!-- ── Profile Setup Modal ── -->
-<div id="setupModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:440px;padding:2rem;box-shadow:0 24px 64px rgba(0,0,0,.4);">
+<div id="setupModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:440px;padding:2rem;box-shadow:0 24px 64px rgba(0,0,0,.4);margin:auto;">
     <div style="text-align:center;margin-bottom:1.5rem;">
       <img src="{% static 'icons/logo.png' %}" alt="PU Connect" style="height:52px;margin-bottom:.75rem;">
       <h2 style="font-size:1.25rem;font-weight:700;color:var(--text);margin:0 0 .35rem;">Complete your profile</h2>

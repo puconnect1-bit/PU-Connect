@@ -1,8 +1,9 @@
 /* PU-Connect Service Worker */
-const CACHE_VERSION = 'pu-v1';
+const CACHE_VERSION = 'pu-v2';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const PAGE_CACHE    = `${CACHE_VERSION}-pages`;
-const ALL_CACHES    = [STATIC_CACHE, PAGE_CACHE];
+const API_CACHE     = `${CACHE_VERSION}-api`;
+const ALL_CACHES    = [STATIC_CACHE, PAGE_CACHE, API_CACHE];
 
 /* ── Static assets to pre-cache on install ── */
 const STATIC_ASSETS = [
@@ -95,6 +96,22 @@ self.addEventListener('fetch', event => {
         }
         return res;
       }))
+    );
+    return;
+  }
+
+  /* Listings API — stale-while-revalidate (instant load, refresh in background) */
+  if (url.pathname === '/dashboard/api/listings/') {
+    event.respondWith(
+      caches.open(API_CACHE).then(cache =>
+        cache.match(request).then(cached => {
+          const networkFetch = fetch(request).then(res => {
+            if (res.ok) cache.put(request, res.clone());
+            return res;
+          });
+          return cached || networkFetch;
+        })
+      )
     );
     return;
   }

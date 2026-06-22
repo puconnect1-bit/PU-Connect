@@ -112,6 +112,7 @@ SOCIALACCOUNT_PROVIDERS = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'pu_mp.r2_db_sync.R2DbSyncMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -154,12 +155,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(DATA_DIR, 'global.db'),
         'OPTIONS': {'timeout': 20},
+        'CONN_MAX_AGE': 600,
     },
     # Private/user data: messages, conversations, wishlist, notifications, push subscriptions
     'user_db': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(DATA_DIR, 'user.db'),
         'OPTIONS': {'timeout': 20},
+        'CONN_MAX_AGE': 600,
     },
 }
 

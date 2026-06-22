@@ -868,11 +868,10 @@ function openConv(c){
   cv.classList.remove('dn');
   cv.style.display='flex';
 
-  // Mobile: slide right panel in, hide bottom nav
+  // Mobile: slide right panel in
   if(window.innerWidth < 768){
     document.getElementById('leftPanel').classList.add('hidden');
     document.getElementById('rightPanel').classList.add('visible');
-    const bn=document.getElementById('botNav');if(bn)bn.classList.add('bn-hidden');
   }
 
   // Scroll to bottom
@@ -882,7 +881,6 @@ function openConv(c){
 function showLeft(){
   document.getElementById('leftPanel').classList.remove('hidden');
   document.getElementById('rightPanel').classList.remove('visible');
-  const bn=document.getElementById('botNav');if(bn)bn.classList.remove('bn-hidden');
   lastConvY=0;
 }
 
@@ -2309,6 +2307,5 @@ init();
   function _u8(b64){const p=(b64+'='.repeat((4-b64.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/');const r=atob(p);const o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
 })();</script>
 <script src="{% static 'Base_app/js/notifications.js' %}"></script>
-{% include 'dash/bot_nav.html' with active_page='chat' %}
 </body>
 </html>

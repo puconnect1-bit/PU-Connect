@@ -8,6 +8,7 @@ urlpatterns = [
     path('wishlist/', views.wishlist, name='wishlist'),
     path('create/', views.create_listing, name='create'),
     path('<int:pk>/', views.listing_detail, name='detail'),
+    path('<int:pk>/og-image/', views.listing_og_image, name='og_image'),
     path('api/create/', views.create_listing_api, name='create_api'),
     path('api/me/', views.get_my_listings, name='my_listings_api'),
     path('api/all/', views.get_all_listings, name='all_listings_api'),

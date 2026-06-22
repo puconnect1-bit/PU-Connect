@@ -23,22 +23,28 @@ def chat(request):
 @login_required
 def get_conversations(request):
     """Returns a list of all conversations for the current user."""
-    convs = request.user.conversations.all()
+    convs = (
+        request.user.conversations
+        .select_related('listing', 'listing__user')
+        .prefetch_related(
+            'participants',
+            'participants__profile',
+        )
+        .order_by('-updated_at')
+    )
+    me = request.user
     data = []
     for c in convs:
-        other_user = c.participants.exclude(id=request.user.id).first()
-        last_msg = c.messages.last()
+        other_user = next((p for p in c.participants.all() if p.id != me.id), None)
+        last_msg = c.messages.select_related('sender').last()
         avatar_url = ''
         try:
             if other_user:
                 avatar_url = other_user.profile.avatar_url or ''
         except Exception:
             pass
-        # Determine if current user is buyer or seller relative to the listing
-        conv_type = 'buying'
-        if c.listing and c.listing.user == request.user:
-            conv_type = 'selling'
-        listing_emoji = '📦' if not c.listing or c.listing.listing_type != 'service' else '🛠️'
+        conv_type = 'selling' if c.listing and c.listing.user_id == me.id else 'buying'
+        listing_emoji = '🛠️' if c.listing and c.listing.listing_type == 'service' else '📦'
         data.append({
             'id': c.id,
             'name': other_user.get_full_name() or other_user.username if other_user else 'System',
@@ -48,7 +54,7 @@ def get_conversations(request):
             'listingEmoji': listing_emoji,
             'price': f"GH₵ {c.listing.price}" if c.listing else '',
             'time': last_msg.timestamp.strftime('%I:%M %p') if last_msg else 'New',
-            'badge': c.messages.filter(is_read=False).exclude(sender=request.user).count(),
+            'badge': c.messages.filter(is_read=False).exclude(sender=me).count(),
             'type': conv_type,
             'other_user_id': other_user.id if other_user else None,
             'status': 'away',

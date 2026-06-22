@@ -1,11 +1,104 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
-from django.views.decorators.cache import never_cache
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.cache import never_cache, cache_control
 import json
 import re
+import textwrap
 from .models import Listing
+
+@cache_control(max_age=86400, public=True)
+def listing_og_image(request, pk):
+    """
+    Returns a 1200×630 SVG branded card for use as og:image.
+    Cached 24 h publicly — crawlers and CDNs can cache it.
+    """
+    listing = get_object_or_404(Listing, pk=pk)
+
+    # Truncate title and description safely for SVG text
+    title = listing.title or 'Listing'
+    price = f"GH₵ {listing.price}" if not listing.contact_for_price else "Contact for price"
+    category = listing.category or ''
+    seller = listing.user.get_full_name() or listing.user.username
+
+    # Wrap title into up to 2 lines of ~32 chars
+    lines = textwrap.wrap(title, width=32)[:2]
+    title_line1 = _svg_escape(lines[0]) if len(lines) > 0 else ''
+    title_line2 = _svg_escape(lines[1]) if len(lines) > 1 else ''
+
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F1117"/>
+      <stop offset="100%" stop-color="#1A1D27"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e8c96a"/>
+      <stop offset="100%" stop-color="#c9a030"/>
+    </linearGradient>
+    <clipPath id="img-clip">
+      <rect x="720" y="0" width="480" height="630" rx="0"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Left accent bar -->
+  <rect x="0" y="0" width="6" height="630" fill="url(#accent)"/>
+
+  <!-- Right image panel background -->
+  <rect x="720" y="0" width="480" height="630" fill="#22263A"/>
+
+  <!-- Decorative circle -->
+  <circle cx="960" cy="315" r="220" fill="none" stroke="#e8c96a" stroke-width="1.5" opacity="0.12"/>
+  <circle cx="960" cy="315" r="160" fill="none" stroke="#e8c96a" stroke-width="1" opacity="0.08"/>
+
+  <!-- PU Connect branding (top-left) -->
+  <text x="60" y="72" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#e8c96a">PU</text>
+  <text x="105" y="72" font-family="Arial, sans-serif" font-size="28" font-weight="400" fill="#ffffff">Connect</text>
+
+  <!-- Divider under brand -->
+  <rect x="60" y="88" width="120" height="2" fill="url(#accent)" rx="1"/>
+
+  <!-- Category badge -->
+  <rect x="60" y="120" width="{min(len(category) * 13 + 32, 300)}" height="34" rx="17" fill="#22263A"/>
+  <text x="76" y="143" font-family="Arial, sans-serif" font-size="16" fill="#e8c96a" font-weight="600">{_svg_escape(category)}</text>
+
+  <!-- Listing title line 1 -->
+  <text x="60" y="230" font-family="Arial, sans-serif" font-size="52" font-weight="700" fill="#ffffff">{title_line1}</text>
+  {"" if not title_line2 else f'<text x="60" y="295" font-family="Arial, sans-serif" font-size="52" font-weight="700" fill="#ffffff">{title_line2}</text>'}
+
+  <!-- Price -->
+  <text x="60" y="{340 if title_line2 else 310}" font-family="Arial, sans-serif" font-size="42" font-weight="800" fill="#e8c96a">{_svg_escape(price)}</text>
+
+  <!-- Seller -->
+  <text x="60" y="{420 if title_line2 else 390}" font-family="Arial, sans-serif" font-size="20" fill="#9ca3af">Listed by <tspan fill="#d1d5db" font-weight="600">{_svg_escape(seller)}</tspan></text>
+
+  <!-- CTA bar at bottom -->
+  <rect x="0" y="560" width="720" height="70" fill="#1A1D27"/>
+  <text x="60" y="602" font-family="Arial, sans-serif" font-size="20" fill="#6b7280">pentvarsconnect.com</text>
+  <rect x="540" y="573" width="140" height="44" rx="22" fill="url(#accent)"/>
+  <text x="610" y="601" font-family="Arial, sans-serif" font-size="17" font-weight="700" fill="#0F1117" text-anchor="middle">View Listing</text>
+
+  <!-- Right panel placeholder icon when no image -->
+  <text x="960" y="290" font-family="Arial, sans-serif" font-size="90" text-anchor="middle" fill="#e8c96a" opacity="0.25">🛒</text>
+  <text x="960" y="370" font-family="Arial, sans-serif" font-size="22" text-anchor="middle" fill="#6b7280">Campus Marketplace</text>
+</svg>'''
+
+    return HttpResponse(svg, content_type='image/svg+xml')
+
+
+def _svg_escape(text):
+    """Escape special XML characters for safe SVG embedding."""
+    return (str(text)
+            .replace('&', '&amp;')
+            .replace('<', '&lt;')
+            .replace('>', '&gt;')
+            .replace('"', '&quot;')
+            .replace("'", '&#39;'))
+
 
 @login_required(login_url='auth:auth_view')
 def listing_detail(request, pk):
@@ -35,18 +128,30 @@ def listing_detail(request, pk):
         _digits = '233' + _digits
     seller_whatsapp = _digits  # empty string if no phone
 
+    full_url = request.build_absolute_uri()
+    # Use the real R2 image if present, otherwise fall back to the branded SVG card
+    og_image = image_url if image_url else request.build_absolute_uri(f'/listings/{pk}/og-image/')
+
+    price_display = f"GH₵ {listing.price}" if not listing.contact_for_price else "Contact for price"
+    og_description = (
+        f"{price_display} · {listing.category} · {listing.description[:120]}"
+        if listing.description
+        else f"{price_display} · {listing.category} · Listed on PU Connect"
+    )
+
     context = {
-        'listing':        listing,
-        'image_url':      image_url,
-        'full_url':       request.build_absolute_uri(),
-        'page_title':     f"{listing.title} — PU-Connect",
-        'page_description': listing.description[:160] if listing.description else "Check out this listing on PU-Connect.",
-        'seller':         seller,
-        'seller_avatar':  seller_avatar,
-        'seller_phone':   seller_phone,
-        'seller_whatsapp': seller_whatsapp,
-        'seller_faculty': seller_faculty,
-        'is_owner':       request.user.is_authenticated and request.user == seller,
+        'listing':          listing,
+        'image_url':        image_url,
+        'og_image':         og_image,
+        'full_url':         full_url,
+        'page_title':       f"{listing.title} — PU Connect",
+        'page_description': og_description,
+        'seller':           seller,
+        'seller_avatar':    seller_avatar,
+        'seller_phone':     seller_phone,
+        'seller_whatsapp':  seller_whatsapp,
+        'seller_faculty':   seller_faculty,
+        'is_owner':         request.user.is_authenticated and request.user == seller,
     }
     return render(request, 'listings/detail.html', context)
 
@@ -197,23 +302,37 @@ def get_my_listings(request):
 @never_cache
 def get_all_listings(request):
     """
-    Fetches all available listings to display on the dashboard.
+    Fetches available listings for the dashboard with pagination.
+    ?page=1&page_size=60
     """
-    # Boosted listings first, then active by most recent
     from django.db.models import Case, When, IntegerField
-    listings = Listing.objects.filter(status__in=['active', 'boosted']).order_by(
-        Case(When(status='boosted', then=0), default=1, output_field=IntegerField()),
-        '-created_at',
+
+    try:
+        page = max(1, int(request.GET.get('page', 1)))
+    except (ValueError, TypeError):
+        page = 1
+    page_size = 60
+    offset = (page - 1) * page_size
+
+    qs = (
+        Listing.objects
+        .filter(status__in=['active', 'boosted'])
+        .select_related('user', 'user__profile')
+        .order_by(
+            Case(When(status='boosted', then=0), default=1, output_field=IntegerField()),
+            '-created_at',
+        )
     )
+    total = qs.count()
+    listings = qs[offset:offset + page_size]
+
     listings_data = []
     for item in listings:
-        phone = ""
+        phone = ''
         try:
-            if hasattr(item.user, 'profile') and item.user.profile.phone:
-                phone = item.user.profile.phone
+            phone = item.user.profile.phone or ''
         except Exception:
             pass
-            
         listings_data.append({
             'id': item.id,
             'title': item.title,
@@ -230,9 +349,15 @@ def get_all_listings(request):
             'phone': phone,
             'contact_for_price': item.contact_for_price,
             'status': item.status,
-            'postedAt': int(item.created_at.timestamp() * 1000)
+            'postedAt': int(item.created_at.timestamp() * 1000),
         })
-    return JsonResponse(listings_data, safe=False)
+    return JsonResponse({
+        'listings': listings_data,
+        'page': page,
+        'page_size': page_size,
+        'total': total,
+        'has_next': offset + page_size < total,
+    })
 
 @login_required
 @require_POST

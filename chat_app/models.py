@@ -41,6 +41,10 @@ class Message(models.Model):
 
     class Meta:
         ordering = ['timestamp']
+        indexes = [
+            models.Index(fields=['conversation', 'timestamp']),
+            models.Index(fields=['is_read']),
+        ]
 
     def __str__(self):
         return f"From {self.sender.username} at {self.timestamp}"
