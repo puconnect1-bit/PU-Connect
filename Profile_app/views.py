@@ -115,28 +115,51 @@ def get_my_profile(request):
     })
   
 
-# Profile_app/views.py
-from .forms import PhoneForm
+from .forms import PhoneForm, ProfileSetupForm
 
 @login_required(login_url='auth:auth_view')
 def complete_profile(request):
-    profile, created = Profile.objects.get_or_create(user=request.user)
-    
-    # If already set, redirect to main site or profile
-    if profile.phone:
-        return redirect('dashboard:dashboard')
+    """
+    AJAX POST  — called by the setup modal on the dashboard.
+    GET        — returns whether the profile still needs completing (for the modal trigger).
+    """
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    user = request.user
 
-    if request.method == 'POST':
-        form = PhoneForm(request.POST, instance=profile)
-        if form.is_valid():
-            form.save()
-            return redirect('dashboard:dashboard')
-        else:
-            messages.error(request, "Please enter a valid phone number.")
-    else:
-        form = PhoneForm(instance=profile)
-        
-    return render(request, 'profile/complete.html', {'form': form})
+    needs_setup = not (profile.phone and profile.faculty)
+
+    if request.method == 'GET':
+        return JsonResponse({
+            'needs_setup': needs_setup,
+            'name': user.get_full_name(),
+            'username': user.username,
+        })
+
+    # POST — modal form submission (JSON)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+    form = ProfileSetupForm(data, initial={'user_pk': user.pk})
+    if not form.is_valid():
+        first_error = next(iter(form.errors.values()))[0]
+        return JsonResponse({'status': 'error', 'message': first_error}, status=400)
+
+    # Save name + username to User
+    full_name = form.cleaned_data['name'].strip()
+    parts = full_name.split(' ', 1)
+    user.first_name = parts[0]
+    user.last_name = parts[1] if len(parts) > 1 else ''
+    user.username = form.cleaned_data['username']
+    user.save()
+
+    # Save phone + faculty to Profile
+    profile.phone = form.cleaned_data['phone']
+    profile.faculty = form.cleaned_data['faculty']
+    profile.save()
+
+    return JsonResponse({'status': 'success'})
 
 
 
