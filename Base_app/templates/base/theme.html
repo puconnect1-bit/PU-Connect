@@ -1,0 +1,44 @@
+{% comment %}
+Canonical theme toggle — include once per page.
+Requires a button with id="themeBtn" (and optionally id="themeBtnMobile").
+Works in two modes:
+  1. SVG-swap mode  — button innerHTML is replaced with sun/moon SVG (default)
+  2. CSS-class mode — button contains .theme-sun / .theme-moon children (pass mode="css")
+{% endcomment %}
+<script>
+(function(){
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeBtn');
+  var btnM = document.getElementById('themeBtnMobile');
+  var meta = document.getElementById('themeColorMeta');
+
+  var SUN_SVG  = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  var MOON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+
+  function apply(dark) {
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    localStorage.setItem('pu-theme', dark ? 'dark' : 'light');
+    if (meta) meta.setAttribute('content', dark ? '#0d0e11' : '#f0ede8');
+    /* SVG-swap buttons (most pages) */
+    if (btn  && !btn.querySelector('.theme-sun'))  btn.innerHTML  = dark ? SUN_SVG  : MOON_SVG;
+    if (btnM && !btnM.querySelector('.theme-sun')) btnM.innerHTML = dark ? SUN_SVG  : MOON_SVG;
+    /* CSS-class buttons (detail / public_profile) — nothing extra needed;
+       CSS [data-theme] rules handle the sun/moon visibility */
+  }
+
+  function toggle() {
+    apply(root.getAttribute('data-theme') !== 'dark');
+  }
+
+  /* Read saved preference; fall back to system, then dark */
+  var saved = localStorage.getItem('pu-theme');
+  if (saved) {
+    apply(saved === 'dark');
+  } else {
+    apply(window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+
+  if (btn)  btn.addEventListener('click',  toggle);
+  if (btnM) btnM.addEventListener('click', toggle);
+})();
+</script>

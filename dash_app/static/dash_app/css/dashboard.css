@@ -160,7 +160,7 @@
   border-radius: var(--radius);
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 14%, var(--surface)), color-mix(in srgb, var(--accent) 6%, var(--surface)));
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  text-decoration: none;
+  cursor: pointer;
   transition: opacity .15s;
   margin-bottom: .25rem;
 }
@@ -177,9 +177,6 @@
   font-size: .85rem;
   font-weight: 700;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .bpb-sub {
   font-size: .72rem;
@@ -464,6 +461,10 @@
 }
 
 @media (max-width: 480px) {
+  .boost-promo-banner { flex-wrap: wrap; gap: .6rem; }
+  .bpb-left { flex: 1 1 100%; }
+  .bpb-cta { align-self: flex-start; }
+  .bpb-sub { white-space: normal; }
   .guest-banner { flex-direction: column; align-items: flex-start; gap: .75rem; }
   .listings-grid { grid-template-columns: repeat(2, 1fr); gap: .6rem; }
   .listings-loader { grid-template-columns: repeat(2, 1fr); gap: .6rem; }

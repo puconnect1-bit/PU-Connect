@@ -100,7 +100,6 @@ def _svg_escape(text):
             .replace("'", '&#39;'))
 
 
-@login_required(login_url='auth:auth_view')
 def listing_detail(request, pk):
     """Full detail page for a single listing."""
     listing = get_object_or_404(Listing, pk=pk)
@@ -242,6 +241,12 @@ def create_listing_api(request):
 
         if not image_url:
             return JsonResponse({'status': 'error', 'message': 'At least one photo is required'}, status=400)
+
+        from Base_app.models import SiteConfig
+        _cfg = SiteConfig.get()
+        active_count = Listing.objects.filter(user=request.user, status__in=['active', 'boosted', 'paused']).count()
+        if active_count >= _cfg.max_listings_per_user:
+            return JsonResponse({'status': 'error', 'message': f'Listing limit reached ({_cfg.max_listings_per_user} max)'}, status=400)
 
         # Update user's profile with phone number if provided
         phone = data.get('phone')

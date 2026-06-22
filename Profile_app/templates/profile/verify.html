@@ -475,7 +475,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- MediaPipe Face Mesh for real liveness detection -->
+<!-- MediaPipe Face Mesh for liveness detection -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -495,11 +495,12 @@ let faceMesh    = null;
 let mpCamera    = null;
 
 const CSRF = () => document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
+const BTN_LABEL = '{% if verification_status == "paid" %}Submit Documents{% else %}Pay GH₵ {{ verification_fee }} & Submit{% endif %}';
 
 /* ════════════════════════════════════════════
    TOAST
    ════════════════════════════════════════════ */
-function toast(msg, dur=2800) {
+function toast(msg, dur=3000) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
   clearTimeout(el._t);
@@ -513,32 +514,27 @@ function setRail(step) {
   for (let i = 1; i <= 4; i++) {
     const sr = document.getElementById('sr'+i);
     const ln = document.getElementById('srl'+i);
-    sr.className = 'sr-step' + (i < step ? ' done' : i === step ? ' active' : '');
+    if (sr) sr.className = 'sr-step' + (i < step ? ' done' : i === step ? ' active' : '');
     if (ln) ln.className = 'sr-line' + (i < step ? ' done' : '');
   }
 }
-
 function showPanel(step) {
   document.querySelectorAll('.vstep-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('step'+step).classList.add('active');
+  const panel = document.getElementById('step'+step);
+  if (panel) panel.classList.add('active');
   setRail(step);
   currentStep = step;
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top:0, behavior:'smooth'});
 }
-
 function goStep(n) {
-  if (n === 2 && !idNumber) { toast('Enter your student ID number first'); return; }
+  if (n === 2 && !idNumber)   { toast('Enter your student ID number first'); return; }
   if (n === 3 && !idPhotoUrl) { toast('Upload your ID card photo first'); return; }
   if (n === 4 && !livenessOk) { toast('Complete the liveness check first'); return; }
   if (n === 4) buildReview();
   if (n !== 3) stopCamera();
   showPanel(n);
 }
-
-function goStepBack3() {
-  stopCamera();
-  showPanel(2);
-}
+function goStepBack3() { stopCamera(); showPanel(2); }
 
 /* ════════════════════════════════════════════
    STEP 1 — ID NUMBER
@@ -552,7 +548,7 @@ function validateIdNumber(input) {
 }
 
 /* ════════════════════════════════════════════
-   STEP 2 — ID CARD
+   STEP 2 — ID CARD UPLOAD
    ════════════════════════════════════════════ */
 function handleIdFile(input) {
   const f = input.files[0]; if (!f) return;
@@ -560,33 +556,39 @@ function handleIdFile(input) {
 }
 function handleIdDrop(e) {
   e.preventDefault();
-  const f = e.dataTransfer.files[0]; if (!f || !f.type.startsWith('image/')) return;
+  const f = e.dataTransfer.files[0];
+  if (!f || !f.type.startsWith('image/')) return;
   document.getElementById('idZone').classList.remove('dragover');
   processIdFile(f);
 }
 async function processIdFile(file) {
-  const zone = document.getElementById('idZone');
-  const inner= document.getElementById('idZoneInner');
-  const prev = document.getElementById('idPreview');
+  const zone  = document.getElementById('idZone');
+  const inner = document.getElementById('idZoneInner');
+  const prev  = document.getElementById('idPreview');
+  const btn   = document.getElementById('step2Btn');
+  btn.disabled = true;
   toast('Uploading ID card…');
   try {
     const url = await uploadToR2(file);
     idPhotoUrl = url;
-    prev.src = url; prev.style.display='block'; inner.style.display='none';
+    prev.src = url; prev.style.display = 'block'; inner.style.display = 'none';
     zone.classList.add('has-photo');
-    document.getElementById('step2Btn').disabled = false;
+    btn.disabled = false;
     toast('ID card uploaded ✓');
-  } catch { toast('Upload failed — try again'); }
+  } catch(e) {
+    toast('Upload failed — ' + (e.message || 'try again'));
+    btn.disabled = false;
+  }
 }
 
 /* ════════════════════════════════════════════
-   STEP 3 — REAL LIVENESS (MediaPipe Face Mesh)
+   STEP 3 — LIVENESS (MediaPipe Face Mesh)
    ════════════════════════════════════════════ */
 const CHALLENGES_DEF = [
-  { key:'blink',  icon:'😉', text:'Blink both eyes slowly' },
-  { key:'mouth',  icon:'😮', text:'Open your mouth wide' },
-  { key:'turn',   icon:'👈', text:'Turn your head slightly left' },
-  { key:'nod',    icon:'🙂', text:'Nod your head slowly' },
+  { key:'blink', icon:'😉', text:'Blink both eyes slowly' },
+  { key:'mouth', icon:'😮', text:'Open your mouth wide'   },
+  { key:'turn',  icon:'👈', text:'Turn your head slightly left' },
+  { key:'nod',   icon:'🙂', text:'Nod your head slowly'   },
 ];
 
 let challenges    = [];
@@ -594,69 +596,59 @@ let challengeIdx  = 0;
 let challengeDone = false;
 let progressPct   = 0;
 
-// EAR = Eye Aspect Ratio — measures blink
-function ear(landmarks, pts) {
-  const P = (i) => landmarks[i];
-  const d = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
-  const vertical = (d(P(pts[1]),P(pts[5])) + d(P(pts[2]),P(pts[4])));
-  const horizontal = d(P(pts[0]),P(pts[3]));
-  return vertical / (2.0 * horizontal + 1e-6);
-}
-// LEFT eye landmark indices (face mesh)
+/* ── Landmark helpers ── */
 const LEFT_EYE  = [33,160,158,133,153,144];
 const RIGHT_EYE = [362,385,387,263,373,380];
-// Mouth open: ratio of vertical mouth gap to face height
-const MOUTH_TOP = 13; const MOUTH_BOT = 14; const CHIN = 152; const FOREHEAD = 10;
-// Nose tip for horizontal turn
-const NOSE_TIP = 1; const LEFT_CHEEK = 234; const RIGHT_CHEEK = 454;
+const MOUTH_TOP=13, MOUTH_BOT=14, CHIN=152, FOREHEAD=10;
+const NOSE_TIP=1, LEFT_CHEEK=234, RIGHT_CHEEK=454;
 
-// Detection state per challenge
-let blinkSeen = false, blinkBaseline = null;
-let mouthSeen = false, mouthBaseline = null;
-let turnSeen  = false, turnBaseline  = null;
-let nodSeen   = false, nodPrev       = null;
-
-function resetDetectors() {
-  blinkSeen=false; blinkBaseline=null;
-  mouthSeen=false; mouthBaseline=null;
-  turnSeen=false;  turnBaseline=null;
-  nodSeen=false;   nodPrev=null;
-  progressPct=0;
-  updateHud();
+function earScore(lm, pts) {
+  const P = i => lm[i];
+  const d = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+  return (d(P(pts[1]),P(pts[5])) + d(P(pts[2]),P(pts[4]))) / (2*d(P(pts[0]),P(pts[3])) + 1e-6);
 }
 
-function detectChallenge(landmarks, key) {
-  const L = landmarks;
+/* Per-challenge running state */
+let blinkBaseline=null, blinkMin=Infinity;
+let mouthBaseline=null, mouthMax=0;
+let turnBaseline=null,  turnMax=0;
+let nodBaseline=null,   nodMax=0;
+
+function resetDetectors() {
+  blinkBaseline=null; blinkMin=Infinity;
+  mouthBaseline=null; mouthMax=0;
+  turnBaseline=null;  turnMax=0;
+  nodBaseline=null;   nodMax=0;
+  progressPct=0; updateHud();
+}
+
+function detectChallenge(lm, key) {
   if (key === 'blink') {
-    const earVal = (ear(L,LEFT_EYE) + ear(L,RIGHT_EYE)) / 2;
-    if (!blinkBaseline) { blinkBaseline = earVal; return false; }
-    // Blink = EAR drops > 30% below baseline for at least one frame
-    if (!blinkSeen && earVal < blinkBaseline * 0.68) blinkSeen = true;
-    return blinkSeen;
+    const e = (earScore(lm,LEFT_EYE) + earScore(lm,RIGHT_EYE)) / 2;
+    if (blinkBaseline === null) { blinkBaseline = e; return false; }
+    blinkMin = Math.min(blinkMin, e);
+    /* drop > 25 % below baseline = blink */
+    return blinkMin < blinkBaseline * 0.75;
   }
   if (key === 'mouth') {
-    const gap = Math.abs(L[MOUTH_BOT].y - L[MOUTH_TOP].y);
-    const faceH = Math.abs(L[CHIN].y - L[FOREHEAD].y) || 1;
-    const ratio = gap / faceH;
-    if (!mouthBaseline) { mouthBaseline = ratio; return false; }
-    if (!mouthSeen && ratio > mouthBaseline + 0.08) mouthSeen = true;
-    return mouthSeen;
+    const faceH = Math.abs(lm[CHIN].y - lm[FOREHEAD].y) || 1;
+    const gap   = Math.abs(lm[MOUTH_BOT].y - lm[MOUTH_TOP].y) / faceH;
+    if (mouthBaseline === null) { mouthBaseline = gap; return false; }
+    mouthMax = Math.max(mouthMax, gap);
+    return mouthMax > mouthBaseline + 0.06;
   }
   if (key === 'turn') {
-    const noseX = L[NOSE_TIP].x;
-    const faceW = Math.abs(L[RIGHT_CHEEK].x - L[LEFT_CHEEK].x) || 1;
-    const offset = (noseX - (L[LEFT_CHEEK].x + L[RIGHT_CHEEK].x)/2) / faceW;
-    if (!turnBaseline) { turnBaseline = offset; return false; }
-    if (!turnSeen && Math.abs(offset - turnBaseline) > 0.12) turnSeen = true;
-    return turnSeen;
+    const faceW  = Math.abs(lm[RIGHT_CHEEK].x - lm[LEFT_CHEEK].x) || 1;
+    const offset = (lm[NOSE_TIP].x - (lm[LEFT_CHEEK].x+lm[RIGHT_CHEEK].x)/2) / faceW;
+    if (turnBaseline === null) { turnBaseline = offset; return false; }
+    turnMax = Math.max(turnMax, Math.abs(offset - turnBaseline));
+    return turnMax > 0.10;
   }
   if (key === 'nod') {
-    const noseY = L[NOSE_TIP].y;
-    if (!nodPrev) { nodPrev = noseY; return false; }
-    const delta = Math.abs(noseY - nodPrev);
-    nodPrev = noseY * 0.3 + nodPrev * 0.7; // smooth
-    if (!nodSeen && delta > 0.015) nodSeen = true;
-    return nodSeen;
+    const ny = lm[NOSE_TIP].y;
+    if (nodBaseline === null) { nodBaseline = ny; return false; }
+    nodMax = Math.max(nodMax, Math.abs(ny - nodBaseline));
+    return nodMax > 0.018;
   }
   return false;
 }
@@ -670,29 +662,26 @@ function animateProgress(to, onDone) {
     if (progressPct >= to) { clearInterval(_progressAnim); if (onDone) onDone(); }
   }, 16);
 }
-
 function updateHud() {
   const bar = document.getElementById('hudBar');
   if (bar) bar.style.width = progressPct + '%';
 }
 
 function onFaceResults(results) {
+  const ring = document.getElementById('ovalRing');
   if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
-    // No face detected — flash oval red
-    const ring = document.getElementById('ovalRing');
     if (ring) ring.setAttribute('stroke','#e53e3e');
     return;
   }
-  const ring = document.getElementById('ovalRing');
   if (ring) ring.setAttribute('stroke','#e8c96a');
-
   if (challengeIdx >= challenges.length) return;
-  const ch = challenges[challengeIdx];
-  const detected = detectChallenge(results.multiFaceLandmarks[0], ch.key);
 
-  if (detected && !challengeDone) {
+  const ch = challenges[challengeIdx];
+  const ok = detectChallenge(results.multiFaceLandmarks[0], ch.key);
+
+  if (ok && !challengeDone) {
     challengeDone = true;
-    animateProgress(100, ()=>{
+    animateProgress(100, () => {
       challengeIdx++;
       if (challengeIdx < challenges.length) {
         resetDetectors();
@@ -702,39 +691,33 @@ function onFaceResults(results) {
         document.getElementById('hudIcon').textContent = next.icon;
         document.getElementById('hudText').textContent = next.text;
       } else {
-        // All challenges passed — capture frame
         captureFinalSelfie();
       }
     });
-  } else if (!challengeDone) {
-    // Slow fill to show progress
-    if (progressPct < 85) {
-      progressPct = Math.min(progressPct + 0.4, 85);
-      updateHud();
-    }
+  } else if (!challengeDone && progressPct < 80) {
+    progressPct = Math.min(progressPct + 0.35, 80);
+    updateHud();
   }
 }
 
 async function startCamera() {
-  document.getElementById('camStartBtn').disabled = true;
-  document.getElementById('camStartBtn').textContent = 'Starting…';
+  const startBtn = document.getElementById('camStartBtn');
+  startBtn.disabled = true;
+  startBtn.textContent = 'Starting…';
   try {
     camStream = await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},
-      audio:false
+      video: { facingMode:'user', width:{ideal:640}, height:{ideal:480} },
+      audio: false,
     });
     const video = document.getElementById('camVideo');
     video.srcObject = camStream;
 
-    document.getElementById('camStart').style.display='none';
-    document.getElementById('camHud').style.display='';
-    document.getElementById('lvTips').style.display='none';
-    document.getElementById('camStartBtn').style.display='none';
+    document.getElementById('camStart').style.display = 'none';
+    document.getElementById('camHud').style.display   = '';
+    document.getElementById('lvTips').style.display   = 'none';
+    startBtn.style.display = 'none';
 
-    // Pick 2 random challenges
-    challenges = CHALLENGES_DEF
-      .sort(()=>Math.random()-0.5)
-      .slice(0,2);
+    challenges    = CHALLENGES_DEF.slice().sort(()=>Math.random()-0.5).slice(0,2);
     challengeIdx  = 0;
     challengeDone = false;
     resetDetectors();
@@ -744,30 +727,47 @@ async function startCamera() {
     document.getElementById('hudText').textContent = first.text;
     document.getElementById('livenessStatus').textContent = 'Follow the prompts — we\'re checking you\'re real.';
 
-    // Load MediaPipe Face Mesh
-    faceMesh = new FaceMesh({
-      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`
-    });
-    faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
-    });
-    faceMesh.onResults(onFaceResults);
-
-    mpCamera = new Camera(video, {
-      onFrame: async () => { await faceMesh.send({image: video}); },
-      width: 640, height: 480
-    });
-    mpCamera.start();
+    /* Load MediaPipe — if CDN fails, fall back to timed capture */
+    try {
+      faceMesh = new FaceMesh({ locateFile: f=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+      faceMesh.setOptions({ maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
+      faceMesh.onResults(onFaceResults);
+      mpCamera = new Camera(video, {
+        onFrame: async () => { if (faceMesh) await faceMesh.send({image:video}); },
+        width:640, height:480,
+      });
+      mpCamera.start();
+    } catch(mlErr) {
+      /* MediaPipe unavailable — fall back to 4-second timed capture */
+      console.warn('MediaPipe unavailable, using timed fallback:', mlErr);
+      _startTimedFallback();
+    }
 
   } catch(err) {
-    document.getElementById('camStartBtn').disabled = false;
-    document.getElementById('camStartBtn').textContent = 'Start Camera';
-    if (err.name === 'NotAllowedError') toast('Camera access denied — allow in browser settings');
-    else toast('Could not open camera: ' + err.message);
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Camera';
+    if (err.name === 'NotAllowedError')
+      toast('Camera access denied — please allow camera in your browser settings');
+    else
+      toast('Could not open camera: ' + err.message);
   }
+}
+
+/* Timed fallback: just count down and capture */
+let _fallbackTimer = null;
+function _startTimedFallback() {
+  let elapsed = 0;
+  const TOTAL = 4;
+  document.getElementById('hudIcon').textContent = '🤳';
+  document.getElementById('hudText').textContent = 'Hold still for 4 seconds…';
+  _fallbackTimer = setInterval(()=>{
+    elapsed += 0.1;
+    progressPct = Math.min((elapsed/TOTAL)*100, 100);
+    updateHud();
+    const rem = Math.max(0, Math.ceil(TOTAL - elapsed));
+    if (rem > 0) document.getElementById('hudText').textContent = `Hold still — ${rem}s…`;
+    if (elapsed >= TOTAL) { clearInterval(_fallbackTimer); _fallbackTimer = null; captureFinalSelfie(); }
+  }, 100);
 }
 
 function captureFinalSelfie() {
@@ -780,41 +780,39 @@ function captureFinalSelfie() {
 
   canvas.toBlob(blob => {
     selfieBlob = blob;
-    stopCamera();
     livenessOk = true;
+    stopCamera();
 
-    // Show result
+    document.getElementById('camHud').style.display = 'none';
     const result = document.getElementById('camResult');
-    document.getElementById('resultIcon').textContent = '✅';
+    document.getElementById('resultIcon').textContent  = '✅';
     document.getElementById('resultLabel').textContent = 'Liveness confirmed!';
     result.classList.add('show');
     document.getElementById('livenessStatus').textContent = 'Liveness confirmed ✓ — tap Continue.';
     document.getElementById('retakeBtn').style.display = '';
     document.getElementById('step3Btn').style.display  = '';
     document.getElementById('step3Btn').disabled = false;
-    document.getElementById('camHud').style.display = 'none';
     progressPct = 100; updateHud();
   }, 'image/jpeg', 0.9);
 }
 
 function stopCamera() {
+  if (_fallbackTimer) { clearInterval(_fallbackTimer); _fallbackTimer = null; }
   if (mpCamera) { try { mpCamera.stop(); } catch{} mpCamera = null; }
   if (faceMesh) { try { faceMesh.close(); } catch{} faceMesh = null; }
   if (camStream) { camStream.getTracks().forEach(t=>t.stop()); camStream = null; }
 }
 
 function retakeCamera() {
-  const result = document.getElementById('camResult');
-  result.classList.remove('show');
-  document.getElementById('camStart').style.display='';
-  document.getElementById('camHud').style.display='none';
-  document.getElementById('lvTips').style.display='';
-  document.getElementById('retakeBtn').style.display='none';
-  document.getElementById('step3Btn').style.display='none';
-  document.getElementById('camStartBtn').style.display='';
-  document.getElementById('camStartBtn').disabled = false;
-  document.getElementById('camStartBtn').textContent = 'Start Camera';
-  document.getElementById('livenessStatus').textContent = "Tap Start Camera, then follow the on-screen challenges to confirm you're a real person.";
+  document.getElementById('camResult').classList.remove('show');
+  document.getElementById('camStart').style.display  = '';
+  document.getElementById('camHud').style.display    = 'none';
+  document.getElementById('lvTips').style.display    = '';
+  document.getElementById('retakeBtn').style.display = 'none';
+  document.getElementById('step3Btn').style.display  = 'none';
+  const startBtn = document.getElementById('camStartBtn');
+  startBtn.style.display = ''; startBtn.disabled = false; startBtn.textContent = 'Start Camera';
+  document.getElementById('livenessStatus').textContent = "Tap Start Camera, then follow the on-screen challenges.";
   livenessOk = false; selfieBlob = null; selfieUrl = '';
   challengeIdx=0; progressPct=0; challengeDone=false; resetDetectors();
 }
@@ -826,8 +824,7 @@ function buildReview() {
   document.getElementById('reviewIdNum').textContent = idNumber;
   document.getElementById('reviewIdImg').src = idPhotoUrl;
   if (selfieBlob) {
-    const objUrl = URL.createObjectURL(selfieBlob);
-    document.getElementById('reviewSelfieImg').src = objUrl;
+    document.getElementById('reviewSelfieImg').src = URL.createObjectURL(selfieBlob);
   }
   document.getElementById('reviewLiveness').textContent = livenessOk ? 'Passed ✓' : 'Not confirmed';
 }
@@ -838,11 +835,11 @@ function buildReview() {
 async function uploadToR2(fileOrBlob, name='file.jpg') {
   const fd = new FormData();
   fd.append('file', fileOrBlob instanceof File ? fileOrBlob : new File([fileOrBlob], name, {type:'image/jpeg'}));
-  fd.append('resource_type','image');
+  fd.append('resource_type', 'image');
   const res = await fetch('/api/r2-upload/', {
-    method:'POST', headers:{'X-CSRFToken':CSRF()}, body:fd
+    method:'POST', headers:{'X-CSRFToken':CSRF()}, body: fd,
   });
-  if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error||'Upload failed'); }
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error||'Upload failed'); }
   return (await res.json()).public_url;
 }
 
@@ -853,59 +850,60 @@ async function payAndSubmit() {
   const btn = document.getElementById('paySubmitBtn');
   btn.disabled = true;
 
-  // 1. Upload selfie if not yet uploaded
+  /* Upload selfie before triggering payment — prevents losing it after redirect */
   if (!selfieUrl && selfieBlob) {
     btn.textContent = 'Uploading selfie…';
     try {
       selfieUrl = await uploadToR2(selfieBlob, 'selfie.jpg');
-    } catch {
-      toast('Selfie upload failed'); btn.disabled=false;
-      btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; return;
+    } catch(e) {
+      toast('Selfie upload failed — ' + e.message);
+      btn.disabled = false; btn.textContent = BTN_LABEL; return;
     }
   }
 
   {% if verification_status == 'paid' %}
-  // Already paid — go straight to doc submit
   btn.textContent = 'Submitting…';
   await submitDocs();
   {% else %}
-  // Need to pay first
   btn.textContent = 'Creating payment…';
   try {
     const applyRes = await fetch('/profile/api/verification/apply/', {
-      method:'POST', headers:{'X-CSRFToken':CSRF()}
+      method:'POST', headers:{'X-CSRFToken':CSRF()},
     });
     if (!applyRes.ok) {
       const e = await applyRes.json().catch(()=>({}));
-      toast(e.message||'Could not initiate payment');
-      btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; return;
+      toast(e.message || 'Could not initiate payment');
+      btn.disabled = false; btn.textContent = BTN_LABEL; return;
     }
     const { fee } = await applyRes.json();
     const handler = PaystackPop.setup({
-      key: '{{ PAYSTACK_PUBLIC_KEY }}',
-      email: '{{ request.user.email }}',
-      amount: Math.round(parseFloat(fee)*100),
-      currency:'GHS',
-      metadata:{custom_fields:[{display_name:'Purpose',value:'Student Verification'}]},
+      key:      '{{ PAYSTACK_PUBLIC_KEY }}',
+      email:    '{{ request.user.email }}',
+      amount:   Math.round(parseFloat(fee) * 100),
+      currency: 'GHS',
+      metadata: { custom_fields:[{display_name:'Purpose', variable_name:'purpose', value:'Student Verification'}] },
       callback: async function(response) {
         btn.textContent = 'Recording payment…';
-        const paidRes = await fetch('/profile/api/verification/paid/',{
+        const paidRes = await fetch('/profile/api/verification/paid/', {
           method:'POST',
           headers:{'Content-Type':'application/json','X-CSRFToken':CSRF()},
-          body:JSON.stringify({reference:response.reference})
+          body: JSON.stringify({reference: response.reference}),
         });
         if (!paidRes.ok) {
-          toast('Could not record payment — contact support@pu-connect');
-          btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; return;
+          toast('Payment received but not saved — contact support. Ref: ' + response.reference);
+          btn.disabled = false; btn.textContent = BTN_LABEL; return;
         }
         await submitDocs();
       },
       onClose: function() {
-        btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit';
-      }
+        btn.disabled = false; btn.textContent = BTN_LABEL;
+      },
     });
     handler.openIframe();
-  } catch { toast('Connection error'); btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; }
+  } catch(e) {
+    toast('Connection error — check your internet and try again');
+    btn.disabled = false; btn.textContent = BTN_LABEL;
+  }
   {% endif %}
 }
 
@@ -914,32 +912,35 @@ async function submitDocs() {
   btn.textContent = 'Submitting documents…';
   try {
     const res = await fetch('/profile/api/verification/submit-docs/', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF()},
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken':CSRF()},
       body: JSON.stringify({
-        id_number:        idNumber,
-        id_photo_url:     idPhotoUrl,
-        selfie_url:       selfieUrl,
-        liveness_passed:  livenessOk,
-      })
+        id_number:       idNumber,
+        id_photo_url:    idPhotoUrl,
+        selfie_url:      selfieUrl,
+        liveness_passed: livenessOk,
+      }),
     });
     if (res.ok) {
       location.href = '{% url "profile:profile" %}?verified=submitted';
     } else {
       const e = await res.json().catch(()=>({}));
-      toast(e.message||'Submission failed');
-      btn.disabled=false; btn.textContent='Submit Documents';
+      toast(e.message || 'Submission failed — please try again');
+      btn.disabled = false; btn.textContent = BTN_LABEL;
     }
-  } catch { toast('Connection error'); btn.disabled=false; btn.textContent='Submit Documents'; }
+  } catch {
+    toast('Connection error — check your internet and try again');
+    btn.disabled = false; btn.textContent = BTN_LABEL;
+  }
 }
 
 /* ════════════════════════════════════════════
    INIT
    ════════════════════════════════════════════ */
-// If user already paid, skip to step 4 with a note
 {% if verification_status == 'paid' %}
-showPanel(1); // still let them redo ID number + docs
+showPanel(1); /* already paid — let them fill steps then submit docs */
 {% endif %}
 </script>
+{% include 'base/theme.html' %}
 </body>
 </html>

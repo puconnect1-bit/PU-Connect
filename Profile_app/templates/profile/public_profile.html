@@ -302,13 +302,7 @@
 const TARGET_USERNAME = '{{ target_username|escapejs }}';
 let _data = {};
 
-/* ── Theme ── */
-document.getElementById('themeBtn').addEventListener('click', function(){
-  const root = document.documentElement;
-  const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', next);
-  localStorage.setItem('pu-theme', next);
-});
+/* ── Theme — handled by base/theme.html include below ── */
 
 /* ── Toast ── */
 function showToast(msg){
@@ -443,5 +437,6 @@ loadProfile();
 {% if user.is_authenticated %}
 <script src="{% static 'Base_app/js/notifications.js' %}"></script>
 {% endif %}
+{% include 'base/theme.html' %}
 </body>
 </html>

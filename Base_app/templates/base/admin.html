@@ -60,6 +60,12 @@
     Reels
   </div>
 
+  <div class="sb-item" onclick="nav('verifications',this)">
+    <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Verifications
+    <span class="sb-badge teal" id="sbVerifBadge" style="display:none">0</span>
+  </div>
+
   <div class="sb-section">Safety</div>
   <div class="sb-item" onclick="nav('reports',this)">
     <svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -475,6 +481,45 @@
       </div>
     </div>
 
+    <!-- ══════════════ VERIFICATIONS ══════════════ -->
+    <div class="section" id="sec-verifications">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="eyebrow">Identity</div>
+          <h1>Student Verifications</h1>
+          <p>Review submitted ID documents and approve or reject verification requests</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-ghost" onclick="loadVerifications()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card gold"><div class="stat-glow"></div><div class="stat-label">Pending Review</div><div class="stat-value" id="verifStatPending">—</div><div class="stat-delta" style="color:var(--m)">docs_submitted</div></div>
+        <div class="stat-card teal"><div class="stat-glow"></div><div class="stat-label">Approved</div><div class="stat-value" id="verifStatApproved">—</div><div class="stat-delta" style="color:var(--m)">Active badges</div></div>
+        <div class="stat-card red"><div class="stat-glow"></div><div class="stat-label">Rejected</div><div class="stat-value" id="verifStatRejected">—</div><div class="stat-delta" style="color:var(--m)">Declined</div></div>
+        <div class="stat-card blue"><div class="stat-glow"></div><div class="stat-label">Awaiting Payment</div><div class="stat-value" id="verifStatPaid">—</div><div class="stat-delta" style="color:var(--m)">paid / pending</div></div>
+      </div>
+      <div class="filter-bar">
+        <select class="filter-select" id="verifStatusFilter" onchange="loadVerifications(1)" style="min-width:200px">
+          <option value="">All Requests</option>
+          <option value="docs_submitted">Docs Submitted — Review</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+          <option value="paid">Paid — Awaiting Docs</option>
+          <option value="pending_payment">Pending Payment</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Student ID</th><th>Fee Paid</th><th>Liveness</th><th>Submitted</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="verifTable"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--m)">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div id="verifPager"></div>
+      </div>
+    </div>
+
     <!-- ══════════════ SETTINGS ══════════════ -->
     <div class="section" id="sec-settings">
       <div class="page-header">
@@ -746,6 +791,10 @@
           <div>
             <label style="font-size:.7rem;color:var(--m);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:.35rem">Boost Duration (days)</label>
             <input type="number" id="cfg-boostdays" value="7" min="1" style="width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:9px;padding:.6rem .85rem;color:var(--t);font-family:var(--font);font-size:.86rem;outline:none" onfocus="this.style.borderColor='rgba(232,201,106,.45)'" onblur="this.style.borderColor='var(--border)'"/>
+          </div>
+          <div>
+            <label style="font-size:.7rem;color:var(--m);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:.35rem">Verification Fee (GH₵)</label>
+            <input type="number" id="cfg-verifee" value="5" min="0" step="0.50" style="width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:9px;padding:.6rem .85rem;color:var(--t);font-family:var(--font);font-size:.86rem;outline:none" onfocus="this.style.borderColor='rgba(232,201,106,.45)'" onblur="this.style.borderColor='var(--border)'"/>
           </div>
         </div>
       </div>
@@ -1200,6 +1249,7 @@ function changePage(table,page){
   else if(table==='reels')renderReels();
   else if(table==='transactions')renderTransactions();
   else if(table==='reports')renderReports();
+  else if(table==='verifications')loadVerifications(page);
 }
 
 /* ════════════════════════════════════════════════
@@ -1243,7 +1293,7 @@ function debouncedFilter(fn,key){
 /* ════════════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════════════ */
-const TITLES={overview:'Dashboard',analytics:'Analytics',users:'Users',listings:'Listings',reels:'Reels',transactions:'Transactions',reports:'Reports',moderation:'Moderation',settings:'Settings'};
+const TITLES={overview:'Dashboard',analytics:'Analytics',users:'Users',listings:'Listings',reels:'Reels',transactions:'Transactions',verifications:'Verifications',reports:'Reports',moderation:'Moderation',settings:'Settings'};
 let activeSection='overview';
 function nav(id,el){
   document.querySelector('.section.active')?.classList.remove('active');
@@ -1966,12 +2016,12 @@ setInterval(async()=>{
    INIT
 ════════════════════════════════════════════════ */
 (async function init(){
-  await Promise.all([loadStats(), renderUsers(), renderListings(), renderReports(), renderTransactions()]);
+  await Promise.all([loadStats(), renderUsers(), renderListings(), renderReports(), renderTransactions(), loadPlatformConfig()]);
   renderReels();renderModLog();
   renderTopSellers();renderNewestUsers();renderActivityFeed();
   renderWeeklyChart();renderDauChart();renderGmvChart();renderCategoryBreakdown();
   initSettingsUI();updateModerationCounts();
-  loadPlatformConfig();
+  loadVerifications();
 })();
 
 /* ════════════════════════════════════════════════
@@ -2013,6 +2063,7 @@ async function savePlatformConfig(){
     max_listings_per_user: document.getElementById('cfg-maxlistings')?.value,
     boost_fee: document.getElementById('cfg-boostfee')?.value,
     boost_duration_days: document.getElementById('cfg-boostdays')?.value,
+    verification_fee: document.getElementById('cfg-verifee')?.value,
   };
   if(!fields.platform_name){showToast('Platform name is required','red');return;}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.admin_email)){showToast('Invalid admin email','red');return;}
@@ -2134,6 +2185,7 @@ nav=function(id,el){
   _origNav(id,el);
   if(id==='settings'){startSysMetrics();seedEventLog();loadPlatformConfig();loadBoosts();}
   else stopSysMetrics();
+  if(id==='verifications')loadVerifications();
 };
 
 /* ── Seed initial event log from existing mod actions ── */
@@ -2164,6 +2216,7 @@ async function loadPlatformConfig(){
     set('cfg-maxlistings',cfg.max_listings_per_user);
     set('cfg-boostfee',cfg.boost_fee);
     set('cfg-boostdays',cfg.boost_duration_days);
+    set('cfg-verifee',cfg.verification_fee);
     STATE.settings.platformConfig=cfg;
   }catch(e){/* use defaults already in the HTML */}
 }
@@ -2225,6 +2278,146 @@ async function boostAction(id,action){
     await loadBoosts(_boostPage);
   }catch(e){showToast(e.message||'Action failed','red');}
 }
+
+/* ════════════════════════════════════════════════
+   VERIFICATIONS
+════════════════════════════════════════════════ */
+let _verifs=[], _verifTotal=0, _verifPage=1;
+
+async function loadVerifications(page=1){
+  _verifPage=page;
+  const stat=document.getElementById('verifStatusFilter')?.value||'';
+  try{
+    const d=await apiFetch(`/site-admin/api/verifications/?page=${page}&status=${encodeURIComponent(stat)}`);
+    _verifs=d.verifications;
+    _verifTotal=d.total;
+    renderVerifications();
+    updateVerifStats();
+  }catch(e){console.error('Verifications error',e);}
+}
+
+async function updateVerifStats(){
+  /* Quick counts per status */
+  const statuses=['docs_submitted','approved','rejected','paid'];
+  try{
+    const counts=await Promise.all(statuses.map(s=>
+      apiFetch(`/site-admin/api/verifications/?status=${s}&page=1`).then(d=>d.total).catch(()=>0)
+    ));
+    const [pending,approved,rejected,paid]=counts;
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    set('verifStatPending',pending);
+    set('verifStatApproved',approved);
+    set('verifStatRejected',rejected);
+    set('verifStatPaid',paid);
+    const badge=document.getElementById('sbVerifBadge');
+    if(badge){badge.textContent=pending;badge.style.display=pending>0?'':'none';}
+  }catch(e){}
+}
+
+function renderVerifications(){
+  const tb=document.getElementById('verifTable');
+  if(!tb)return;
+  tb.innerHTML=_verifs.length?_verifs.map(v=>`
+    <tr onclick="openVerifModal(${v.id})" style="cursor:pointer">
+      <td>
+        <div style="display:flex;align-items:center;gap:.55rem">
+          <div class="user-av av-teal" style="width:30px;height:30px;font-size:.7rem;flex-shrink:0">${v.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+          <div><div class="td-primary">${v.name}</div><div class="td-mono" style="font-size:.68rem">@${v.username}</div></div>
+        </div>
+      </td>
+      <td class="td-mono">${v.student_id_number||'—'}</td>
+      <td class="td-mono" style="color:var(--gold)">${v.fee_paid?'GH₵ '+parseFloat(v.fee_paid).toFixed(2):'—'}</td>
+      <td>${v.liveness_passed?'<span class="badge badge-teal">✓ Passed</span>':'<span class="badge badge-gray">—</span>'}</td>
+      <td class="td-dim">${v.docs_submitted_at?timeAgo(v.docs_submitted_at):v.paid_at?timeAgo(v.paid_at):'—'}</td>
+      <td>${verifStatusBadge(v.status)}</td>
+      <td>
+        ${v.status==='docs_submitted'?`
+          <div style="display:flex;gap:.35rem">
+            <button class="btn btn-teal btn-sm" onclick="event.stopPropagation();verifAction(${v.id},'approve')">✓ Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();verifAction(${v.id},'reject')">✕ Reject</button>
+          </div>`:
+        v.status==='approved'?`<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();verifAction(${v.id},'renew')">↻ Renew</button>`:
+        `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openVerifModal(${v.id})">View</button>`}
+      </td>
+    </tr>`).join('')
+    :'<tr><td colspan="7"><div class="empty-state"><div class="empty-ico"></div><div class="empty-t">No verification requests</div></div></td></tr>';
+
+  /* Pager */
+  renderServerPager('verifPager',_verifTotal,_verifPage,10,'verifications');
+}
+
+function verifStatusBadge(s){
+  const map={
+    docs_submitted:'<span class="badge badge-gold">Docs Submitted</span>',
+    approved:'<span class="badge badge-green">✓ Approved</span>',
+    rejected:'<span class="badge badge-red">Rejected</span>',
+    paid:'<span class="badge badge-blue">Paid</span>',
+    pending_payment:'<span class="badge badge-gray">Pending Payment</span>',
+  };
+  return map[s]||'<span class="badge badge-gray">'+s+'</span>';
+}
+
+let _activeVerifId=null;
+function openVerifModal(id){
+  const v=_verifs.find(x=>x.id===id);if(!v)return;
+  _activeVerifId=id;
+  document.getElementById('userModalTitle').textContent='Verification — @'+v.username;
+  const banBtn=document.getElementById('userModalBanBtn');
+  if(v.status==='docs_submitted'){
+    banBtn.textContent='Approve Badge';
+    banBtn.className='btn btn-sm btn-teal';
+    banBtn.onclick=()=>verifAction(v.id,'approve');
+  } else if(v.status==='approved'){
+    banBtn.textContent='Renew Badge';
+    banBtn.className='btn btn-sm btn-ghost';
+    banBtn.onclick=()=>verifAction(v.id,'renew');
+  } else {
+    banBtn.textContent='Grant Badge';
+    banBtn.className='btn btn-sm btn-primary';
+    banBtn.onclick=()=>verifAction(v.id,'grant');
+  }
+  document.getElementById('userModalBody').innerHTML=`
+    <div style="display:grid;gap:.75rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        ${[['Username','@'+v.username],['Email',v.email],['Student ID',v.student_id_number||'—'],['Fee Paid',v.fee_paid?'GH₵ '+parseFloat(v.fee_paid).toFixed(2):'—'],['Liveness',v.liveness_passed?'✓ Passed':'Not passed'],['Status',v.status],['Submitted',v.docs_submitted_at?fmtDateTime(v.docs_submitted_at):'—'],['Expires',v.expires_at?fmtDate(v.expires_at):'—']].map(([k,val])=>`
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.6rem .75rem">
+          <div style="font-size:.65rem;color:var(--m);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.2rem">${k}</div>
+          <div style="font-size:.82rem;font-weight:600;word-break:break-all">${val}</div>
+        </div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        ${v.id_photo_url?`<div><div style="font-size:.65rem;color:var(--m);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.35rem">ID Card</div><a href="${v.id_photo_url}" target="_blank"><img src="${v.id_photo_url}" style="width:100%;height:110px;object-fit:cover;border-radius:9px;border:1px solid var(--border)" onerror="this.style.display='none'"/></a></div>`:''}
+        ${v.selfie_url?`<div><div style="font-size:.65rem;color:var(--m);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.35rem">Selfie</div><a href="${v.selfie_url}" target="_blank"><img src="${v.selfie_url}" style="width:100%;height:110px;object-fit:cover;border-radius:9px;border:1px solid var(--border)" onerror="this.style.display='none'"/></a></div>`:''}
+      </div>
+      ${v.admin_note?`<div style="background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:.7rem .85rem;font-size:.82rem;color:var(--m)"><strong>Admin note:</strong> ${v.admin_note}</div>`:''}
+      ${v.status==='docs_submitted'||v.status==='paid'?`
+      <div>
+        <div style="font-size:.65rem;color:var(--m);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.35rem">Admin Note</div>
+        <textarea id="verifNote" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:.6rem .85rem;color:var(--t);font-family:var(--font);font-size:.84rem;outline:none;resize:none;min-height:56px" placeholder="Optional note…"></textarea>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-teal btn-sm" onclick="closeModal(null,'userModal');verifAction(${v.id},'approve')">✓ Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="closeModal(null,'userModal');verifAction(${v.id},'reject')">✕ Reject</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal(null,'userModal');verifAction(${v.id},'grant')">Grant Directly</button>
+      </div>`:''}
+    </div>`;
+  openModal('userModal');
+}
+
+async function verifAction(id,action){
+  const note=action==='reject'?prompt('Reason for rejection (optional)'):
+             (document.getElementById('verifNote')?.value||'');
+  if(action==='reject'&&note===null)return;
+  try{
+    const d=await apiFetch(`/site-admin/api/verifications/${id}/action/`,{method:'POST',body:JSON.stringify({action,note:note||''})});
+    logAction({approve:'Approved Verification',reject:'Rejected Verification',grant:'Granted Badge',renew:'Renewed Badge'}[action]||action,'Verification #'+id,note||'');
+    addEventLog(action==='approve'||action==='grant'||action==='renew'?'ok':'warn','VERIF',d.message);
+    showToast(d.message,action==='reject'?'red':'teal');
+    closeModal(null,'userModal');
+    await loadVerifications(_verifPage);
+  }catch(e){showToast(e.message||'Action failed','red');}
+}
+
 
 </script>
 <script>(function(){if(!('serviceWorker' in navigator))return;navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{});})();</script>

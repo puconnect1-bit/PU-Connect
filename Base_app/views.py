@@ -307,8 +307,12 @@ def r2_upload(request):
     if content_type not in ALLOWED_CONTENT_TYPES[resource_type]:
         return JsonResponse({'error': 'File type not allowed'}, status=400)
 
-    if uploaded.size > MAX_FILE_SIZES[resource_type]:
-        return JsonResponse({'error': 'File too large'}, status=400)
+    from .models import SiteConfig
+    _cfg = SiteConfig.get()
+    dynamic_max = {'image': 10 * 1024 * 1024, 'video': _cfg.max_video_size_mb * 1024 * 1024}
+    if uploaded.size > dynamic_max[resource_type]:
+        limit_mb = 10 if resource_type == 'image' else _cfg.max_video_size_mb
+        return JsonResponse({'error': f'File too large (max {limit_mb} MB)'}, status=400)
 
     ext = os.path.splitext(uploaded.name)[1].lower() or '.bin'
     key = f"media/{resource_type}s/{uuid.uuid4().hex}{ext}"
@@ -413,6 +417,13 @@ def admin_api_stats(request):
     except Exception:
         open_reports = 0
 
+    # Verification requests pending review
+    try:
+        from .models import VerificationRequest
+        pending_verifications = VerificationRequest.objects.filter(status='docs_submitted').count()
+    except Exception:
+        pending_verifications = 0
+
     return JsonResponse({
         'total_users': total_users,
         'active_listings': active_listings,
@@ -421,6 +432,7 @@ def admin_api_stats(request):
         'total_messages': total_messages,
         'suspended_users': suspended_users,
         'open_reports': open_reports,
+        'pending_verifications': pending_verifications,
         'total_reels': total_reels,
         'flagged_reels': flagged_reels,
         'total_transactions': total_transactions,
@@ -717,6 +729,7 @@ def admin_api_config_get(request):
     return JsonResponse({
         'boost_fee': float(cfg.boost_fee),
         'boost_duration_days': cfg.boost_duration_days,
+        'verification_fee': float(cfg.verification_fee),
         'platform_name': cfg.platform_name,
         'admin_email': cfg.admin_email,
         'max_listing_price': float(cfg.max_listing_price),
@@ -749,6 +762,8 @@ def admin_api_config_save(request):
             cfg.report_sla_hours = max(1, int(data['report_sla_hours']))
         if 'max_listings_per_user' in data:
             cfg.max_listings_per_user = max(1, int(data['max_listings_per_user']))
+        if 'verification_fee' in data:
+            cfg.verification_fee = max(0, float(data['verification_fee']))
         cfg.save()
         return JsonResponse({'status': 'ok', 'message': 'Configuration saved'})
     except Exception as e:
@@ -986,6 +1001,98 @@ def admin_api_boost_action(request, boost_id):
             return JsonResponse({'status': 'error', 'message': 'Unknown action'}, status=400)
     except BoostRequest.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'Boost request not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@staff_member_required(login_url='auth:auth_view')
+def admin_api_verifications(request):
+    from .models import VerificationRequest
+    status = request.GET.get('status', '')
+    page = max(1, int(request.GET.get('page', 1)))
+    page_size = 10
+
+    qs = VerificationRequest.objects.select_related('user').order_by('-created_at')
+    if status:
+        qs = qs.filter(status=status)
+
+    total = qs.count()
+    items = qs[(page - 1) * page_size: page * page_size]
+    data = []
+    for v in items:
+        data.append({
+            'id': v.id,
+            'username': v.user.username,
+            'name': v.user.get_full_name() or v.user.username,
+            'email': v.user.email,
+            'status': v.status,
+            'fee_paid': float(v.fee_paid) if v.fee_paid else 0,
+            'liveness_passed': v.liveness_passed,
+            'student_id_number': v.student_id_number or '',
+            'id_photo_url': v.id_photo_url or '',
+            'selfie_url': v.selfie_url or '',
+            'admin_note': v.admin_note or '',
+            'docs_submitted_at': v.docs_submitted_at.isoformat() if v.docs_submitted_at else None,
+            'paid_at': v.paid_at.isoformat() if v.paid_at else None,
+            'created_at': v.created_at.isoformat(),
+            'expires_at': v.expires_at.isoformat() if v.expires_at else None,
+        })
+    return JsonResponse({'total': total, 'page': page, 'page_size': page_size, 'verifications': data})
+
+
+@staff_member_required(login_url='auth:auth_view')
+@require_POST
+def admin_api_verification_action(request, verification_id):
+    from .models import VerificationRequest
+    from django.utils import timezone
+    from datetime import timedelta
+    try:
+        data = json.loads(request.body)
+        action = data.get('action')
+        note = data.get('note', '').strip()
+        v = VerificationRequest.objects.select_related('user').get(id=verification_id)
+
+        if action == 'approve':
+            if v.status not in ('docs_submitted', 'paid', 'rejected'):
+                return JsonResponse({'status': 'error', 'message': f'Cannot approve from status: {v.status}'}, status=400)
+            v.status = 'approved'
+            v.admin_note = note
+            v.reviewed_at = timezone.now()
+            v.reviewed_by = request.user
+            v.expires_at = timezone.now() + timedelta(days=365)
+            v.save()
+            return JsonResponse({'status': 'ok', 'message': f'@{v.user.username} verification approved'})
+        elif action == 'reject':
+            if v.status == 'approved':
+                return JsonResponse({'status': 'error', 'message': 'Cannot reject an already-approved badge'}, status=400)
+            v.status = 'rejected'
+            v.admin_note = note or 'Rejected by admin'
+            v.reviewed_at = timezone.now()
+            v.reviewed_by = request.user
+            v.save()
+            return JsonResponse({'status': 'ok', 'message': f'@{v.user.username} verification rejected'})
+        elif action == 'grant':
+            v.status = 'approved'
+            v.admin_note = note or 'Badge granted directly by admin'
+            v.reviewed_at = timezone.now()
+            v.reviewed_by = request.user
+            v.expires_at = timezone.now() + timedelta(days=365)
+            v.save()
+            return JsonResponse({'status': 'ok', 'message': f'Badge granted to @{v.user.username}'})
+        elif action == 'renew':
+            if v.status != 'approved':
+                return JsonResponse({'status': 'error', 'message': 'Can only renew approved badges'}, status=400)
+            v.expires_at = timezone.now() + timedelta(days=365)
+            v.renewal_count = (v.renewal_count or 0) + 1
+            v.admin_note = note or f'Renewed by admin (renewal #{v.renewal_count})'
+            v.reviewed_at = timezone.now()
+            v.reviewed_by = request.user
+            v.save()
+            return JsonResponse({'status': 'ok', 'message': f'Badge renewed for @{v.user.username}'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Unknown action'}, status=400)
+    except VerificationRequest.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Verification request not found'}, status=404)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 

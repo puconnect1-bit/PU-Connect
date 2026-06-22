@@ -8,7 +8,7 @@ function listingCardHTML(l) {
   const isSvc   = l.type === 'service' || l.listing_type === 'service';
   const typeClr = isSvc ? '#5be5c5' : 'var(--a)';
   const typeBg  = isSvc ? 'rgba(91,229,197,.14)' : 'rgba(232,201,106,.14)';
-  const price   = l.contactForPrice ? 'Contact'
+  const price   = (l.contact_for_price || l.contactForPrice) ? 'Contact'
     : (l.priceLabel || (l.price != null ? 'GH₵ ' + Number(l.price).toLocaleString() : ''));
   const isSaved  = isSavedInWishlist(l.id);
   const catLabel = l.category || l.cat || (isSvc ? 'Service' : 'Product');

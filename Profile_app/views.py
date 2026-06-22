@@ -314,6 +314,7 @@ def report_user(request, username):
 
 @login_required(login_url='auth:auth_view')
 @never_cache
+@login_required(login_url='auth:auth_view')
 def verification_page(request):
     """Dedicated full-page student verification flow."""
     from Base_app.models import SiteConfig
@@ -405,8 +406,8 @@ def verification_submit_docs(request):
     except VerificationRequest.DoesNotExist:
         return JsonResponse({'status': 'error', 'message': 'No verification request found'}, status=400)
 
-    if vr.status not in ('paid', 'rejected'):
-        return JsonResponse({'status': 'error', 'message': f'Cannot submit docs in state: {vr.status}'}, status=400)
+    if vr.status == 'approved':
+        return JsonResponse({'status': 'error', 'message': 'Already verified'}, status=400)
 
     vr.student_id_number = student_id_number
     vr.id_photo_url      = id_photo_url

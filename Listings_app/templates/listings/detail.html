@@ -528,7 +528,7 @@
     <div class="dtp-divider"></div>
 
     <!-- Seller -->
-    <a href="/profile/{{ seller.username }}/" class="dtp-seller" style="text-decoration:none;color:inherit">
+    <a href="{% url 'profile:public_profile' seller.username %}" class="dtp-seller" style="text-decoration:none;color:inherit">
       <div class="dtp-seller-avatar">
         {% if seller_avatar %}
         <img src="{{ seller_avatar }}" alt="{{ seller.get_full_name }}">
@@ -600,15 +600,7 @@
 <script>
 const LISTING_ID = '{{ listing.id }}';
 
-/* ── Theme ── */
-(function(){
-  const root = document.documentElement;
-  document.getElementById('themeBtn').addEventListener('click', function(){
-    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    localStorage.setItem('pu-theme', next);
-  });
-})();
+/* ── Theme — handled by base/theme.html include below ── */
 
 /* ── Toast ── */
 function showToast(msg){
@@ -785,5 +777,6 @@ if(msgBtn){
 {% if user.is_authenticated %}
 <script src="{% static 'Base_app/js/notifications.js' %}"></script>
 {% endif %}
+{% include 'base/theme.html' %}
 </body>
 </html>

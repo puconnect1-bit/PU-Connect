@@ -135,10 +135,11 @@ TB.addEventListener('click',()=>applyTheme(!dark));
 (async function init(){
   renderCategories();
   
-  // 1. Fetch all listings once
+  // 1. Fetch all listings once (API returns {listings:[...], page, ...})
   try {
     const res = await fetch('/listings/api/all/');
-    ALL_LISTINGS = await res.json();
+    const data = await res.json();
+    ALL_LISTINGS = Array.isArray(data) ? data : (data.listings || []);
   } catch(e) { console.error('Failed to load search data', e); }
 
   // 2. Handle URL Query
@@ -188,11 +189,11 @@ async function runSearch(q){
   state.loading = true;
   showResultsSection();
 
-  // Client-side filtering of listings
+  // Client-side listing match scoring
   const score = l => {
-    const t  = (l.title||'').toLowerCase();
-    const d  = (l.description||'').toLowerCase();
-    const c  = (l.category||'').toLowerCase();
+    const t = (l.title||'').toLowerCase();
+    const d = (l.description||'').toLowerCase();
+    const c = (l.category||'').toLowerCase();
     if(t.includes(qLow)) return 3;
     if(c.includes(qLow)) return 2;
     if(d.includes(qLow)) return 1;
@@ -203,29 +204,34 @@ async function runSearch(q){
     .filter(l => score(l) > 0)
     .sort((a,b) => score(b) - score(a));
 
-  const type = state.activeType;
-  const products = matches.filter(l => (l.listing_type||l.type) === 'product' || !l.type);
-  const services = matches.filter(l => (l.listing_type||l.type) === 'service');
+  // Always split into products/services so tab counts are always correct
+  const allProducts = matches.filter(l => {
+    const t = l.listing_type || l.type || '';
+    return t === 'product' || t === '';
+  });
+  const allServices = matches.filter(l => {
+    const t = l.listing_type || l.type || '';
+    return t === 'service';
+  });
 
-  // Server-side user search (debounced, only when People tab or All)
-  let users = [];
-  if(type === 'all' || type === 'users'){
-    try{
-      const r = await fetch(`/chat/api/search-users/?q=${encodeURIComponent(q.replace('@',''))}`);
-      if(r.ok) users = await r.json();
-    }catch(e){}
-  }
+  // Server-side user search (always fetch so People tab count is right)
+  let allUsers = [];
+  try{
+    const r = await fetch(`/chat/api/search-users/?q=${encodeURIComponent(q.replace('@',''))}`);
+    if(r.ok) allUsers = await r.json();
+  }catch(e){}
 
+  // Store full result sets; renderResults filters by activeType
   state.results = {
-    products: (type==='all'||type==='products') ? products : [],
-    services: (type==='all'||type==='services') ? services : [],
-    users: (type==='all'||type==='users') ? users : [],
-    total: products.length + services.length + users.length
+    products: allProducts,
+    services: allServices,
+    users:    allUsers,
+    total:    allProducts.length + allServices.length + allUsers.length,
   };
 
   state.loading = false;
+  updateTabCounts(allProducts.length, allServices.length, allUsers.length);
   renderResults();
-  updateTabCounts(products.length, services.length, users.length);
 }
 
 function userCardHTML(u){
@@ -256,13 +262,20 @@ function openUserChat(){
 {% endif %}
 
 function renderResults(){
-  const {products, services, users, total} = state.results;
+  const {products, services, users} = state.results;
+  const type = state.activeType;
   const container = document.getElementById('resultsContainer');
   const meta = document.getElementById('resultMeta');
 
-  meta.innerHTML = `<strong>${total}</strong> result${total!==1?'s':''} for "<strong>${escH(state.query)}</strong>"`;
+  // Determine which sets to show based on active tab
+  const showProducts = (type === 'all' || type === 'products') ? products : [];
+  const showServices = (type === 'all' || type === 'services') ? services : [];
+  const showUsers    = (type === 'all' || type === 'users')    ? users    : [];
+  const visible = showProducts.length + showServices.length + showUsers.length;
 
-  if(total === 0){
+  meta.innerHTML = `<strong>${visible}</strong> result${visible!==1?'s':''} for "<strong>${escH(state.query)}</strong>"`;
+
+  if(visible === 0){
     container.innerHTML = `<div class="empty-state">
       <div class="empty-ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
       <div class="empty-title">No results for "${escH(state.query)}"</div>
@@ -272,14 +285,14 @@ function renderResults(){
   }
 
   let html = '';
-  if(users.length > 0){
-    html += `<div class="sec-head"><h2>People</h2></div><div class="user-grid">${users.map(userCardHTML).join('')}</div>`;
+  if(showUsers.length > 0){
+    html += `<div class="sec-head"><h2>People</h2></div><div class="user-grid">${showUsers.map(userCardHTML).join('')}</div>`;
   }
-  if(products.length > 0){
-    html += `<div class="sec-head"><h2>Products</h2></div><div class="grid">${products.map(listingCardHTML).join('')}</div>`;
+  if(showProducts.length > 0){
+    html += `<div class="sec-head"><h2>Products</h2></div><div class="grid">${showProducts.map(listingCardHTML).join('')}</div>`;
   }
-  if(services.length > 0){
-    html += `<div class="sec-head"><h2>Services</h2></div><div class="grid">${services.map(listingCardHTML).join('')}</div>`;
+  if(showServices.length > 0){
+    html += `<div class="sec-head"><h2>Services</h2></div><div class="grid">${showServices.map(listingCardHTML).join('')}</div>`;
   }
   container.innerHTML = html;
 }
@@ -295,7 +308,8 @@ function switchType(type, btn){
   document.querySelectorAll('.ttab').forEach(t=>t.classList.remove('on'));
   btn.classList.add('on');
   state.activeType = type;
-  if(state.query) runSearch(state.query);
+  // Re-render from cached results — no new fetch needed
+  if(state.query) renderResults();
 }
 
 function renderCategories(){
