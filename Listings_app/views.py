@@ -287,6 +287,7 @@ def get_my_listings(request):
             'id': item.id,
             'title': item.title,
             'price': str(item.price),
+            'contact_for_price': item.contact_for_price,
             'img': item.image_url,
             'description': item.description,
             'listing_type': item.listing_type,
@@ -294,7 +295,8 @@ def get_my_listings(request):
             'category': item.category,
             'subcategory': item.subcategory,
             'condition': item.condition,
-            'status': item.status, # Use the actual status field
+            'status': item.status,
+            'views': 0,
             'date': item.created_at.strftime('%d %b, %Y')
         })
     return JsonResponse({'listings': listings_data})

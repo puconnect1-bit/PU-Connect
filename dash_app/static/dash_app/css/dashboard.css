@@ -150,6 +150,53 @@
   border-radius: var(--radius-full);
 }
 
+/* ── Boost promo banner ── */
+.boost-promo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .75rem 1rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 14%, var(--surface)), color-mix(in srgb, var(--accent) 6%, var(--surface)));
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  text-decoration: none;
+  transition: opacity .15s;
+  margin-bottom: .25rem;
+}
+.boost-promo-banner:hover { opacity: .88; }
+.bpb-left {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  color: var(--accent);
+  min-width: 0;
+}
+.bpb-left svg { flex-shrink: 0; }
+.bpb-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bpb-sub {
+  font-size: .72rem;
+  color: var(--text-2);
+  margin-top: .1rem;
+}
+.bpb-cta {
+  flex-shrink: 0;
+  font-size: .78rem;
+  font-weight: 700;
+  padding: .35rem .8rem;
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: #1a1400;
+  white-space: nowrap;
+}
+
 /* ── Featured carousel ── */
 .carousel-wrap {
   position: relative;
