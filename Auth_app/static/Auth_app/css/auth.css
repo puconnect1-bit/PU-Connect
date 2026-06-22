@@ -534,24 +534,36 @@ body::before {
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .left-panel { display: none; }
-  .right-panel { padding: 2rem 1.5rem; align-items: flex-start; padding-top: 3rem; }
-  body { display: block; }
+  body { display: block; overflow-x: hidden; }
+  html { overflow-x: hidden; }
+  .right-panel {
+    width: 100%;
+    min-height: 100vh;
+    padding: 2.5rem 1.5rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    box-sizing: border-box;
+  }
+  .auth-box { width: 100%; max-width: 100%; }
+  /* clip decorative circles so they don't bleed off-screen */
+  .dr1, .dr2 { display: none; }
 }
 
 @media (max-width: 480px) {
   .input-row { grid-template-columns: 1fr; }
-  .right-panel { padding: 1.5rem 1.2rem; }
-  .auth-box { max-width: 100%; }
-  .form-title { font-size: 1.6rem; }
+  .right-panel { padding: 1.5rem 1.1rem; }
+  .form-title { font-size: 1.5rem; }
   .tab-btn { font-size: .82rem; padding: .6rem .4rem; }
   .social-row { grid-template-columns: 1fr; }
   .btn-submit { padding: .85rem; font-size: .9rem; }
   .check-group label { font-size: .78rem; }
 }
+
 @media (max-width: 360px) {
-  .right-panel { padding: 1.2rem .9rem; }
+  .right-panel { padding: 1.2rem .85rem; }
   .auth-tabs { padding: 4px; }
   .input-wrap input, .input-wrap select { font-size: .85rem; padding: .72rem .9rem .72rem 2.5rem; }
+  .form-title { font-size: 1.35rem; }
 }
 
 /* Back to home link */

@@ -130,16 +130,11 @@ def login_page(request):
 
 @ensure_csrf_cookie
 def Auth_view(request):
-    """
-    Authentication Page (Login/Signup)
-    GET /auth/
-    
-    Displays:
-    - Login form
-    - Signup form
-    """
+    if request.user.is_authenticated:
+        from django.shortcuts import redirect
+        return redirect('dashboard:dashboard')
     context = {
-        'page_title': 'Login/Sign Up - PU-Marketplace',
-        'page_description': 'Join the PU-Marketplace community.',
+        'page_title': 'Login/Sign Up - PU Connect',
+        'page_description': 'Join the PU Connect community.',
     }
     return render(request, 'auth/auth.html', context)
