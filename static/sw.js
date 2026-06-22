@@ -1,5 +1,5 @@
 /* PU-Connect Service Worker */
-const CACHE_VERSION = 'pu-v3';
+const CACHE_VERSION = 'pu-v4';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const PAGE_CACHE    = `${CACHE_VERSION}-pages`;
 const API_CACHE     = `${CACHE_VERSION}-api`;
