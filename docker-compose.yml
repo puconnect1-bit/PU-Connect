@@ -1,0 +1,51 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: always
+
+  web:
+    build: .
+    volumes:
+      - static_volume:/app/staticfiles
+      - sqlite_data:/var/data
+    env_file:
+      - .env
+    environment:
+      - DATA_DIR=/var/data
+    depends_on:
+      - redis
+    restart: always
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+    depends_on:
+      - web
+    restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    entrypoint: >
+      sh -c "trap exit TERM; while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done"
+    restart: always
+
+volumes:
+  static_volume:
+  sqlite_data:
+  certbot_www:
+  certbot_conf:

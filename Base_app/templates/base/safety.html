@@ -1,0 +1,263 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
+  <title>Safety — PU-Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'Base_app/css/safety.css' %}">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+</head>
+<body>
+
+<!--NAVIGATION -->
+
+{% include 'base/nav_b.html' %}
+
+
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-shield"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+  <div class="hero-badge">Campus Safety</div>
+  <h1>Your Safety is Our<br><em>Top Priority</em></h1>
+  <p class="hero-sub">Every feature on PU-Connect is built with your safety in mind. Here's everything you need to know to trade with confidence on campus.</p>
+  <div class="hero-pillars">
+    <div class="pillar"><div class="pillar-dot"></div> Verified Users Only</div>
+    <div class="pillar"><div class="pillar-dot"></div> Secure Payments</div>
+    <div class="pillar"><div class="pillar-dot"></div> Campus Meetups</div>
+    <div class="pillar"><div class="pillar-dot"></div> 24/7 Reporting</div>
+  </div>
+</header>
+
+<!-- TRUST STATS -->
+<section>
+  <div class="section-inner">
+    <div class="scores-row reveal">
+      <div class="score-card">
+        <span class="score-num">98%</span>
+        <div class="score-label">Safe Transaction Rate</div>
+      </div>
+      <div class="score-card">
+        <span class="score-num">&lt;2h</span>
+        <div class="score-label">Avg. Report Response Time</div>
+      </div>
+      <div class="score-card">
+        <span class="score-num">100%</span>
+        <div class="score-label">User Email Verification</div>
+      </div>
+      <div class="score-card">
+        <span class="score-num">0</span>
+        <div class="score-label">Unresolved Safety Incidents</div>
+      </div>
+    </div>
+
+    <!-- TIPS -->
+    <div class="reveal">
+      <div class="eyebrow teal">Safety Tips</div>
+      <h2 class="section-title">How to Trade Safely</h2>
+      <p class="section-sub">Follow these guidelines every time you buy or sell to make sure every transaction is smooth and secure.</p>
+    </div>
+    <div class="tips-grid">
+      <div class="tip-card reveal">
+        <div class="tip-num">01</div>
+        <span class="tip-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <div class="tip-title">Always Meet on Campus</div>
+        <p class="tip-desc">Arrange all meetups at well-lit, busy campus locations — the library foyer, student union, or faculty common areas. Never agree to off-campus meetups with strangers.</p>
+      </div>
+      <div class="tip-card reveal">
+        <span class="tip-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <div class="tip-num">02</div>
+        <div class="tip-title">Inspect Before You Pay</div>
+        <p class="tip-desc">Always examine items in person before completing a payment. Our escrow system holds funds until you confirm receipt — use it. Never release payment before you're satisfied.</p>
+      </div>
+      <div class="tip-card reveal">
+        <span class="tip-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        <div class="tip-num">03</div>
+        <div class="tip-title">Keep Chat on Platform</div>
+        <p class="tip-desc">Use PU-Connect's built-in messaging system for all communication. Avoid moving conversations to WhatsApp or SMS — our platform keeps records and can help resolve disputes.</p>
+      </div>
+      <div class="tip-card reveal">
+        <span class="tip-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <div class="tip-num">04</div>
+        <div class="tip-title">Check Seller Ratings</div>
+        <p class="tip-desc">Before buying, review the seller's rating, review history, and how long they've been on the platform. A healthy track record is a strong signal of trustworthiness.</p>
+      </div>
+      <div class="tip-card reveal">
+        <span class="tip-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+        <div class="tip-num">05</div>
+        <div class="tip-title">Bring a Friend</div>
+        <p class="tip-desc">For high-value transactions, bring a friend to the meetup. There's safety in numbers, and it's completely normal and accepted practice on campus.</p>
+      </div>
+      <div class="tip-card reveal">
+        <span class="tip-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+        <div class="tip-num">06</div>
+        <div class="tip-title">Trust Your Gut</div>
+        <p class="tip-desc">If something feels off — a price that's too good, a seller who's pushy, or a request to move off-platform — trust your instincts. It's always okay to walk away and report.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DO / DON'T -->
+<section class="divider-section">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="eyebrow gold">Quick Reference</div>
+      <h2 class="section-title">Do's &amp; Don'ts of Campus Trading</h2>
+    </div>
+    <div class="do-dont reveal">
+      <div class="do-col">
+        <div class="col-header do">✓ &nbsp;Always Do This</div>
+        <ul class="check-list">
+          <li>Meet in busy, well-lit campus public spaces</li>
+          <li>Verify the item before completing payment</li>
+          <li>Use the in-app escrow or payment system</li>
+          <li>Check the other user's ratings and reviews</li>
+          <li>Report any suspicious behaviour immediately</li>
+          <li>Keep all communication within the platform</li>
+          <li>Leave an honest review after every transaction</li>
+          <li>Bring a friend for high-value meetups</li>
+        </ul>
+      </div>
+      <div class="dont-col">
+        <div class="col-header dont">✗ &nbsp;Never Do This</div>
+        <ul class="check-list">
+          <li>Meet strangers off campus for transactions</li>
+          <li>Pay before inspecting or receiving the item</li>
+          <li>Send mobile money to unverified accounts</li>
+          <li>Share your password or account details with anyone</li>
+          <li>Ignore gut feelings about a suspicious deal</li>
+          <li>Move conversation to personal WhatsApp/phone</li>
+          <li>List or purchase illegal or prohibited items</li>
+          <li>Pressure or threaten another user in any way</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RED FLAGS -->
+<section>
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="eyebrow red">Watch Out</div>
+      <h2 class="section-title">Red Flags to Watch Out For</h2>
+      <p class="section-sub">These warning signs should prompt you to pause, reconsider, and report to our safety team.</p>
+    </div>
+    <div class="flags-grid reveal">
+      <div class="flag-item">
+        <span class="flag-icon"></span>
+        <div><div class="flag-title">Price Too Good to Be True</div><p class="flag-desc">A brand-new laptop listed for GH₵ 200? If the price is dramatically below market value, it's likely a scam or stolen goods.</p></div>
+      </div>
+      <div class="flag-item">
+        <span class="flag-icon"></span>
+        <div><div class="flag-title">Urgency & Pressure Tactics</div><p class="flag-desc">"Buy now or I'll sell to someone else in an hour." Legitimate sellers don't pressure you. High pressure is a manipulation tactic.</p></div>
+      </div>
+      <div class="flag-item">
+        <span class="flag-icon"></span>
+        <div><div class="flag-title">Requests to Go Off-Platform</div><p class="flag-desc">If someone insists on moving to WhatsApp, Telegram, or a third-party payment link, this is a classic fraud signal. Decline and report.</p></div>
+      </div>
+      <div class="flag-item">
+        <span class="flag-icon"></span>
+        <div><div class="flag-title">Brand New Account, Suspicious Listing</div><p class="flag-desc">An account registered yesterday with ten expensive listings and zero reviews should raise concern. Check the account's creation date.</p></div>
+      </div>
+      <div class="flag-item">
+        <span class="flag-icon"></span>
+        <div><div class="flag-title">Off-Campus Meetup Insistence</div><p class="flag-desc">Any seller or buyer who insists on meeting outside the university campus — especially in unfamiliar areas — should be declined and reported.</p></div>
+      </div>
+      <div class="flag-item">
+        <span class="flag-icon"></span>
+        <div><div class="flag-title">Requests for Personal Information</div><p class="flag-desc">No legitimate transaction requires your ID number, bank account details, or home address. Never share this information with another user.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT -->
+<section class="report-section">
+  <div class="section-inner">
+    <div class="report-grid">
+      <div class="reveal">
+        <div class="eyebrow teal">Report & Support</div>
+        <h2 class="section-title">Something Feel Wrong? Report It.</h2>
+        <p style="color:var(--muted);font-size:.92rem;font-weight:300;line-height:1.8;margin-bottom:1.5rem">We take every report seriously. Our safety team reviews all submissions within 2 hours and takes action — including account suspension — where necessary.</p>
+        <div class="report-steps">
+          <div class="report-step">
+            <div class="step-badge">1</div>
+            <div class="step-content"><div class="step-title">Go to the user's profile or the listing</div><p class="step-desc">Find the listing or message thread related to the issue.</p></div>
+          </div>
+          <div class="report-step">
+            <div class="step-badge">2</div>
+            <div class="step-content"><div class="step-title">Tap the "⋯ More" or flag icon</div><p class="step-desc">Every listing and user profile has a built-in Report button.</p></div>
+          </div>
+          <div class="report-step">
+            <div class="step-badge">3</div>
+            <div class="step-content"><div class="step-title">Select the reason and describe the issue</div><p class="step-desc">Choose from fraud, harassment, prohibited item, or other — then add details.</p></div>
+          </div>
+          <div class="report-step">
+            <div class="step-badge">4</div>
+            <div class="step-content"><div class="step-title">Submit — we'll take it from there</div><p class="step-desc">Our team will review, investigate, and keep you updated on the outcome.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="report-card">
+          <span class="report-card-icon"></span>
+          <h3>Report an Incident</h3>
+          <p>If you feel unsafe, witnessed misconduct, or experienced fraud on PU-Connect, contact our safety team immediately.</p>
+          <a href="/cdn-cgi/l/email-protection#e1928087849598a19194cc8c80938a8495918d808284cf848594cf8689" class="btn-report">Contact Safety Team</a>
+          <div class="contact-chips">
+            <a href="/cdn-cgi/l/email-protection#abd8cacdcedfd2ebdbde86c6cad9c0cedfdbc7cac8ce85cecfde85ccc3" class="contact-chip">
+              <span></span> <span class="__cf_email__" data-cfemail="e497858281909da49491c98985968f81909488858781ca818091ca838c">[email&#160;protected]</span>
+            </a>
+            <a href="{% url 'base:help' %}" class="contact-chip">
+              <span></span> Live Chat via Help Centre
+            </a>
+            <a href="tel:+233XXXXXXXX" class="contact-chip">
+              <span></span> Campus Safety Line: +233-XXX-XXX-XXXX
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+ {% include 'base/footer.html' %}
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── THEME ── */
+(function(){
+  var _H = document.documentElement;
+  var _TB = document.getElementById('themeBtn');
+  var _dark = localStorage.getItem('pu-theme') !== 'light';
+  function applyTheme(d) {
+    _H.setAttribute('data-theme', d ? 'dark' : 'light');
+    if (_TB) _TB.innerHTML = d ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    _dark = d;
+    localStorage.setItem('pu-theme', d ? 'dark' : 'light');
+    var m = document.getElementById('themeColorMeta');
+    if (m) m.setAttribute('content', d ? '#0d0e11' : '#f0ede8');
+  }
+  applyTheme(_dark);
+  if (_TB) _TB.addEventListener('click', function(){ applyTheme(!_dark); });
+  window._applyTheme = applyTheme;
+})();
+
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((e) => e.forEach(el => { if (el.isIntersecting) el.target.classList.add('visible'); }), { threshold: 0.08 });
+  reveals.forEach(el => obs.observe(el));
+</script>
+<script>(function(){if(!('serviceWorker' in navigator))return;navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{});})();</script>
+</body>
+</html>

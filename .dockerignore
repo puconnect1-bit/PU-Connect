@@ -1,0 +1,15 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.db.sqlite3
+db.sqlite3
+.env
+.venv
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+staticfiles/
+media/

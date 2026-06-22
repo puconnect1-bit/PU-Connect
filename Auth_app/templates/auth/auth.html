@@ -1,0 +1,249 @@
+﻿{% load static %}{% load socialaccount %}<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
+  <title>PU-Connect — Join the Campus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'Auth_app/css/auth.css' %}">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+</head>
+<body>
+
+<aside class="left-panel">
+  <div class="panel-grid"></div>
+  <div class="pg1 panel-glow"></div>
+  <div class="pg2 panel-glow"></div>
+  <a href="{% url 'base:home' %}" class="panel-logo">PU-<span>Marketplace</span></a>
+  <div class="panel-content">
+    <div class="panel-eyebrow">Campus Commerce</div>
+    <h2 class="panel-headline">Trade Smart.<br><em>Trade Local.</em></h2>
+    <p class="panel-desc">Join thousands of students buying and selling within your university campus. Verified, safe, and built for student life.</p>
+    <ul class="panel-perks">
+      <li><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> University email verification — students only</li>
+      <li><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Secure escrow payments & in-app chat</li>
+      <li><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Campus-only listings for safe meetups</li>
+      <li><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Post a listing in under 2 minutes</li>
+    </ul>
+  </div>
+</aside>
+
+<main class="right-panel">
+  <div class="deco-ring dr1"></div>
+  <div class="deco-ring dr2"></div>
+  <div class="auth-box">
+    {% csrf_token %}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;">
+      <a href="{% url 'base:home' %}" class="mobile-logo">PU-<span>Marketplace</span></a>
+      <button id="authThemeBtn" onclick="authToggleTheme()" style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:var(--input-bg);font-size:1rem;flex-shrink:0;transition:transform .3s;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+    </div>
+    <a href="{% url 'base:home' %}" class="back-home">← Back to Home</a>
+
+    <div class="auth-tabs">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Log In</button>
+      <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <div class="form-panel active" id="panel-login">
+      <div class="form-title">Welcome back</div>
+      <p class="form-sub">Don't have an account? <a href="#" onclick="switchTab('signup')">Sign up free</a></p>
+      <div class="input-group">
+        <label class="input-label">Email or Username</label>
+        <div class="input-wrap"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><input type="text" id="login-email" placeholder="you@example.com or @username" /></div>
+        <span class="field-error" id="login-email-err">Please enter your email or username.</span>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <div class="input-wrap"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M21 2l-9.6 9.6M15.5 7.5l3 3"/></svg></span><input type="password" id="login-password" placeholder="Enter your password" /><button class="pw-toggle" type="button" onclick="togglePw('login-password', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <span class="field-error" id="login-pw-err">Password is required.</span>
+      </div>
+      <a href="{% url 'base:help' %}#account" class="forgot-link">Forgot password?</a>
+      <button class="btn-submit" id="login-btn" onclick="handleLogin()">Log In to Campus</button>
+      <div class="divider"><span>or continue with</span></div>
+      <div class="social-row">
+        <button class="social-btn google-btn" onclick="handleSocial('Google')">
+          <svg class="g-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            <path fill="none" d="M0 0h48v48H0z"/>
+          </svg>
+          Continue with Google
+        </button>
+      </div>
+    </div>
+
+    <div class="form-panel" id="panel-signup">
+      <div class="form-title">Join the Campus</div>
+      <p class="form-sub">Already a member? <a href="#" onclick="switchTab('login')">Log in</a></p>
+      <div class="input-row">
+        <div class="input-group">
+          <label class="input-label">First Name</label>
+          <div class="input-wrap"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><input type="text" id="su-fname" /></div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Last Name</label>
+          <div class="input-wrap"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><input type="text" id="su-lname" /></div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Email Address</label>
+        <div class="input-wrap"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg></span><input type="email" id="su-email" /></div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Username</label>
+        <div class="input-wrap"><span class="input-icon">@</span><input type="text" id="su-username" oninput="validateUsernameInput(this)" /></div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <div class="input-wrap"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M21 2l-9.6 9.6M15.5 7.5l3 3"/></svg></span><input type="password" id="su-password" oninput="checkStrength(this.value)" /><button class="pw-toggle" type="button" onclick="togglePw('su-password', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <div class="strength-bar"><div class="strength-seg" id="s1"></div><div class="strength-seg" id="s2"></div><div class="strength-seg" id="s3"></div><div class="strength-seg" id="s4"></div></div>
+        <div class="strength-label" id="strength-label"></div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Confirm Password</label>
+        <div class="input-wrap"><span class="input-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><input type="password" id="su-confirm" /><button class="pw-toggle" type="button" onclick="togglePw('su-confirm', this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      </div>
+      <div class="check-group">
+        <input type="checkbox" id="su-terms" required /><label for="su-terms">I agree to the <a href="{% url 'base:terms' %}" target="_blank">Terms</a> and <a href="{% url 'base:privacy' %}" target="_blank">Privacy</a>.</label>
+      </div>
+      <button class="btn-submit" id="signup-btn" onclick="handleSignup()">Create My Account</button>
+      <div class="divider"><span>or sign up with</span></div>
+      <div class="social-row">
+        <button class="social-btn google-btn" onclick="handleSocial('Google')">
+          <svg class="g-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            <path fill="none" d="M0 0h48v48H0z"/>
+          </svg>
+          Sign up with Google
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"><span class="toast-icon" id="toast-icon"></span><span id="toast-msg">Success!</span></div>
+
+<script>
+  function getCookie(name) {
+    let v = null;
+    if (document.cookie && document.cookie !== '') {
+      const c = document.cookie.split(';');
+      for (let i = 0; i < c.length; i++) {
+        const t = c[i].trim();
+        if (t.substring(0, name.length + 1) === (name + '=')) {
+          v = decodeURIComponent(t.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return v;
+  }
+
+  function validateUsernameInput(el) { el.value = el.value.replace(/[^a-zA-Z0-9._]/g, ''); }
+  function isValidUsername(u) { return u && u.length >= 3; }
+
+  function switchTab(tab) {
+    document.getElementById('panel-login').classList.toggle('active', tab === 'login');
+    document.getElementById('panel-signup').classList.toggle('active', tab === 'signup');
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  }
+
+  function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    inp.type = (inp.type === 'password') ? 'text' : 'password';
+    btn.innerHTML = (inp.type === 'password') ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  }
+
+  function checkStrength(val) {
+    const segs = [document.getElementById('s1'), document.getElementById('s2'), document.getElementById('s3'), document.getElementById('s4')];
+    segs.forEach(s => s.className = 'strength-seg');
+    if (!val) return;
+    let score = Math.min(val.length / 2, 4);
+    for (let i = 0; i < score; i++) segs[i].classList.add('strong');
+  }
+
+  function showErr(id, show) { const el = document.getElementById(id); if (el) el.classList.toggle('show', show); }
+  function clearErrors() { document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show')); }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  async function handleLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pw = document.getElementById('login-password').value;
+    const btn = document.getElementById('login-btn');
+    btn.textContent = 'Logging in…';
+    try {
+      const res = await fetch('{% url "auth:api_login" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify({ username: email, password: pw })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('Welcome back!');
+        setTimeout(() => { window.location.href = '{% url "dashboard:dashboard" %}'; }, 1000);
+      } else { throw new Error(data.message || 'Login failed'); }
+    } catch (e) { btn.textContent = 'Log In to Campus'; showToast(e.message); }
+  }
+
+  async function handleSignup() {
+    if (!document.getElementById('su-terms').checked) {
+      showToast('Please agree to the Terms and Privacy Policy to continue.');
+      return;
+    }
+    const data = {
+      fname: document.getElementById('su-fname').value.trim(),
+      lname: document.getElementById('su-lname').value.trim(),
+      email: document.getElementById('su-email').value.trim(),
+      username: document.getElementById('su-username').value.trim(),
+      password: document.getElementById('su-password').value
+    };
+    const btn = document.getElementById('signup-btn');
+    btn.textContent = 'Creating Account...';
+    try {
+      const res = await fetch('{% url "auth:api_signup" %}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (res.ok && result.success) {
+        showToast('Account created!');
+        setTimeout(() => { window.location.href = result.redirect; }, 1500);
+      } else { throw new Error(result.message || 'Signup failed'); }
+    } catch (e) { btn.textContent = 'Create My Account'; showToast(e.message); }
+  }
+
+  const GOOGLE_URL = "{% provider_login_url 'google' next='/dashboard/' %}";
+  function handleSocial(p) {
+    if (p === 'Google') { showToast('Connecting to Google...'); setTimeout(() => { window.location.href = GOOGLE_URL; }, 500); }
+  }
+
+  let dark = localStorage.getItem('pu-theme') !== 'light';
+  function applyTheme(d) {
+    document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
+    document.getElementById('authThemeBtn').innerHTML = d ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    localStorage.setItem('pu-theme', d ? 'dark' : 'light');
+  }
+  function authToggleTheme() { dark = !dark; applyTheme(dark); }
+  applyTheme(dark);
+</script>
+<script>(function(){if(!('serviceWorker' in navigator))return;navigator.serviceWorker.register('/sw.js',{scope:'/'}).then(reg=>{if(!('Notification' in window)||!('PushManager' in window))return;if(Notification.permission==='denied')return;Notification.requestPermission().then(p=>{if(p!=='granted')return;const vapidKey='{{ VAPID_PUBLIC_KEY }}';if(!vapidKey)return;reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_u8(vapidKey)}).then(sub=>{const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';fetch('/chat/api/push-subscribe/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify(sub.toJSON())});}).catch(()=>{});});}).catch(()=>{});function _u8(b64){const p=(b64+'='.repeat((4-b64.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/');const r=atob(p);const o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}})();</script>
+</body>
+</html>

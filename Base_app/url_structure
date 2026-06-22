@@ -1,0 +1,13 @@
+╔════════════════════════════════════════════════════════════════╗
+║              BASE APP - COMPLETE URL ROUTES                   ║
+╚════════════════════════════════════════════════════════════════╝
+
+GET   /                 → base:home            (Homepage)
+GET   /about/           → base:about           (About Page)
+GET   /help/            → base:help            (Help & FAQs)
+GET   /terms/           → base:terms           (Terms & Conditions)
+GET   /privacy/         → base:privacy         (Privacy Policy)
+GET   /safety/          → base:safety          (Safety Guidelines)
+GET   /contact/         → base:contact         (Contact Form - GET)
+POST  /contact/         → base:contact         (Contact Form - POST/Submit)
+GET   /categories/      → base:categories      (Browse Categories)

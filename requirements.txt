@@ -1,0 +1,10 @@
+django
+pillow
+django-allauth[socialaccount]
+daphne
+channels
+channels-redis
+redis==5.0.0
+whitenoise
+boto3
+pywebpush

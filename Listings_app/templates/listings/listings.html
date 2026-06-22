@@ -1,0 +1,524 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
+  <title>My Listings — PU-Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'Listings_app/css/listings.css' %}">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+  <style>
+    /* ── LISTING DETAIL SHEET ── */
+    .ld-ov { position: fixed; inset: 0; z-index: 750; background: rgba(0,0,0,.65); backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity .3s; display: flex; align-items: flex-end; justify-content: center; }
+    .ld-ov.on { opacity: 1; pointer-events: auto; }
+    .ld-sheet { width: 100%; max-width: 580px; background: var(--card); border-radius: 24px 24px 0 0; border-top: 1px solid rgba(255,255,255,.1); max-height: 88dvh; overflow-y: auto; transform: translateY(100%); transition: transform .38s cubic-bezier(.4,0,.2,1); }
+    .ld-ov.on .ld-sheet { transform: translateY(0); }
+    .ld-close { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.08); border: none; color: var(--m); cursor: pointer; font-size: .85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .ld-gal { width: 100%; aspect-ratio: 4/3; background: var(--inp); overflow: hidden; position: relative; max-height: 280px; }
+    .ld-gal img { width: 100%; height: 100%; object-fit: cover; }
+    .ld-body { padding: 1.1rem 1.2rem 1.4rem; }
+    .ld-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 900; letter-spacing: -.3px; line-height: 1.25; margin-bottom: .4rem; }
+    .ld-price { font-size: 1.25rem; font-weight: 800; color: var(--a); font-family: 'Playfair Display', serif; margin-bottom: .5rem; }
+    .ld-divider { height: 1px; background: rgba(255,255,255,.06); margin: 1.1rem 0; }
+    .ld-sec-t { font-size: .7rem; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--m); margin-bottom: .4rem; }
+    .ld-desc { font-size: .85rem; line-height: 1.7; color: var(--t); }
+    .ld-btn-primary { width: 100%; padding: .85rem; border-radius: 12px; background: var(--a); color: #0d0e11; border: none; font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+    .ld-btn-ghost { flex: 1; padding: .7rem; border-radius: 12px; background: rgba(255,255,255,.06); color: var(--t); border: 1px solid rgba(255,255,255,.1); font-family: 'DM Sans', sans-serif; font-size: .84rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+<nav class="tnav">
+  <button class="hbg" id="hbg"><span></span><span></span><span></span></button>
+  <div class="nav-title">My Listings</div>
+  <button class="notibtn" id="notifBtn" title="Notifications" aria-label="Notifications">
+    <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    <span class="notif-dot" id="notifDot" style="display:none"></span>
+  </button>
+  <button class="thbtn" id="thbtn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+</nav>
+<div class="ov" id="ov" onclick="closeSidebar()"></div>
+{% include 'base/sidebar.html' with active_page='listings' %}
+<div class="wrap"><div class="inner">
+  <div class="ph">
+    <div class="ph-left">
+      <div class="ph-eye">Seller Dashboard</div>
+      <div class="ph-title">My Listings</div>
+    </div>
+    <button class="new-btn" onclick="location.href='{% url 'listings:create' %}'">+ New Listing</button>
+  </div>
+  <!-- LIVE STATS — populated by JS -->
+  <div class="stats">
+    <div class="stat"><span class="stat-num" id="statActive">—</span><div class="stat-lbl">Active</div></div>
+    <div class="stat"><span class="stat-num" id="statSold">—</span><div class="stat-lbl">Sold</div></div>
+    <div class="stat"><span class="stat-num" id="statViews">—</span><div class="stat-lbl">Total Views</div></div>
+    <div class="stat"><span class="stat-num" id="statRevenue">—</span><div class="stat-lbl">Est. Revenue</div></div>
+  </div>
+  <div class="boost-mini">
+    <div class="bm-text">
+      <div class="bm-t"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> ⚡ Feature your listing — reach 10× more buyers</div>
+      <div class="bm-s">Fee: <strong id="boostFeeBanner">GH₵ —</strong> · <span id="boostDaysBanner">—</span> days on the Featured carousel</div>
+    </div>
+    <button class="bm-btn" onclick="openBoost()">Boost Now</button>
+  </div>
+  <div class="ltabs">
+    <button class="ltab on" onclick="filterL(this,'all')">All</button>
+    <button class="ltab" onclick="filterL(this,'active')">Active</button>
+    <button class="ltab" onclick="filterL(this,'boosted')">Boosted</button>
+    <button class="ltab" onclick="filterL(this,'sold')">Sold</button>
+    <button class="ltab" onclick="filterL(this,'paused')">Paused</button>
+  </div>
+  
+ 
+  <div class="llist" id="ll"></div>
+</div></div>
+
+<!-- BOOST MODAL -->
+<div id="boostOv" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center" onclick="closeBoost(event)">
+  <div id="boostSheet" style="width:100%;max-width:500px;background:var(--card);border-radius:22px 22px 0 0;border-top:1px solid rgba(255,255,255,.1);padding:1.3rem 1.4rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)">
+    <div style="width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:0 auto .9rem"></div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.25rem">⚡ Feature Your Listing</div>
+    <div style="font-size:.82rem;color:var(--m);margin-bottom:1rem;line-height:1.6">Boosted listings appear in the <strong>Featured carousel</strong> on the home screen and reach more campus buyers.</div>
+
+    <!-- Listing picker -->
+    <div style="margin-bottom:.9rem">
+      <label style="font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--m);display:block;margin-bottom:.4rem">Select listing to boost</label>
+      <select id="boostListingSelect" style="width:100%;background:var(--inp);border:1.5px solid rgba(255,255,255,.1);border-radius:11px;padding:.65rem .85rem;color:var(--t);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none">
+        <option value="">— Choose an active listing —</option>
+      </select>
+    </div>
+
+    <!-- Fee summary -->
+    <div style="background:rgba(232,201,106,.08);border:1px solid rgba(232,201,106,.2);border-radius:12px;padding:.85rem 1rem;margin-bottom:1.1rem;font-size:.82rem;line-height:1.75">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:var(--m)">Boost fee</span>
+        <strong style="color:var(--a);font-size:1rem" id="boostFeeDisplay">GH₵ —</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.3rem">
+        <span style="color:var(--m)">Duration</span>
+        <span id="boostDaysDisplay" style="font-weight:600">— days</span>
+      </div>
+      <div style="margin-top:.6rem;font-size:.75rem;color:var(--m);border-top:1px solid rgba(255,255,255,.06);padding-top:.55rem">You'll be redirected to Paystack to complete payment securely. Once confirmed, our team will activate your listing on the carousel.</div>
+    </div>
+
+    <button id="boostSubmitBtn" onclick="submitBoostRequest()" style="width:100%;padding:.82rem;border-radius:11px;background:var(--a);color:#0d0e11;border:none;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;margin-bottom:.5rem">Pay &amp; Boost →</button>
+    <button onclick="closeBoost()" style="width:100%;padding:.72rem;border-radius:11px;background:rgba(255,255,255,.06);color:var(--m);border:1px solid rgba(255,255,255,.08);font-family:'DM Sans',sans-serif;font-size:.86rem;cursor:pointer">Cancel</button>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="delOv" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:1rem" onclick="closeDel(event)">
+  <div id="delSheet" style="width:100%;max-width:400px;background:var(--card);border-radius:18px;border:1px solid rgba(255,255,255,.1);padding:1.4rem;transform:scale(.92);transition:transform .25s cubic-bezier(.4,0,.2,1)">
+    <div style="text-align:center;margin-bottom:.65rem"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div>
+    <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;text-align:center;margin-bottom:.35rem">Remove Listing?</div>
+    <div style="font-size:.83rem;color:var(--m);text-align:center;margin-bottom:1.1rem;line-height:1.6" id="delMsg">This listing will be removed and buyers will no longer be able to see it.</div>
+    <div style="display:flex;gap:.6rem">
+      <button onclick="closeDel()" style="flex:1;padding:.72rem;border-radius:10px;background:rgba(255,255,255,.06);color:var(--m);border:1px solid rgba(255,255,255,.08);font-family:'DM Sans',sans-serif;font-size:.86rem;cursor:pointer">Cancel</button>
+      <button id="delConfirmBtn" style="flex:1;padding:.72rem;border-radius:10px;background:var(--red);color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LISTING DETAIL SHEET ── -->
+<div class="ld-ov" id="ldOv" onclick="closeListingDetail(event)">
+  <div class="ld-sheet" id="ldSheet" onclick="event.stopPropagation()">
+    <!-- Handle + close -->
+    <div style="position:sticky;top:0;z-index:2;background:var(--card);padding:.75rem 1.1rem .4rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div style="width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);position:absolute;left:50%;top:.55rem;transform:translateX(-50%)"></div>
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:.9rem;color:var(--t);opacity:.8">Listing Preview</div>
+      <button class="ld-close" onclick="closeListingDetail()">✕</button>
+    </div>
+
+    <!-- Gallery -->
+    <div class="ld-gal" id="ldGal"></div>
+
+    <div class="ld-body">
+      <div id="ldBadges" style="display:flex;gap:.4rem;margin-bottom:.6rem"></div>
+      <h1 class="ld-title" id="ldTitle">...</h1>
+      <div class="ld-price" id="ldPrice">...</div>
+      
+      <div class="ld-divider"></div>
+      
+      <div id="ldDescWrap">
+        <div class="ld-sec-t">Description</div>
+        <p class="ld-desc" id="ldDesc">...</p>
+      </div>
+
+      <div id="ldTagsWrap" style="margin-top:1.2rem">
+        <div class="ld-sec-t">Tags</div>
+        <div id="ldTags" style="display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.4rem"></div>
+      </div>
+      
+      <div class="ld-divider"></div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem">
+        <button id="ldEditBtn" class="ld-btn-ghost">Edit Listing</button>
+        <button id="ldToggleBtn" class="ld-btn-primary">Pause</button>
+      </div>
+      <button id="ldSoldBtn" class="ld-btn-ghost" style="width:100%;margin-top:.75rem;background:rgba(255,107,107,.1);color:var(--red);border-color:rgba(255,107,107,.2)">Mark as Sold</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── THEME ── */
+const html=document.documentElement,tb=document.getElementById('thbtn');
+let dark=localStorage.getItem('pu-theme')!=='light';
+function applyTheme(d){html.setAttribute('data-theme',d?'dark':'light');const tm=document.getElementById('themeColorMeta');if(tm)tm.setAttribute('content',d?'#0d0e11':'#f0ede8');tb.innerHTML=d?'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';dark=d;localStorage.setItem('pu-theme',d?'dark':'light');}
+applyTheme(dark);tb.addEventListener('click',()=>applyTheme(!dark));
+
+/* ── SIDEBAR ── */
+const sbEl=document.getElementById('sidebar'),ovEl=document.getElementById('ov');
+document.getElementById('hbg').onclick=()=>{sbEl.classList.add('open');ovEl.classList.add('on');document.body.style.overflow='hidden'};
+function closeSidebar(){sbEl.classList.remove('open');ovEl.classList.remove('on');document.body.style.overflow='';}
+if(window.innerWidth>=960)sbEl.classList.add('open');
+window.addEventListener('resize',()=>{if(window.innerWidth>=960){sbEl.classList.add('open');ovEl.classList.remove('on')}else sbEl.classList.remove('open');});
+/* ════════════════════════════════════
+   DATA
+════════════════════════════════════ */
+let LISTINGS=[];
+let activeLt='all';
+
+async function fetchMyListings(){
+  try{
+    const response = await fetch('/listings/api/me/');
+    const data = await response.json();
+    LISTINGS = data.listings;
+    renderListings();
+    updateStats();
+  }catch(e){console.warn('fetchMyListings:', e);}
+}
+
+function saveListingsLocally(arr){
+  try{
+    localStorage.setItem('pu-listings',JSON.stringify(arr)); // This is risky if it's ONLY my listings, but other pages expect ALL.
+    // For now, let's just use it to sync what we have.
+  }catch(e){}
+}
+
+/* ════════════════════════════════════
+   STATS
+════════════════════════════════════ */
+function updateStats(){
+  const active=LISTINGS.filter(l=>l.status==='active'||l.status==='boosted').length;
+  const sold=LISTINGS.filter(l=>l.status==='sold').length;
+  const totalViews=LISTINGS.reduce((s,l)=>s+(l.views||0),0);
+  const revenue=LISTINGS.filter(l=>l.status==='sold'&&l.price).reduce((s,l)=>s+(parseFloat(l.price)||0),0);
+
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('statActive',active);
+  set('statSold',sold);
+  set('statViews',totalViews.toLocaleString());
+  set('statRevenue',revenue>0?fmtPrice(revenue):'GH₵ 0');
+}
+
+function fmtPrice(n){
+  if(n>=1000)return'GH₵ '+(n/1000).toFixed(1).replace(/\.0$/,'')+'k';
+  return'GH₵ '+n.toLocaleString();
+}
+
+/* ════════════════════════════════════
+   RENDER
+════════════════════════════════════ */
+const SMAP={active:'ls-active',sold:'ls-sold',paused:'ls-paused',boosted:'ls-boosted'};
+const SLABEL={active:'Active',sold:'Sold',paused:'Paused',boosted:'Boosted'};
+
+function renderListings(){
+  const c=document.getElementById('ll');
+  const vis=activeLt==='all'?LISTINGS:LISTINGS.filter(l=>l.status===activeLt);
+
+  if(!LISTINGS.length){
+    c.innerHTML=`
+      <div style="text-align:center;padding:3.5rem 1rem">
+        <div style="margin-bottom:.75rem;opacity:.4"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.4rem">No listings yet</div>
+        <div style="font-size:.84rem;color:var(--m);margin-bottom:1.3rem;line-height:1.6">Post your first item or service and start earning on campus</div>
+        <button onclick="location.href='{% url 'listings:create' %}'"
+          style="background:var(--a);color:#0d0e11;padding:.72rem 1.6rem;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer">
+          + Post Your First Listing
+        </button>
+      </div>`;
+    return;
+  }
+
+  if(!vis.length){
+    c.innerHTML=`<div style="text-align:center;padding:2.5rem;color:var(--m);font-size:.86rem">No listings with status "<strong>${activeLt}</strong>".</div>`;
+    return;
+  }
+
+  c.innerHTML=vis.map(l=>{
+    const isService=l.type==='service';
+    const typeClr=isService?'#5be5c5':'var(--a)';
+    const typeBg=isService?'rgba(91,229,197,.12)':'rgba(232,201,106,.12)';
+    const typeLbl=isService?'Service':'Product';
+    const priceDisplay = (l.contactForPrice || (l.price != null && Number(l.price) === 0)) ? 'Contact Buyer' : 'GH₵ '+(parseFloat(l.price)||0).toLocaleString();
+    const statusKey=l.status||'active';
+    const dateStr=l.date||'—';
+    const thumb=l.img||'';
+
+    return`<div class="litem" id="li-${escH(l.id)}">
+      <div class="lth" style="${!thumb?'background:var(--inp);display:flex;align-items:center;justify-content:center;font-size:1.5rem':''}" onclick="viewListing('${escH(l.id)}')">
+        ${thumb?`<img src="${escH(thumb)}" alt="${escH(l.title)}" loading="lazy"/>`:'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>'}
+      </div>
+      <div class="linfo" onclick="viewListing('${escH(l.id)}')">
+        <div class="lname">${escH(l.title)}</div>
+        <div class="lmeta">
+          <span style="display:inline-block;padding:.1rem .45rem;border-radius:5px;font-size:.6rem;font-weight:700;background:${typeBg};color:${typeClr};margin-right:.35rem">${typeLbl}</span>
+          ${escH(l.category||'—')} · ${dateStr}
+        </div>
+        <div class="lrow">
+          <span class="lprice">${escH(priceDisplay)}</span>
+          <span class="lstatus ${SMAP[statusKey]||'ls-active'}">${SLABEL[statusKey]||statusKey}</span>
+          <span class="views"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ${(l.views||0).toLocaleString()}</span>
+        </div>
+      </div>
+      <div class="lactions">
+        <button class="la" title="Edit listing" onclick="editListing('${escH(l.id)}')">&#x270F;&#xFE0F;</button>
+        <button class="la" onclick="toggleStatus('${escH(l.id)}')" title="${statusKey==='active'||statusKey==='boosted'?'Pause':'Activate'}" style="font-size:.7rem">${statusKey==='active'||statusKey==='boosted'?'&#x23F8;':statusKey==='paused'?'&#x25B6;&#xFE0F;':'&#x267B;&#xFE0F;'}</button>
+        <button class="la" title="Boost listing" onclick="openBoost('${escH(l.id)}')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></button>
+        <button class="la" title="Delete listing" onclick="confirmDelete('${escH(l.id)}','${escH(l.title)}')" style="color:var(--red)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════
+   FILTER
+════════════════════════════════════ */
+function filterL(tab,st){
+  document.querySelectorAll('.ltab').forEach(t=>t.classList.remove('on'));
+  tab.classList.add('on');
+  activeLt=st;
+  renderListings();
+}
+
+/* ════════════════════════════════════
+   ACTIONS
+════════════════════════════════════ */
+function editListing(id){
+  location.href = '{% url 'listings:create' %}?edit=' + encodeURIComponent(id);
+}
+
+function viewListing(id){
+  openListingDetail(id);
+}
+
+function openListingDetail(id){
+  const l=LISTINGS.find(x=>x.id==id);
+  if(!l)return;
+  
+  document.getElementById('ldTitle').textContent = l.title;
+  document.getElementById('ldPrice').textContent = (l.contactForPrice || (l.price != null && Number(l.price) === 0)) ? 'Contact Buyer' : 'GH₵ ' + (parseFloat(l.price)||0).toLocaleString();
+  document.getElementById('ldDesc').textContent = l.description || 'No description provided.';
+  document.getElementById('ldDescWrap').style.display = l.description ? 'block' : 'none';
+  
+  const gal = document.getElementById('ldGal');
+  gal.innerHTML = l.img ? `<img src="${escH(l.img)}" alt="${escH(l.title)}"/>` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--inp);color:var(--m)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>';
+  
+  const badges = document.getElementById('ldBadges');
+  const isSvc = l.type==='service';
+  badges.innerHTML = `<span style="background:${isSvc?'rgba(91,229,197,.1)':'rgba(232,201,106,.1)'};color:${isSvc?'#5be5c5':'var(--a)'};padding:.2rem .6rem;border-radius:5px;font-size:.65rem;font-weight:700">${isSvc?'SERVICE':'PRODUCT'}</span>`;
+  if(l.category) badges.innerHTML += `<span style="background:rgba(255,255,255,.06);color:var(--m);padding:.2rem .6rem;border-radius:5px;font-size:.65rem;font-weight:700">${escH(l.category)}</span>`;
+
+  const toggleBtn = document.getElementById('ldToggleBtn');
+  const statusKey = l.status || 'active';
+  toggleBtn.textContent = (statusKey==='active'||statusKey==='boosted') ? 'Pause Listing' : 'Activate Listing';
+  toggleBtn.onclick = () => { toggleStatus(id); closeListingDetail(); };
+  
+  const soldBtn = document.getElementById('ldSoldBtn');
+  if(statusKey === 'sold'){
+    soldBtn.style.display = 'none';
+  } else {
+    soldBtn.style.display = 'block';
+    soldBtn.onclick = () => { updateStatusApi(id, 'sold'); closeListingDetail(); };
+  }
+
+  const editBtn = document.getElementById('ldEditBtn');
+  editBtn.onclick = () => editListing(id);
+
+  const ov = document.getElementById('ldOv');
+  ov.classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeListingDetail(e){
+  if(e && e.target !== document.getElementById('ldOv') && e.target.className !== 'ld-close') return;
+  document.getElementById('ldOv').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+async function updateStatusApi(id, nextStatus){
+  try {
+    const res = await fetch(`/listings/api/toggle-status/${id}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1]
+      },
+      body: JSON.stringify({ status: nextStatus })
+    });
+    const data = await res.json();
+    if(data.status === 'success'){
+      const l=LISTINGS.find(x=>x.id==id);
+      if(l) l.status = data.new_status;
+      renderListings();
+      updateStats();
+      showToast(`Listing ${data.new_status}`);
+    }
+  } catch(e) { showToast('Error updating status'); }
+}
+
+async function toggleStatus(id){
+  const l=LISTINGS.find(x=>x.id==id);
+  if(!l)return;
+  
+  let nextStatus = 'active';
+  if(l.status==='active'||l.status==='boosted') nextStatus = 'paused';
+  else if(l.status==='paused') nextStatus = 'active';
+  else if(l.status==='sold') nextStatus = 'active';
+
+  await updateStatusApi(id, nextStatus);
+}
+
+/* ── DELETE ── */
+let pendingDeleteId=null;
+function confirmDelete(id,name){
+  pendingDeleteId=id;
+  document.getElementById('delMsg').textContent=`"${name}" will be removed. Buyers will no longer see this listing.`;
+  const ov=document.getElementById('delOv');
+  const sheet=document.getElementById('delSheet');
+  ov.style.display='flex';
+  requestAnimationFrame(()=>sheet.style.transform='scale(1)');
+  document.getElementById('delConfirmBtn').onclick=()=>doDelete(id);
+}
+function closeDel(e){
+  if(e&&e.target!==document.getElementById('delOv'))return;
+  const sheet=document.getElementById('delSheet');
+  sheet.style.transform='scale(.92)';
+  setTimeout(()=>{document.getElementById('delOv').style.display='none';},250);
+  pendingDeleteId=null;
+}
+async function doDelete(id){
+  try {
+    const res = await fetch(`/listings/api/delete/${id}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1]
+      }
+    });
+    const data = await res.json();
+    if(data.status === 'success'){
+      LISTINGS=LISTINGS.filter(l=>l.id!=id);
+      const ov=document.getElementById('delOv');
+      ov.style.display='none';
+      renderListings();
+      updateStats();
+      showToast('Listing removed');
+    }
+  } catch(e) { showToast('Error deleting listing'); }
+}
+
+/* ── BOOST ── */
+let _boostConfig = { boost_fee: 0, boost_duration_days: 7 };
+
+async function loadBoostConfig(){
+  try{
+    const d = await fetch('/api/config/').then(r=>r.json());
+    _boostConfig = d;
+    const fee = 'GH₵ ' + parseFloat(d.boost_fee).toFixed(2);
+    const days = d.boost_duration_days + ' days';
+    const b = document.getElementById('boostFeeBanner');
+    const bd = document.getElementById('boostDaysBanner');
+    const bfd = document.getElementById('boostFeeDisplay');
+    const bdd = document.getElementById('boostDaysDisplay');
+    if(b) b.textContent = fee;
+    if(bd) bd.textContent = days;
+    if(bfd) bfd.textContent = fee;
+    if(bdd) bdd.textContent = days;
+  }catch(e){}
+}
+
+function openBoost(preselectedId){
+  // Populate select with active listings only
+  const sel = document.getElementById('boostListingSelect');
+  const active = LISTINGS.filter(l=>l.status==='active');
+  sel.innerHTML = '<option value="">— Choose an active listing —</option>' +
+    active.map(l=>`<option value="${l.id}">${escH(l.title)}</option>`).join('');
+  if(preselectedId) sel.value = preselectedId;
+
+  const ov=document.getElementById('boostOv');
+  const sheet=document.getElementById('boostSheet');
+  ov.style.display='flex';
+  requestAnimationFrame(()=>sheet.style.transform='translateY(0)');
+}
+
+function closeBoost(e){
+  if(e&&e.target!==document.getElementById('boostOv'))return;
+  const sheet=document.getElementById('boostSheet');
+  sheet.style.transform='translateY(100%)';
+  setTimeout(()=>{document.getElementById('boostOv').style.display='none';},350);
+}
+
+async function submitBoostRequest(){
+  const listingId = document.getElementById('boostListingSelect').value;
+  if(!listingId){ showToast('Please select a listing'); return; }
+  const btn = document.getElementById('boostSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Redirecting to payment…';
+  try{
+    const csrf = document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
+    const res = await fetch('/api/boost/initiate/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken':csrf},
+      body: JSON.stringify({listing_id: parseInt(listingId)}),
+    });
+    const d = await res.json();
+    if(d.status === 'ok' && d.authorization_url){
+      window.location.href = d.authorization_url;
+    } else {
+      showToast(d.message || 'Could not initiate payment');
+      btn.disabled=false; btn.textContent='Pay & Boost →';
+    }
+  }catch(e){
+    showToast('Could not connect — try again');
+    btn.disabled=false; btn.textContent='Pay & Boost →';
+  }
+}
+
+/* ════════════════════════════════════
+   HELPERS
+════════════════════════════════════ */
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+let toastTimer;
+function showToast(msg){
+  let t=document.getElementById('lst-toast');
+  if(!t){t=document.createElement('div');t.id='lst-toast';t.style.cssText='position:fixed;bottom:calc(var(--bh,78px)+18px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.6rem 1.2rem;font-size:.82rem;font-weight:500;color:var(--t);box-shadow:0 8px 32px rgba(0,0,0,.6);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:999;white-space:nowrap';document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)';},2600);
+}
+
+/* ════════════════════════════════════
+   INIT + LIVE REFRESH
+════════════════════════════════════ */
+fetchMyListings();
+loadBoostConfig();
+
+// Handle Paystack return
+(function(){
+  const p = new URLSearchParams(window.location.search);
+  const boost = p.get('boost');
+  if(boost === 'success') setTimeout(()=>showToast('Payment confirmed! Your boost request is now under review.'), 600);
+  else if(boost === 'failed') setTimeout(()=>showToast('Payment was not completed. Please try again.'), 600);
+  else if(boost === 'error') setTimeout(()=>showToast('Something went wrong with the payment. Contact support.'), 600);
+  if(boost) history.replaceState(null,'',window.location.pathname);
+})();
+
+<script>(function(){if(!('serviceWorker' in navigator))return;navigator.serviceWorker.register('/sw.js',{scope:'/'}).then(reg=>{if(!('Notification' in window)||!('PushManager' in window))return;if(Notification.permission==='denied')return;Notification.requestPermission().then(p=>{if(p!=='granted')return;const vapidKey='{{ VAPID_PUBLIC_KEY }}';if(!vapidKey)return;reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_u8(vapidKey)}).then(sub=>{const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';fetch('/chat/api/push-subscribe/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify(sub.toJSON())});}).catch(()=>{});});}).catch(()=>{});function _u8(b64){const p=(b64+'='.repeat((4-b64.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/');const r=atob(p);const o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}})();</script>
+<script src="{% static 'Base_app/js/notifications.js' %}"></script>
+</body>
+</html>

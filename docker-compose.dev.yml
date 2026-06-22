@@ -1,0 +1,8 @@
+services:
+  web:
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - sqlite_data:/var/data
+    environment:
+      - DEBUG=True

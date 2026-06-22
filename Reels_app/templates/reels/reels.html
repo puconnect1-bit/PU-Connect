@@ -1,0 +1,373 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<title>Reels — PU-Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'Reels_app/css/reels.css' %}">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+</head>
+<body>
+<div class="feed" id="feed"></div>
+
+<!-- UPLOAD SHEET -->
+<div class="sov" id="upOv" onclick="closeUpload(event)">
+  <div class="sbox" id="upSheet" onclick="event.stopPropagation()">
+    <div style="padding-top:1rem"><div class="shdl"></div></div>
+    <div class="sttl">New Reel</div>
+    <div class="ssub">Share a short video of your item, service or campus life</div>
+    <div class="dzn" id="dzn">
+      <input type="file" id="vfi" accept="video/*" onchange="handleVid(this.files[0])"/>
+      <div class="dz-i"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><div class="dz-t">Tap to select a video</div>
+      <div class="dz-s">MP4 · MOV · WebM · Max 100 MB · Up to 3 min</div>
+    </div>
+    <div class="vpw" id="vpw" style="display:none">
+      <video class="vprev" id="vprev" controls playsinline muted></video>
+      <button class="vrm" onclick="removeVid()">✕</button>
+    </div>
+    <div class="uf">
+      <label>Caption</label>
+      <textarea id="capInp" placeholder="Describe your item… use #hashtags" maxlength="200" oninput="document.getElementById('capCnt').textContent=this.value.length+' / 200'"></textarea>
+      <div class="ccnt" id="capCnt">0 / 200</div>
+    </div>
+    <div class="uf">
+      <label>Linked Listing <span style="font-weight:300;color:#7a7e8a;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <select id="lstSel"><option value="">— Link to a listing —</option></select>
+    </div>
+    <div class="upprog" id="upprog">
+      <div class="upplbl" id="uplbl">Uploading…</div>
+      <div class="uptrk"><div class="upfil" id="upfil"></div></div>
+    </div>
+    <button class="ubtn" id="ubtn" onclick="publishReel()" disabled>
+      <svg viewBox="0 0 24 24" width="17" height="17"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>Upload Reel
+    </button>
+    <button class="cbtn" onclick="closeUpload()">Cancel</button>
+  </div>
+</div>
+
+<!-- PRODUCT SHEET -->
+<div class="sov" id="prodOv" onclick="closeProd(event)">
+  <div class="sbox" id="prodSheet" onclick="event.stopPropagation()">
+    <div class="shdl"></div>
+    <div class="ps-img" id="psImg"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+    <span class="ps-bdg" id="psBdg">Available</span>
+    <div class="ps-nm" id="psNm">—</div>
+    <div class="ps-pr" id="psPr">—</div>
+    <div class="ps-sl" id="psSl">—</div>
+    <div class="ps-dv"></div>
+    <div class="ps-ds" id="psDs">—</div>
+    <button class="ps-a" onclick="msgSeller()"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Message Seller</button>
+    <button class="ps-a gh" onclick="closeProd()">Close</button>
+  </div>
+</div>
+
+<!-- COMMENTS SHEET -->
+<div class="sov" id="cmtOv" onclick="closeCmt(event)">
+  <div class="sbox" id="cmtSheet" onclick="event.stopPropagation()">
+    <div class="csh"><div class="csttl" id="csttl">Comments</div><button class="csx" onclick="closeCmt()">✕</button></div>
+    <div class="csl" id="csl"></div>
+    <div class="cir">
+      <div class="cmav" id="cmav">KA</div>
+      <textarea class="cminp" id="cminp" placeholder="Add a comment…" rows="1"
+        oninput="csResize(this);document.getElementById('cmsnd').disabled=!this.value.trim()"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();postCmt()}"></textarea>
+      <button class="cmsnd" id="cmsnd" onclick="postCmt()" disabled>
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE SHEET -->
+<div class="sov" id="shrOv" onclick="closeShr(event)">
+  <div class="sbox" id="shrSheet" onclick="event.stopPropagation()">
+    <div class="shdl"></div>
+    <div class="shttl">Share Reel</div>
+    <div class="shgrid">
+      <div class="shi" onclick="shareChat()">
+        <div class="shico" style="background:rgba(232,201,106,.15)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="shlbl">In-App Chat</div>
+      </div>
+      <div class="shi" onclick="shareWA()">
+        <div class="shico" style="background:rgba(37,211,102,.14)">
+          <svg width="30" height="30" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#25d366"/><path fill="#fff" d="M34.7 13.3C32.2 10.8 28.9 9.4 25.4 9.4c-7.3 0-13.2 5.9-13.2 13.2 0 2.3.6 4.6 1.8 6.6L12 38.6l9.6-2.5c1.9 1 4 1.6 6.2 1.6h.1c7.3 0 13.2-5.9 13.2-13.2-.1-3.5-1.5-6.8-3.9-9.2Zm-9.3 20.3c-2 0-3.9-.5-5.6-1.5l-.4-.2-4.1 1.1 1.1-3.9-.3-.4c-1.1-1.7-1.7-3.7-1.7-5.8 0-5.9 4.8-10.7 10.7-10.7 2.9 0 5.6 1.1 7.6 3.1s3.1 4.8 3.1 7.6c.1 5.9-4.7 10.7-10.4 10.7Zm5.9-8c-.3-.2-1.9-.9-2.2-1.1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.4-1.4-.9-.8-1.5-1.7-1.7-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.2-.5 0-.2 0-.4-.1-.5-.1-.2-.7-1.6-1-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7s1.1 3.1 1.3 3.3c.2.2 2.2 3.3 5.3 4.6.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.9-.8 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.4Z"/></svg>
+        </div>
+        <div class="shlbl">WhatsApp</div>
+      </div>
+      <div class="shi" onclick="shareNative()">
+        <div class="shico" style="background:rgba(255,255,255,.09)">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <div class="shlbl">More</div>
+      </div>
+      <div class="shi" onclick="copyLink()">
+        <div class="shico" style="background:rgba(91,229,197,.12)">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5be5c5" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="shlbl">Copy Link</div>
+      </div>
+    </div>
+    <div class="shlnk">
+      <span class="shlnktxt" id="shrLnk">pu-connect.edu.gh/reels/…</span>
+      <button class="shcpbtn" id="cpbtn" onclick="copyLink()">Copy</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+async function uploadToR2(file, resourceType) {
+  resourceType = resourceType || 'image';
+  const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1];
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('resource_type', resourceType);
+  const res = await fetch('/api/r2-upload/', {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrf},
+    body: fd,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Upload failed');
+  }
+  const {public_url} = await res.json();
+  return public_url;
+}
+
+
+'use strict';
+const SITE=location.origin||'https://pu-connect.edu.gh';
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtN(n){n=Number(n)||0;if(n>=1e6)return(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,'')+'k';return String(n);}
+let toastT;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2700);}
+
+/* ── FOLLOW SYSTEM (pu-follows) ── */
+function loadF(){try{return JSON.parse(localStorage.getItem('pu-follows')||'{"following":[],"followers":[]}');}catch(e){return{following:[],followers:[]};}}
+function saveF(f){try{localStorage.setItem('pu-follows',JSON.stringify(f));}catch(e){}}
+function isFollowing(u){return loadF().following.includes(u);}
+function follow(u){
+  const f=loadF();
+  if(!f.following.includes(u)){f.following.push(u);saveF(f);}
+  try{const m=JSON.parse(localStorage.getItem('pu-follow-map')||'{}');if(!m[u])m[u]=[];const me=(JSON.parse(localStorage.getItem('pu-profile')||'{}').username||'');if(me&&!m[u].includes(me))m[u].push(me);localStorage.setItem('pu-follow-map',JSON.stringify(m));}catch(e){}
+}
+function unfollow(u){
+  const f=loadF();f.following=f.following.filter(x=>x!==u);saveF(f);
+  try{const me=(JSON.parse(localStorage.getItem('pu-profile')||'{}').username||'');const m=JSON.parse(localStorage.getItem('pu-follow-map')||'{}');if(m[u])m[u]=m[u].filter(x=>x!==me);localStorage.setItem('pu-follow-map',JSON.stringify(m));}catch(e){}
+}
+/* Read follow counts — used by profile.html */
+window.getFollowCounts=function(){
+  const f=loadF();
+  const me=(JSON.parse(localStorage.getItem('pu-profile')||'{}').username||'');
+  const m=JSON.parse(localStorage.getItem('pu-follow-map')||'{}');
+  return{following:f.following.length,followers:(m[me]||[]).length};
+};
+
+/* ── DATA ── */
+let uploadedReels=JSON.parse(localStorage.getItem('pu-reels')||'[]');
+let ALL=[...uploadedReels];
+let curIdx=0,activeVid=null,activeCmtIdx=null,pendingFile=null,pendingURL=null,shrIdx=null,prodCtx=null;
+
+/* ── REEL HTML ── */
+function reelHTML(r,i){
+  const hasVid=r.src&&r.src.length>0;
+  const handle=(r.seller&&r.seller.handle||'@user').replace('@','');
+  const flw=isFollowing(handle);
+  const av=r.seller&&r.seller.avSrc?`<img src="${escH(r.seller.avSrc)}" alt=""/>`:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:55%;height:55%;opacity:.7"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  const avBg=r.seller&&r.seller.avGrad||'linear-gradient(135deg,#e8c96a,#f5c842)';
+  const cap=escH(r.caption||'').replace(/#(\w+)/g,'<span class="htag">#$1</span>');
+  return `
+  <div class="reel-inner">
+    <div class="prog-bar"><div class="prog-fill" id="pb-${i}"></div></div>
+    ${hasVid?`<video class="reel-video" id="v-${i}" data-src="${escH(r.src)}" loop playsinline preload="metadata" onclick="togPlay(${i})" onplay="onPl(${i})" ontimeupdate="onTu(${i})"></video>`:`<div class="reel-bg" style="background:${escH(r.bg||'#0d0e11')}" id="v-${i}" onclick="togPlay(${i})"><span style="font-size:6rem;filter:drop-shadow(0 4px 24px rgba(0,0,0,.55))">${r.bgEmoji||''}</span></div>`}
+    <div class="reel-ov"></div>
+    <div class="play-flash" id="fl-${i}"><svg viewBox="0 0 24 24" width="34" height="34" fill="#fff" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+    <div class="reel-top">
+      <div class="reel-logo">PU-<span>Reels</span></div>
+      <div class="top-r">
+        <button class="tib" onclick="location.href='search.html'"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+        <button class="tib" onclick="openUpload()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      </div>
+    </div>
+    <div class="reel-bot">
+      <div class="seller-row" onclick="viewProf('${escH(handle)}')">
+        <div class="s-av" style="background:${avBg}">${av}</div>
+        <div class="s-info">
+          <div class="s-name">${escH(r.seller&&r.seller.name||'User')}</div>
+          <div class="s-handle">@${escH(handle)}</div>
+        </div>
+        <button class="flw-btn${flw?' following':''}" id="fb-${i}" onclick="event.stopPropagation();togFollow(${i},'${escH(handle)}')">${flw?'Following':'Follow'}</button>
+      </div>
+      <div class="caption">${cap}</div>
+      ${r.product?`<div class="prod-pill" onclick="openProd(${i})"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>${escH(r.product.name||'')}${r.product.price?' · '+escH(r.product.price):''}</div>`:''}
+      <div class="music-row"><div class="disc"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div><span>${escH(r.music||'Original Audio')}</span></div>
+    </div>
+    <div class="reel-rail">
+      <div class="ract" onclick="togLike(${i})">
+        <div class="ract-ico${r.liked?' liked':''}" id="li-${i}"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+        <div class="ract-lbl" id="lc-${i}">${fmtN(r.likes)}</div>
+      </div>
+      <div class="ract" onclick="openCmt(${i})">
+        <div class="ract-ico"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <div class="ract-lbl" id="cc-${i}">${fmtN(r.comments)}</div>
+      </div>
+      <div class="ract" onclick="openShr(${i})">
+        <div class="ract-ico"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+        <div class="ract-lbl" id="sc-${i}">${fmtN(r.shares)}</div>
+      </div>
+      <div class="ract" onclick="togSave(${i})">
+        <div class="ract-ico${r.saved?' saved':''}" id="sv-${i}"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></div>
+        <div class="ract-lbl" id="svc-${i}">${fmtN(r.saves)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── BUILD ── */
+function build(){
+  const feed=document.getElementById('feed');feed.innerHTML='';
+  if(!ALL.length){const e=document.createElement('div');e.className='empty-feed';e.innerHTML=`<div class="ef-ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><div class="ef-ttl">No Reels Yet</div><div class="ef-sub">Be the first to share a video of your product or service on campus.</div><button class="ef-btn" onclick="openUpload()">Post Your First Reel</button>`;feed.appendChild(e);return;}
+  ALL.forEach((r,i)=>{const el=document.createElement('div');el.className='reel';el.id='reel-'+i;el.dataset.idx=String(i);el.innerHTML=reelHTML(r,i);feed.appendChild(el);});
+  attachObs();attachGest();
+  document.querySelectorAll('.reel-video[data-src]').forEach(v=>{if(v.dataset.src){v.src=v.dataset.src;v.load();}});
+  fillLstSel();
+}
+
+/* ── OBSERVER ── */
+let obs=null;
+function attachObs(){if(obs)obs.disconnect();obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.intersectionRatio>=0.65){const idx=parseInt(e.target.dataset.idx,10);if(curIdx!==idx){pauseAt(curIdx);curIdx=idx;}playAt(idx);}});},{threshold:0.65});document.querySelectorAll('.reel').forEach(r=>obs.observe(r));}
+function playAt(i){const v=document.getElementById('v-'+i);if(!v||v.tagName!=='VIDEO')return;if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.load();}const p=v.play();if(p)p.catch(e=>{if(e.name!=='AbortError')console.warn(e.message);});activeVid=v;}
+function pauseAt(i){const v=document.getElementById('v-'+i);if(v&&v.tagName==='VIDEO')v.pause();}
+
+/* ── PLAY/PAUSE ── */
+function togPlay(i){const v=document.getElementById('v-'+i);if(!v||v.tagName!=='VIDEO'){flash(i,'play');return;}if(v.paused){v.play();flash(i,'play');}else{v.pause();flash(i,'pause');}}
+function flash(i,t){const f=document.getElementById('fl-'+i);if(!f)return;f.innerHTML=t==='pause'?`<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#fff" stroke-width="2.5"><line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>`:`<svg viewBox="0 0 24 24" width="34" height="34" fill="#fff" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;f.classList.add('show');setTimeout(()=>f.classList.remove('show'),700);}
+function onPl(i){const p=document.getElementById('pb-'+i);if(p)p.parentElement.style.opacity='1';}
+function onTu(i){const v=document.getElementById('v-'+i);const p=document.getElementById('pb-'+i);if(v&&p&&v.duration)p.style.width=(v.currentTime/v.duration*100)+'%';}
+
+/* ── GESTURES ── */
+function attachGest(){let lt=0;document.getElementById('feed').addEventListener('touchend',e=>{const now=Date.now();if(now-lt<280){const r=e.target.closest('.reel');if(r)togLike(parseInt(r.dataset.idx,10));}lt=now;},{passive:true});}
+
+/* ── LIKE / SAVE ── */
+function togLike(i){const r=ALL[i];if(!r)return;r.liked=!r.liked;r.likes=(r.likes||0)+(r.liked?1:-1);const ico=document.getElementById('li-'+i);const cnt=document.getElementById('lc-'+i);if(ico){ico.className='ract-ico'+(r.liked?' liked':'');if(r.liked){ico.style.transform='scale(1.35)';setTimeout(()=>ico.style.transform='',320);}}if(cnt)cnt.textContent=fmtN(r.likes);if(r.liked)toast('Liked');}
+function togSave(i){const r=ALL[i];if(!r)return;r.saved=!r.saved;r.saves=(r.saves||0)+(r.saved?1:-1);const ico=document.getElementById('sv-'+i);const cnt=document.getElementById('svc-'+i);if(ico)ico.className='ract-ico'+(r.saved?' saved':'');if(cnt)cnt.textContent=fmtN(r.saves);toast(r.saved?'Saved':'Removed from saved');try{const ids=new Set(JSON.parse(localStorage.getItem('pu-wish-ids')||'[]'));r.saved?ids.add(r.id):ids.delete(r.id);localStorage.setItem('pu-wish-ids',JSON.stringify([...ids]));}catch(e){}}
+
+/* ── FOLLOW ── */
+function togFollow(i,u){const r=ALL[i];if(!r)return;const was=isFollowing(u);was?unfollow(u):follow(u);const now=!was;r.following=now;toast(now?`Following @${u}`:`Unfollowed @${u}`);ALL.forEach((reel,j)=>{if((reel.seller&&reel.seller.handle||'').replace('@','')=== u){reel.following=now;const b=document.getElementById('fb-'+j);if(b){b.textContent=now?'Following':'Follow';b.className='flw-btn'+(now?' following':'');}}});}
+function viewProf(u){try{localStorage.setItem('pu-view-profile',JSON.stringify({username:u}));}catch(e){}location.href=`profile.html?u=${encodeURIComponent(u)}`;}
+
+/* ── PRODUCT ── */
+function openProd(i){const r=ALL[i];if(!r||!r.product)return;const p=r.product;const imgEl=document.getElementById('psImg');imgEl.innerHTML='';if(p.img){const im=document.createElement('img');im.src=p.img;im.alt=p.name||'';im.onerror=()=>{imgEl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';};imgEl.appendChild(im);}else{imgEl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';}document.getElementById('psBdg').textContent=p.status||'Available';document.getElementById('psNm').textContent=p.name||'—';document.getElementById('psPr').textContent=p.price||'Contact for price';document.getElementById('psSl').textContent='Listed by @'+(r.seller&&r.seller.handle||'').replace('@','');document.getElementById('psDs').textContent=p.desc||'Tap "Message Seller" to get more details.';prodCtx={username:(r.seller&&r.seller.handle||'').replace('@',''),listing:p.name||''};openS('prodOv');pauseAt(curIdx);}
+function closeProd(e){if(!e||e.target===document.getElementById('prodOv')){closeS('prodOv');playAt(curIdx);}}
+function msgSeller(){if(prodCtx){try{localStorage.setItem('pu-chat-open',JSON.stringify(prodCtx));}catch(e){}}location.href='{% url 'chat:chat' %}';}
+
+/* ── COMMENTS ── */
+const CMTD={};
+function openCmt(i){activeCmtIdx=i;const r=ALL[i];if(!r)return;const key=r.id||('r'+i);const list=CMTD[key]||[];document.getElementById('csttl').textContent=`${fmtN(r.comments||0)} Comment${(r.comments||0)!==1?'s':''}`;const cl=document.getElementById('csl');cl.innerHTML=list.length?list.map(c=>`<div class="ci"><div class="cav" style="background:${c.bg||'linear-gradient(135deg,#e8c96a,#f5c842)'};color:#0d0e11">${escH(c.ini||'?')}</div><div class="cb"><div class="cnm">${escH(c.name||'')}</div><div class="ctx">${escH(c.txt||'')}</div><div class="cmt"><span class="ctm">${c.time||''}</span><span class="clk" onclick="lkCmt(this)">Like</span></div></div></div>`).join(''):'<div style="text-align:center;padding:2rem;color:#7a7e8a;font-size:.84rem">No comments yet — be the first!</div>';const prof=JSON.parse(localStorage.getItem('pu-profile')||'{}');const ini=(prof.name||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();document.getElementById('cmav').textContent=ini||'KA';openS('cmtOv');pauseAt(curIdx);}
+function closeCmt(e){if(!e||e.target===document.getElementById('cmtOv')){closeS('cmtOv');document.getElementById('cminp').value='';document.getElementById('cmsnd').disabled=true;playAt(curIdx);}}
+function postCmt(){const inp=document.getElementById('cminp');const txt=inp.value.trim();if(!txt)return;const prof=JSON.parse(localStorage.getItem('pu-profile')||'{}');const nm=prof.name||'User';const ini=nm.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();const cl=document.getElementById('csl');const emp=cl.querySelector('div[style]');if(emp)emp.remove();const item=document.createElement('div');item.className='ci';item.innerHTML=`<div class="cav" style="background:linear-gradient(135deg,#e8c96a,#f5c842);color:#0d0e11">${escH(ini)}</div><div class="cb"><div class="cnm">${escH(nm)}</div><div class="ctx">${escH(txt)}</div><div class="cmt"><span class="ctm">Just now</span><span class="clk" onclick="lkCmt(this)">Like</span></div></div>`;cl.appendChild(item);cl.scrollTop=cl.scrollHeight;inp.value='';inp.style.height='';document.getElementById('cmsnd').disabled=true;if(activeCmtIdx!==null){const r=ALL[activeCmtIdx];if(r){const k=r.id||('r'+activeCmtIdx);if(!CMTD[k])CMTD[k]=[];CMTD[k].push({name:nm,ini,txt,time:'Just now',bg:'linear-gradient(135deg,#e8c96a,#f5c842)'});r.comments=(r.comments||0)+1;const el=document.getElementById('cc-'+activeCmtIdx);if(el)el.textContent=fmtN(r.comments);document.getElementById('csttl').textContent=`${fmtN(r.comments)} Comment${r.comments!==1?'s':''}`;}}  }
+function lkCmt(el){el.textContent=el.dataset.l?'Like':'Liked';el.style.color=el.dataset.l?'#7a7e8a':'var(--red)';el.dataset.l=el.dataset.l?'':1;}
+function csResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px';}
+
+/* ── SHARE — REAL IMPLEMENTATIONS ── */
+function getShrData(i){const r=ALL[i]||{};const id=r.id||('reel-'+i);const url=`${SITE}/reels.html?id=${encodeURIComponent(id)}`;const cap=(r.caption||'').substring(0,80);const seller=r.seller&&r.seller.name||'Someone';return{url,id,title:`${cap||'Watch this reel'} — PU-Connect`,text:`${seller} on PU-Connect: ${cap||'Check it out!'}\n`};}
+
+function openShr(i){shrIdx=i;const d=getShrData(i);document.getElementById('shrLnk').textContent=d.url;document.getElementById('cpbtn').textContent='Copy';document.getElementById('cpbtn').classList.remove('copied');const r=ALL[i];if(r){r.shares=(r.shares||0)+1;const el=document.getElementById('sc-'+i);if(el)el.textContent=fmtN(r.shares);}openS('shrOv');pauseAt(curIdx);}
+function closeShr(e){if(!e||e.target===document.getElementById('shrOv')){closeS('shrOv');playAt(curIdx);}}
+
+function shareChat(){if(shrIdx===null)return;const d=getShrData(shrIdx);const r=ALL[shrIdx];try{localStorage.setItem('pu-chat-open',JSON.stringify({username:'',message:`Check out this reel by ${r&&r.seller&&r.seller.name||'a seller'} on PU-Connect: ${d.url}`,type:'reel_share'}));}catch(e){}closeS('shrOv');setTimeout(()=>location.href='{% url 'chat:chat' %}',250);}
+
+function shareWA(){if(shrIdx===null)return;const d=getShrData(shrIdx);const msg=encodeURIComponent(d.text+d.url);window.open(`https://wa.me/?text=${msg}`,'_blank','noopener,noreferrer');closeS('shrOv');toast('Opening WhatsApp…');}
+
+function shareNative(){if(shrIdx===null)return;const d=getShrData(shrIdx);if(navigator.share){navigator.share({title:d.title,text:d.text,url:d.url}).then(()=>toast('Shared!')).catch(err=>{if(err.name!=='AbortError')copyLink();});closeS('shrOv');}else{copyLink();}}
+
+function copyLink(){const link=document.getElementById('shrLnk')&&document.getElementById('shrLnk').textContent||(shrIdx!==null?getShrData(shrIdx).url:`${SITE}/reels.html`);const done=(ok)=>{const b=document.getElementById('cpbtn');if(b){b.textContent=ok?'Copied ✓':'Copy';b.classList.toggle('copied',ok);}toast(ok?'Link copied!':'Select the link and copy manually');};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(()=>done(true)).catch(()=>execCopy(link,done));}else{execCopy(link,done);}}
+function execCopy(txt,cb){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;top:-9999px;left:-9999px;';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');cb(true);}catch(e){cb(false);}document.body.removeChild(ta);}
+
+/* ── SHEET HELPERS ── */
+function openS(id){document.getElementById(id).classList.add('open');}
+function closeS(id){document.getElementById(id).classList.remove('open');}
+
+/* ── UPLOAD ── */
+function openUpload(){openS('upOv');pauseAt(curIdx);fillLstSel();}
+function closeUpload(e){if(!e||e.target===document.getElementById('upOv')){closeS('upOv');removeVid();document.getElementById('capInp').value='';document.getElementById('capCnt').textContent='0 / 200';document.getElementById('lstSel').value='';document.getElementById('upprog').classList.remove('show');playAt(curIdx);}}
+function fillLstSel(){try{const sel=document.getElementById('lstSel');const lsts=JSON.parse(localStorage.getItem('pu-listings')||'[]');const me=(JSON.parse(localStorage.getItem('pu-profile')||'{}').username||'');const mine=me?lsts.filter(l=>l.sellerUsername===me):lsts;while(sel.options.length>1)sel.remove(1);mine.forEach(l=>{const o=document.createElement('option');o.value=l.id;const isCta = (l.contactForPrice || (l.price != null && Number(l.price) === 0));const pr = isCta ? 'Contact Buyer' : (l.priceLabel || (l.price ? 'GH\u20B5 '+Number(l.price).toLocaleString() : 'Contact Buyer'));o.textContent=`${l.title||l.name||'Listing'} — ${pr}`;o.dataset.price=pr;o.dataset.emoji=l.type==='service'?'🛠️':'📦';o.dataset.img=l.img||'';sel.appendChild(o);});}catch(e){}}
+function handleVid(f){if(!f)return;if(f.size>100*1024*1024){toast('Video too large — max 100MB');return;}if(pendingURL&&!document.querySelector(`video[src="${pendingURL}"]`))URL.revokeObjectURL(pendingURL);pendingFile=f;pendingURL=URL.createObjectURL(f);const v=document.getElementById('vprev');v.src=pendingURL;v.load();v.onloadedmetadata=()=>{if(v.duration>180){toast('Max 3 minutes');removeVid();}};document.getElementById('vpw').style.display='block';document.getElementById('dzn').style.display='none';document.getElementById('ubtn').disabled=false;}
+function removeVid(){pendingFile=null;if(pendingURL&&!document.querySelector(`video[src="${pendingURL}"]`))URL.revokeObjectURL(pendingURL);pendingURL=null;const v=document.getElementById('vprev');v.pause();v.src='';v.load();document.getElementById('vpw').style.display='none';document.getElementById('dzn').style.display='block';document.getElementById('ubtn').disabled=true;document.getElementById('vfi').value='';}
+function publishReel(){
+  const cap=document.getElementById('capInp').value.trim();
+  if(!pendingURL){toast('Please select a video first');return;}
+  if(!cap){toast('Please add a caption');return;}
+  const btn=document.getElementById('ubtn');
+  btn.disabled=true;btn.textContent='Uploading…';
+  const prog=document.getElementById('upprog');
+  prog.classList.add('show');
+  const fill=document.getElementById('upfil');
+  const lbl=document.getElementById('uplbl');
+
+  // Simulate progress while uploading to R2
+  let pct=0;
+  const steps=['Preparing…','Uploading to cloud…','Processing…','Almost done…'];
+  const iv=setInterval(()=>{
+    if(pct<85){pct+=Math.random()*8+2;}
+    fill.style.width=pct+'%';
+    lbl.textContent=steps[Math.min(Math.floor(pct/25),3)];
+  },300);
+
+  // Upload video file to R2
+  uploadToR2(pendingFile,'video')
+    .then(cloudUrl=>{
+      clearInterval(iv);
+      fill.style.width='100%';
+      lbl.textContent='Done!';
+      finishUpload(cap, cloudUrl);
+    })
+    .catch(err=>{
+      clearInterval(iv);
+      prog.classList.remove('show');
+      btn.disabled=false;
+      btn.textContent='Upload Reel';
+      toast('Upload failed: '+err.message);
+    });
+}
+function finishUpload(cap, cloudUrl){const p=JSON.parse(localStorage.getItem('pu-profile')||'{}');const nm=p.name||'User';const un=p.username||'user';const ini=nm.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'KA';const sel=document.getElementById('lstSel');const opt=sel.options[sel.selectedIndex];const prod=opt.value?{name:opt.text.split(' — ')[0],price:opt.dataset.price||'',emoji:'',img:opt.dataset.img||'',desc:'Campus listing — tap to view.'}:null;const tags=(cap.match(/#\w+/g)||[]);const reel={id:'r-'+Date.now(),src:cloudUrl||pendingURL,bg:'linear-gradient(135deg,#0d1117,#1c1f27)',bgEmoji:'',seller:{name:nm,handle:'@'+un,initials:ini,avGrad:'linear-gradient(135deg,#e8c96a,#f5c842)',avSrc:p.avatarSrc||''},caption:cap,product:prod,tags,likes:0,comments:0,shares:0,saves:0,liked:false,saved:false,following:false,music:'Original Audio \u00B7 '+nm,uploadedAt:Date.now()};try{const stored=JSON.parse(localStorage.getItem('pu-reels')||'[]');const ts={...reel,src:cloudUrl||'',bg:'linear-gradient(135deg,#0d1117,#1c1f27)'};stored.unshift(ts);if(stored.length>30)stored.splice(30);localStorage.setItem('pu-reels',JSON.stringify(stored));}catch(e){}ALL.unshift(reel);closeUpload();build();document.getElementById('feed').scrollTo({top:0,behavior:'instant'});curIdx=0;setTimeout(()=>playAt(0),350);toast('Reel published!');}
+
+const dzn=document.getElementById('dzn');
+dzn.addEventListener('dragover',e=>{e.preventDefault();dzn.classList.add('drag-over');});
+dzn.addEventListener('dragleave',()=>dzn.classList.remove('drag-over'));
+dzn.addEventListener('drop',e=>{e.preventDefault();dzn.classList.remove('drag-over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('video/'))handleVid(f);else toast('Please drop a video file');});
+
+/* ── INIT ── */
+build();
+setTimeout(()=>playAt(0),300);
+(()=>{const id=new URLSearchParams(location.search).get('id');if(id&&ALL.length){const idx=ALL.findIndex(r=>r.id===id);if(idx>0)setTimeout(()=>{const el=document.getElementById('reel-'+idx);if(el){el.scrollIntoView({behavior:'instant'});curIdx=idx;playAt(idx);}},400);}})();
+</script>
+<script>(function(){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.register('/sw.js',{scope:'/'}).then(reg=>{
+    if(!('Notification' in window)||!('PushManager' in window))return;
+    if(Notification.permission==='denied')return;
+    Notification.requestPermission().then(p=>{
+      if(p!=='granted')return;
+      const vapidKey='{{ VAPID_PUBLIC_KEY }}';
+      if(!vapidKey)return;
+      reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_u8(vapidKey)})
+        .then(sub=>{
+          const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
+          fetch('/chat/api/push-subscribe/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify(sub.toJSON())});
+        }).catch(()=>{});
+    });
+  }).catch(()=>{});
+  function _u8(b64){const p=(b64+'='.repeat((4-b64.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/');const r=atob(p);const o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+})();</script>
+</body>
+</html>

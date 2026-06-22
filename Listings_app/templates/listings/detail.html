@@ -1,0 +1,778 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.setAttribute('data-theme','dark');})()</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>{{ page_title }}</title>
+<meta name="description" content="{{ page_description }}">
+<meta name="theme-color" content="#c9a030" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1117"  media="(prefers-color-scheme: dark)">
+
+<!-- Open Graph -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="{{ full_url }}">
+<meta property="og:title"       content="{{ page_title }}">
+<meta property="og:description" content="{{ page_description }}">
+<meta property="og:image"       content="{{ image_url }}">
+
+<!-- Twitter Card -->
+<meta property="twitter:card"        content="summary_large_image">
+<meta property="twitter:url"         content="{{ full_url }}">
+<meta property="twitter:title"       content="{{ page_title }}">
+<meta property="twitter:description" content="{{ page_description }}">
+<meta property="twitter:image"       content="{{ image_url }}">
+
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PU-Connect">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'Base_app/css/tokens.css' %}">
+
+<style>
+/* ── Layout ── */
+.detail-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top bar ── */
+.dtp-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: 0 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.dtp-back {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dtp-back:hover { background: var(--border); }
+.dtp-bar-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: .92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dtp-theme-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.dtp-theme-btn:hover { color: var(--text); background: var(--border); }
+
+/* sun/moon toggle */
+[data-theme="dark"]  .theme-sun  { display: block; }
+[data-theme="dark"]  .theme-moon { display: none;  }
+[data-theme="light"] .theme-sun  { display: none;  }
+[data-theme="light"] .theme-moon { display: block; }
+.theme-sun, .theme-moon { pointer-events: none; }
+/* default (system) fallback */
+.theme-sun  { display: none; }
+.theme-moon { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-sun  { display: block; }
+  :root:not([data-theme="light"]) .theme-moon { display: none;  }
+}
+
+/* ── Main content ── */
+.dtp-body {
+  flex: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 0 calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Image ── */
+.dtp-img-wrap {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.dtp-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.dtp-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-2);
+}
+
+/* ── Content card ── */
+.dtp-card {
+  margin: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+/* ── Title row ── */
+.dtp-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .5rem;
+}
+.dtp-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  flex: 1;
+}
+.dtp-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: .22rem .65rem;
+  border-radius: var(--radius-full);
+  font-size: .7rem;
+  font-weight: 600;
+  margin-top: .1rem;
+}
+.dtp-badge.product { background: var(--accent-dim); color: var(--accent); }
+.dtp-badge.service { background: rgba(91,229,197,.14); color: #5be5c5; }
+
+/* ── Price ── */
+.dtp-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: .75rem;
+  letter-spacing: -.3px;
+}
+
+/* ── Meta chips ── */
+.dtp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: 1rem;
+}
+.dtp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .25rem .65rem;
+  border-radius: var(--radius-full);
+  font-size: .75rem;
+  font-weight: 500;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+
+/* ── Description ── */
+.dtp-desc-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: .4rem;
+}
+.dtp-desc {
+  font-size: .92rem;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+/* ── Divider ── */
+.dtp-divider { height: 1px; background: var(--border); margin: 1.1rem 0; }
+
+/* ── Follow button ── */
+.dtp-follow-btn {
+  flex-shrink: 0;
+  padding: .38rem .9rem;
+  border-radius: var(--radius-full);
+  font-size: .8rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1.5px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  transition: all .18s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.dtp-follow-btn.following {
+  background: transparent;
+  color: var(--text-2);
+  border-color: var(--border-2);
+}
+.dtp-follow-btn:hover { opacity: .85; }
+
+/* ── Seller row ── */
+.dtp-seller {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+}
+.dtp-seller-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.dtp-seller-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.dtp-seller-name {
+  font-weight: 600;
+  font-size: .92rem;
+  line-height: 1.2;
+}
+.dtp-seller-sub {
+  font-size: .78rem;
+  color: var(--text-2);
+  margin-top: .15rem;
+}
+
+/* ── CTA bar ── */
+.dtp-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: .85rem 1rem;
+  padding-bottom: calc(.85rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  gap: .6rem;
+  width: 100%;
+}
+@media (min-width: 641px) {
+  .dtp-cta {
+    max-width: 640px;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+  }
+}
+.dtp-cta-msg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .75rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: .9rem;
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-sans);
+  transition: background .18s, transform .14s;
+}
+.dtp-cta-msg:hover { background: var(--accent-hi); transform: translateY(-1px); }
+.dtp-cta-msg:active { transform: scale(.98); }
+.dtp-cta-save {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all .18s;
+}
+.dtp-cta-save:hover { color: var(--danger); border-color: var(--danger); }
+.dtp-cta-save.saved { color: var(--danger); background: var(--danger-dim); border-color: var(--danger); }
+.dtp-cta-share {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all .18s;
+}
+.dtp-cta-share:hover { color: var(--text); background: var(--border); }
+.dtp-cta-call {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  flex-shrink: 0;
+  transition: all .18s;
+  text-decoration: none;
+}
+.dtp-cta-call:hover { color: #16a34a; border-color: #16a34a; }
+.dtp-cta-wa {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  flex-shrink: 0;
+  transition: all .18s;
+  text-decoration: none;
+}
+.dtp-cta-wa:hover { color: #25d366; border-color: #25d366; }
+
+/* ── Responsive ── */
+@media (min-width: 768px) {
+  .dtp-body { max-width: 768px; }
+  .dtp-img-wrap { aspect-ratio: 16/9; }
+}
+@media (max-width: 360px) {
+  .dtp-title { font-size: 1.1rem; }
+  .dtp-price { font-size: 1.25rem; }
+  .dtp-card { margin: .75rem; padding: 1rem; }
+  .dtp-cta-msg { padding: .65rem .75rem; font-size: .84rem; }
+}
+
+/* ── Sold overlay ── */
+.dtp-sold-banner {
+  background: var(--danger-dim);
+  color: var(--danger);
+  text-align: center;
+  font-weight: 700;
+  font-size: .85rem;
+  padding: .5rem;
+  letter-spacing: .3px;
+}
+
+/* ── Toast ── */
+.dtp-toast {
+  position: fixed;
+  bottom: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .55rem 1.1rem;
+  font-size: .84rem;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s, transform .22s;
+  white-space: nowrap;
+  z-index: 100;
+}
+.dtp-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+
+<body class="detail-page">
+
+<!-- Top bar -->
+<header class="dtp-bar">
+  <button class="dtp-back" onclick="history.length>1?history.back():location.href='/'" aria-label="Go back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  </button>
+  <span class="dtp-bar-title">{{ listing.title }}</span>
+  {% if user.is_authenticated %}
+  <button class="dtp-theme-btn" id="notifBtn" aria-label="Notifications" style="position:relative">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    <span class="notif-dot" id="notifDot" style="display:none"></span>
+  </button>
+  {% endif %}
+  <button class="dtp-theme-btn" id="themeBtn" aria-label="Toggle theme">
+    <svg class="theme-sun"  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg class="theme-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</header>
+
+<main class="dtp-body">
+
+  <!-- Sold banner -->
+  {% if listing.status == 'sold' %}
+  <div class="dtp-sold-banner">This listing has been sold</div>
+  {% endif %}
+
+  <!-- Image -->
+  <div class="dtp-img-wrap">
+    {% if image_url %}
+    <img src="{{ image_url }}" alt="{{ listing.title }}">
+    {% else %}
+    <div class="dtp-img-placeholder">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Main card -->
+  <div class="dtp-card">
+
+    <!-- Title + badge -->
+    <div class="dtp-title-row">
+      <div class="dtp-title">{{ listing.title }}</div>
+      <span class="dtp-badge {% if listing.listing_type == 'service' %}service{% else %}product{% endif %}">
+        {% if listing.listing_type == 'service' %}Service{% else %}Product{% endif %}
+      </span>
+    </div>
+
+    <!-- Price -->
+    <div class="dtp-price">
+      {% if listing.contact_for_price %}
+        Contact for price
+      {% else %}
+        GH₵ {{ listing.price }}
+      {% endif %}
+    </div>
+
+    <!-- Meta chips -->
+    <div class="dtp-chips">
+      {% if listing.category %}
+      <span class="dtp-chip">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        {{ listing.category }}
+      </span>
+      {% endif %}
+      {% if listing.condition and listing.listing_type != 'service' %}
+      <span class="dtp-chip">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        {{ listing.condition }}
+      </span>
+      {% endif %}
+      {% if listing.subcategory %}
+      <span class="dtp-chip">{{ listing.subcategory }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    {% if listing.description %}
+    <div class="dtp-desc-label">Description</div>
+    <div class="dtp-desc">{{ listing.description }}</div>
+    {% endif %}
+
+    <div class="dtp-divider"></div>
+
+    <!-- Seller -->
+    <a href="/profile/{{ seller.username }}/" class="dtp-seller" style="text-decoration:none;color:inherit">
+      <div class="dtp-seller-avatar">
+        {% if seller_avatar %}
+        <img src="{{ seller_avatar }}" alt="{{ seller.get_full_name }}">
+        {% else %}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" style="width:100%;height:100%;border-radius:50%;display:block"><circle cx="20" cy="20" r="20" fill="#e4e6ea"/><circle cx="20" cy="16" r="7.5" fill="#bcc0c4"/><path d="M5 36.5C5 29 11.7 23 20 23s15 6 15 13.5" fill="#bcc0c4"/></svg>
+        {% endif %}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="dtp-seller-name">{{ seller.get_full_name|default:seller.username }}</div>
+        <div class="dtp-seller-sub">
+          @{{ seller.username }}
+          {% if seller_faculty %} &middot; {{ seller_faculty }}{% endif %}
+        </div>
+        <div class="dtp-seller-sub" id="sellerFollowers" style="margin-top:.15rem"></div>
+      </div>
+      {% if not is_owner %}
+      {% if user.is_authenticated %}
+      <button class="dtp-follow-btn" id="followBtn" onclick="event.preventDefault();toggleFollow()" data-username="{{ seller.username }}">Follow</button>
+      {% else %}
+      <a href="{% url 'auth:auth_view' %}" class="dtp-follow-btn" onclick="event.stopPropagation()">Follow</a>
+      {% endif %}
+      {% endif %}
+    </a>
+
+  </div><!-- /dtp-card -->
+</main>
+
+<!-- CTA bar -->
+{% if not is_owner %}
+<div class="dtp-cta">
+  {% if user.is_authenticated %}
+  <button class="dtp-cta-msg" id="msgBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Message Seller
+  </button>
+  {% if seller_phone %}
+  <a href="tel:{{ seller_phone }}" class="dtp-cta-call" aria-label="Call seller">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.03 1.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+  </a>
+  <a href="https://wa.me/{{ seller_whatsapp }}" target="_blank" rel="noopener noreferrer" class="dtp-cta-wa" aria-label="WhatsApp seller">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+  {% endif %}
+  {% else %}
+  <a href="{% url 'auth:auth_view' %}" class="dtp-cta-msg" style="text-decoration:none">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Log in to message
+  </a>
+  {% endif %}
+  <button class="dtp-cta-save" id="saveBtn" aria-label="Save to wishlist">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+  </button>
+  <button class="dtp-cta-share" id="shareBtn" aria-label="Share listing">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  </button>
+</div>
+{% else %}
+<!-- Owner view: link back to manage listings -->
+<div class="dtp-cta">
+  <a href="{% url 'listings:listings' %}" class="dtp-cta-msg" style="text-decoration:none">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Manage Listing
+  </a>
+</div>
+{% endif %}
+
+<div class="dtp-toast" id="toast"></div>
+
+<script>
+const LISTING_ID = '{{ listing.id }}';
+
+/* ── Theme ── */
+(function(){
+  const root = document.documentElement;
+  document.getElementById('themeBtn').addEventListener('click', function(){
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('pu-theme', next);
+  });
+})();
+
+/* ── Toast ── */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ── Wishlist ── */
+function getWishlist(){ return JSON.parse(localStorage.getItem('pu-wish-ids') || '[]'); }
+function setWishlist(arr){ localStorage.setItem('pu-wish-ids', JSON.stringify(arr)); }
+
+function getWishItems(){
+  try{ return JSON.parse(localStorage.getItem('pu-wish-items') || '{}'); } catch(e){ return {}; }
+}
+function setWishItems(obj){ localStorage.setItem('pu-wish-items', JSON.stringify(obj)); }
+
+const _WISH_OBJ = {
+  id: LISTING_ID,
+  title: '{{ listing.title|escapejs }}',
+  price: '{{ listing.price|escapejs }}',
+  priceLabel: '{% if listing.contactForPrice %}Contact for Price{% endif %}',
+  negotiable: {{ listing.negotiable|yesno:"true,false" }},
+  img: '{{ image_url|escapejs }}',
+  category: '{{ listing.category|escapejs }}',
+  type: '{{ listing.listing_type|escapejs }}',
+  sellerUsername: '{{ seller.username|escapejs }}',
+  postedAt: {{ listing.created_at.timestamp|default:0 }} * 1000,
+};
+
+function updateSaveBtn(){
+  const btn = document.getElementById('saveBtn');
+  if(!btn) return;
+  const saved = getWishlist().includes(LISTING_ID);
+  btn.classList.toggle('saved', saved);
+  btn.innerHTML = saved
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>'
+    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>';
+}
+
+const saveBtn = document.getElementById('saveBtn');
+if(saveBtn){
+  updateSaveBtn();
+  saveBtn.addEventListener('click', function(){
+    let list = getWishlist();
+    const items = getWishItems();
+    if(list.includes(LISTING_ID)){
+      list = list.filter(i => i !== LISTING_ID);
+      delete items[LISTING_ID];
+      showToast('Removed from wishlist');
+    } else {
+      list.push(LISTING_ID);
+      items[LISTING_ID] = _WISH_OBJ;
+      showToast('Saved to wishlist');
+    }
+    setWishlist(list);
+    setWishItems(items);
+    updateSaveBtn();
+  });
+}
+
+/* ── Share ── */
+const shareBtn = document.getElementById('shareBtn');
+if(shareBtn){
+  shareBtn.addEventListener('click', async function(){
+    const shareData = {
+      title: '{{ listing.title|escapejs }}',
+      text:  '{{ page_description|escapejs }}',
+      url:   window.location.href,
+    };
+    if(navigator.share){
+      try{ await navigator.share(shareData); } catch(e){}
+    } else {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast('Link copied!');
+    }
+  });
+}
+
+/* ── Follow seller ── */
+const SELLER_USERNAME = '{{ seller.username|escapejs }}';
+
+async function loadSellerFollowState(){
+  try {
+    const res  = await fetch(`/profile/api/user/${SELLER_USERNAME}/`);
+    const data = await res.json();
+    const fc   = document.getElementById('sellerFollowers');
+    if(fc) fc.textContent = data.followers_count + ' follower' + (data.followers_count !== 1 ? 's' : '');
+    const btn = document.getElementById('followBtn');
+    if(!btn) return;
+    updateFollowBtn(btn, data.is_following, data.follows_you);
+  } catch(e){}
+}
+
+function updateFollowBtn(btn, isFollowing, followsYou){
+  if(isFollowing){
+    btn.textContent = 'Following';
+    btn.classList.add('following');
+  } else if(followsYou){
+    btn.textContent = 'Follow Back';
+    btn.classList.remove('following');
+  } else {
+    btn.textContent = 'Follow';
+    btn.classList.remove('following');
+  }
+  btn._isFollowing = isFollowing;
+  btn._followsYou  = followsYou;
+}
+
+async function toggleFollow(){
+  const btn = document.getElementById('followBtn');
+  if(!btn || btn.disabled) return;
+  btn.disabled = true;
+  try {
+    const csrf = document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1] || '';
+    const res  = await fetch(`/profile/api/follow/${SELLER_USERNAME}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf }
+    });
+    const d = await res.json();
+    const fc = document.getElementById('sellerFollowers');
+    if(fc) fc.textContent = d.followers_count + ' follower' + (d.followers_count !== 1 ? 's' : '');
+    updateFollowBtn(btn, d.following, btn._followsYou && !d.following ? true : false);
+    showToast(d.following ? 'Following ' + SELLER_USERNAME : 'Unfollowed');
+  } catch(e){ showToast('Could not update follow'); }
+  btn.disabled = false;
+}
+
+{% if not is_owner and user.is_authenticated %}
+loadSellerFollowState();
+{% else %}
+(function(){
+  const fc = document.getElementById('sellerFollowers');
+  if(fc) fetch(`/profile/api/user/${SELLER_USERNAME}/`)
+    .then(r=>r.json())
+    .then(d=>{ fc.textContent = d.followers_count + ' follower' + (d.followers_count !== 1 ? 's' : ''); })
+    .catch(()=>{});
+})();
+{% endif %}
+
+/* ── Message seller ── */
+const msgBtn = document.getElementById('msgBtn');
+if(msgBtn){
+  msgBtn.addEventListener('click', async function(){
+    msgBtn.disabled = true;
+    msgBtn.textContent = 'Starting chat…';
+    try{
+      const csrf = document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1] || '';
+      const res  = await fetch('/chat/api/start/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+        body: JSON.stringify({ listing_id: parseInt(LISTING_ID) })
+      });
+      const d = await res.json();
+      const convId = d.conv_id || d.conversation_id;
+      if(convId){
+        sessionStorage.setItem('pu-open-conv', convId);
+        location.href = '{% url "chat:chat" %}';
+      } else {
+        showToast('Could not start chat. Try again.');
+        msgBtn.disabled = false;
+        msgBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Message Seller';
+      }
+    } catch(e){
+      showToast('Network error. Try again.');
+      msgBtn.disabled = false;
+      msgBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> Message Seller';
+    }
+  });
+}
+</script>
+{% if user.is_authenticated %}
+<script src="{% static 'Base_app/js/notifications.js' %}"></script>
+{% endif %}
+</body>
+</html>

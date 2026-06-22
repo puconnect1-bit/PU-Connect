@@ -1,0 +1,46 @@
+PU_MP/
+├── /auth/
+│   ├── signup/
+│   ├── login/
+│   ├── logout/
+│   ├── verify-email/<token>/
+│   └── resend-verification/
+├── /
+│   ├── (home)
+│   ├── about/
+│   ├── help/
+│   ├── privacy/
+│   ├── terms/
+│   └── safety/
+├── /listings/
+│   ├── (list all)
+│   ├── <id>/ (detail)
+│   ├── create/
+│   ├── <id>/edit/
+├── wishlist/
+└── my-listings/
+├── /profile/
+│   ├── <username>/
+│   ├── edit/
+│   ├── settings/
+│   ├── change-password/
+│   └── privacy-settings/
+├── /reels/
+│   ├── (list all)
+│   ├── <id>/ (detail)
+│   ├── upload/
+│   └── my-reels/
+├── /chat/
+│   ├── (conversations list)
+│   ├── conversation/<id>/
+│   └── start/<id>/
+├── /dashboard/
+│   ├── (overview)
+│   ├── products/
+│   ├── services/
+│   ├── analytics/
+│   └── earnings/
+└── /search/
+    ├── (results)
+    ├── category/<name>/
+    └── advanced/

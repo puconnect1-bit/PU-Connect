@@ -1,0 +1,340 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
+  <title>Privacy Policy — PU-Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'Base_app/css/privacy.css' %}">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'base:home' %}" class="logo">PU-<span>Marketplace</span></a>
+  <div class="nav-right">
+    <a href="terms.html" class="nav-link">Terms &amp; Conditions</a>
+    <button class="nav-theme-btn" id="themeBtn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+    <a href="auth.html" class="nav-btn">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="page-hero">
+  <div class="hero-glow"></div>
+  <div class="page-hero-inner">
+    <div class="page-badge"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Legal</div>
+    <h1 class="page-title">Privacy <em>Policy</em></h1>
+    <div class="page-meta">
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Effective: 1 January 2026</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Last Updated: 31 March 2026</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> PU-Connect, University Campus</span>
+    </div>
+  </div>
+</header>
+
+<div class="page-layout">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="toc">
+    <div class="toc-title">On This Page</div>
+    <ul class="toc-list" id="toc-list">
+      <li><a href="#p1">1. Who We Are</a></li>
+      <li><a href="#p2">2. Information We Collect</a></li>
+      <li><a href="#p3">3. How We Use Your Data</a></li>
+      <li><a href="#p4">4. Legal Basis for Processing</a></li>
+      <li><a href="#p5">5. Sharing Your Information</a></li>
+      <li><a href="#p6">6. Data Retention</a></li>
+      <li><a href="#p7">7. Your Rights</a></li>
+      <li><a href="#p8">8. Cookies & Tracking</a></li>
+      <li><a href="#p9">9. Children's Privacy</a></li>
+      <li><a href="#p10">10. Security</a></li>
+      <li><a href="#p11">11. Changes to this Policy</a></li>
+      <li><a href="#p12">12. Contact Us</a></li>
+    </ul>
+    <div class="toc-divider"></div>
+    <a href="terms.html" class="toc-back"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Terms &amp; Conditions →</a>
+    <a href="auth.html" class="toc-back">← Back to Sign Up</a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <div class="intro-box">
+      <strong>Your privacy matters to us.</strong> This Privacy Policy explains how PU-Connect collects, uses, stores, and protects your personal information when you use our platform. We are committed to handling your data responsibly and transparently, in accordance with applicable data protection laws.
+    </div>
+
+    <section class="section" id="p1">
+      <div class="section-num">Section 01</div>
+      <h2 class="section-heading">Who We Are</h2>
+      <p>PU-Connect ("we", "us", "our") is a campus-based peer-to-peer marketplace platform operated under the university. Our platform enables verified students and campus community members to list, buy, and sell goods and services within their university campus.</p>
+      <div class="highlight-box">
+        <strong>Data Controller:</strong> PU-Connect, Student Affairs Technology Division<br>
+         <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e797958e9186849ea79792ca8a86958c8293978b868482c9828392c9808f">[email&#160;protected]</a><br>
+         Student Affairs Office, University Campus, Ghana
+      </div>
+    </section>
+
+    <section class="section" id="p2">
+      <div class="section-num">Section 02</div>
+      <h2 class="section-heading">Information We Collect</h2>
+      <p>We collect information you provide directly, information generated through your use of the Platform, and information from third-party services where you choose to connect them.</p>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Data Collected</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--text)">Account Data</strong></td>
+            <td>Full name, email address, username, profile photo, password (hashed)</td>
+            <td>You, at registration</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Social Auth Data</strong></td>
+            <td>Name, email, profile picture (as permitted by Google/Apple)</td>
+            <td>Google / Apple OAuth</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Listing Data</strong></td>
+            <td>Item title, description, photos, price, category, location tag</td>
+            <td>You, when posting listings</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Transaction Data</strong></td>
+            <td>Purchase history, payment method type, transaction status, timestamps</td>
+            <td>Platform activity</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Communication Data</strong></td>
+            <td>In-app messages between buyers and sellers</td>
+            <td>Platform messaging system</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Usage Data</strong></td>
+            <td>Pages visited, search queries, clicks, session duration, device type, IP address, browser type</td>
+            <td>Automatically collected</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Review Data</strong></td>
+            <td>Ratings and written reviews you leave for other users</td>
+            <td>You, after transactions</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section" id="p3">
+      <div class="section-num">Section 03</div>
+      <h2 class="section-heading">How We Use Your Data</h2>
+      <p>We use the information we collect only for legitimate purposes directly related to operating PU-Connect. We do not sell your personal data to third parties.</p>
+      <ul class="term-list">
+        <li>To create and manage your account and verify your identity.</li>
+        <li>To display your listings and facilitate transactions between users.</li>
+        <li>To enable in-app messaging between buyers and sellers.</li>
+        <li>To send you transactional notifications (e.g. listing status, message alerts, payment confirmations).</li>
+        <li>To send service announcements and important updates about the Platform.</li>
+        <li>To enforce our Terms and Conditions and investigate reports of misconduct.</li>
+        <li>To improve the Platform through analysis of aggregated, anonymised usage data.</li>
+        <li>To comply with legal obligations and respond to lawful requests from authorities.</li>
+      </ul>
+      <p>We will only send you marketing communications if you have explicitly opted in to receive them. You may opt out at any time through your account notification settings.</p>
+    </section>
+
+    <section class="section" id="p4">
+      <div class="section-num">Section 04</div>
+      <h2 class="section-heading">Legal Basis for Processing</h2>
+      <p>We process your personal data on the following legal bases under applicable data protection law:</p>
+      <ul class="term-list">
+        <li><strong>Contract Performance:</strong> Processing necessary to provide you with the services described in our Terms and Conditions.</li>
+        <li><strong>Legitimate Interests:</strong> Processing necessary for our legitimate interests in operating, improving, and securing the Platform, where such interests are not overridden by your rights.</li>
+        <li><strong>Legal Obligation:</strong> Processing required to comply with applicable laws and regulations.</li>
+        <li><strong>Consent:</strong> Where we rely on consent (e.g. for marketing emails), you have the right to withdraw that consent at any time.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="p5">
+      <div class="section-num">Section 05</div>
+      <h2 class="section-heading">Sharing Your Information</h2>
+      <p>We do not sell, rent, or trade your personal data. We may share your information only in the following limited circumstances:</p>
+      <ul class="term-list">
+        <li><strong>With other users:</strong> Your public profile (name, username, profile photo, ratings) is visible to other Platform users to facilitate transactions.</li>
+        <li><strong>With payment processors:</strong> Transaction data is shared with Mobile Money providers or our escrow service solely to process payments.</li>
+        <li><strong>With service providers:</strong> We use trusted third-party vendors (e.g. cloud hosting, email delivery) who are contractually bound to process data only on our instructions.</li>
+        <li><strong>With university authorities:</strong> We may share information with university management where required to investigate serious misconduct or safety concerns.</li>
+        <li><strong>With law enforcement:</strong> We will disclose data where required by law or in response to a valid legal order.</li>
+        <li><strong>In a business transfer:</strong> In the event of a merger or acquisition, your data may be transferred to the successor entity, subject to the same privacy protections.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="p6">
+      <div class="section-num">Section 06</div>
+      <h2 class="section-heading">Data Retention</h2>
+      <p>We retain your personal data only for as long as necessary to fulfil the purposes for which it was collected, or as required by law:</p>
+      <ul class="term-list">
+        <li><strong>Active accounts:</strong> Data is retained for the duration of your account's active status.</li>
+        <li><strong>Closed accounts:</strong> Account data is anonymised or deleted within <strong>90 days</strong> of account deletion, unless retention is required for legal or fraud-prevention purposes.</li>
+        <li><strong>Transaction records:</strong> Retained for a minimum of <strong>7 years</strong> to comply with financial recordkeeping obligations.</li>
+        <li><strong>In-app messages:</strong> Retained for <strong>12 months</strong> after the conversation ends, then permanently deleted.</li>
+        <li><strong>Usage logs:</strong> Retained in aggregated, anonymised form indefinitely for analytics purposes.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="p7">
+      <div class="section-num">Section 07</div>
+      <h2 class="section-heading">Your Rights</h2>
+      <p>Depending on your jurisdiction, you may have the following rights regarding your personal data. To exercise any of these rights, contact us at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d0a0a2b9a6b1b3a990a0a5fdbdb1a2bbb5a4a0bcb1b3b5feb5b4a5feb7b8">[email&#160;protected]</a></strong>. We will respond within <strong>30 days</strong>.</p>
+      <div class="rights-grid">
+        <div class="right-card">
+          <div class="right-card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Right of Access</div>
+          <p>Request a copy of the personal data we hold about you.</p>
+        </div>
+        <div class="right-card">
+          <div class="right-card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Right to Rectification</div>
+          <p>Request correction of inaccurate or incomplete data.</p>
+        </div>
+        <div class="right-card">
+          <div class="right-card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg> Right to Erasure</div>
+          <p>Request deletion of your data where no longer necessary.</p>
+        </div>
+        <div class="right-card">
+          <div class="right-card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg> Right to Restriction</div>
+          <p>Request that we limit how we use your data in certain circumstances.</p>
+        </div>
+        <div class="right-card">
+          <div class="right-card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg> Right to Portability</div>
+          <p>Request a machine-readable copy of data you provided to us.</p>
+        </div>
+        <div class="right-card">
+          <div class="right-card-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Right to Object</div>
+          <p>Object to processing based on legitimate interests or for direct marketing.</p>
+        </div>
+      </div>
+      <p style="margin-top:1.2rem">You also have the right to lodge a complaint with a relevant supervisory authority if you believe we have not handled your data in accordance with applicable law.</p>
+    </section>
+
+    <section class="section" id="p8">
+      <div class="section-num">Section 08</div>
+      <h2 class="section-heading">Cookies &amp; Tracking</h2>
+      <p>PU-Connect uses cookies and similar technologies to operate the Platform, remember your preferences, and understand how users interact with our services.</p>
+      <table class="data-table">
+        <thead>
+          <tr><th>Cookie Type</th><th>Purpose</th><th>Duration</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--text)">Essential</strong></td>
+            <td>Session management, authentication, security (cannot be disabled)</td>
+            <td>Session / 30 days</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Functional</strong></td>
+            <td>Remembering your preferences, language, and notification settings</td>
+            <td>1 year</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text)">Analytics</strong></td>
+            <td>Understanding usage patterns to improve the Platform (anonymised)</td>
+            <td>2 years</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>You can manage cookie preferences through your browser settings. Disabling non-essential cookies will not prevent you from using the Platform's core features.</p>
+    </section>
+
+    <section class="section" id="p9">
+      <div class="section-num">Section 09</div>
+      <h2 class="section-heading">Children's Privacy</h2>
+      <p>PU-Connect is not directed at or intended for use by children under the age of 18. We do not knowingly collect personal data from minors. If we become aware that a user is under 18 years of age, we will take immediate steps to deactivate their account and delete their personal data.</p>
+      <p>If you believe a minor has registered on the Platform, please contact us immediately at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9fefedf6e9fefce6dfefeab2f2feedf4faebeff3fefcfab1fafbeab1f8f7">[email&#160;protected]</a></strong>.</p>
+    </section>
+
+    <section class="section" id="p10">
+      <div class="section-num">Section 10</div>
+      <h2 class="section-heading">Security</h2>
+      <p>We implement industry-standard technical and organisational measures to protect your personal data against unauthorised access, loss, destruction, or alteration. Our security practices include:</p>
+      <ul class="term-list">
+        <li>All data transmitted between your device and our servers is encrypted using TLS/HTTPS.</li>
+        <li>Passwords are stored using a one-way cryptographic hash function and are never stored in plain text.</li>
+        <li>Access to personal data is restricted to authorised personnel on a need-to-know basis.</li>
+        <li>We conduct periodic security assessments and vulnerability testing of our Platform.</li>
+        <li>In the event of a data breach that affects your rights and freedoms, we will notify you and the relevant authorities within the timeframes required by law.</li>
+      </ul>
+      <div class="highlight-box">
+        <strong>Your responsibility:</strong> Please choose a strong, unique password and never share your account credentials. If you suspect your account has been compromised, contact us immediately at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="26555356564954526656530b4b47544d4352564a4745430843425308414e">[email&#160;protected]</a></strong>.
+      </div>
+    </section>
+
+    <section class="section" id="p11">
+      <div class="section-num">Section 11</div>
+      <h2 class="section-heading">Changes to this Policy</h2>
+      <p>We may update this Privacy Policy from time to time to reflect changes in our practices, technology, or legal requirements. When we make significant changes, we will notify you by:</p>
+      <ul class="term-list">
+        <li>Sending a notification to your registered email address.</li>
+        <li>Displaying a prominent notice on the Platform.</li>
+        <li>Updating the "Last Updated" date at the top of this page.</li>
+      </ul>
+      <p>Your continued use of PU-Connect after the effective date of any changes constitutes your acceptance of the updated Privacy Policy. We encourage you to review this page periodically.</p>
+    </section>
+
+    <section class="section" id="p12">
+      <div class="section-num">Section 12</div>
+      <h2 class="section-heading">Contact Us</h2>
+      <p>If you have any questions, concerns, or requests regarding this Privacy Policy or the way we handle your personal data, please contact our Privacy Team:</p>
+      <div class="highlight-box">
+        <strong>Privacy Team — PU-Connect</strong><br>
+         Email: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3747455e4156544e7747421a5a56455c5243475b5654521952534219505f">[email&#160;protected]</a></strong><br>
+         Address: Student Affairs Office, University Campus<br>
+         Response Time: Within 30 days of receipt
+      </div>
+      <p>For general support queries, please email <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="62111712120d10162212174f0f0310090716120e0301074c0706174c050a">[email&#160;protected]</a></strong> or visit our Help Centre on the Platform.</p>
+    </section>
+
+  </main>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-logo">PU-<span>Marketplace</span></div>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="terms.html">Terms &amp; Conditions</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="auth.html">Sign Up</a>
+  </div>
+  <div class="footer-copy">© 2026 PU-Connect. All rights reserved.</div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+/* ── THEME ── */
+(function(){
+  var _H = document.documentElement;
+  var _TB = document.getElementById('themeBtn');
+  var _dark = localStorage.getItem('pu-theme') !== 'light';
+  function applyTheme(d) {
+    _H.setAttribute('data-theme', d ? 'dark' : 'light');
+    if (_TB) _TB.innerHTML = d ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    _dark = d;
+    localStorage.setItem('pu-theme', d ? 'dark' : 'light');
+    var m = document.getElementById('themeColorMeta');
+    if (m) m.setAttribute('content', d ? '#0d0e11' : '#f0ede8');
+  }
+  applyTheme(_dark);
+  if (_TB) _TB.addEventListener('click', function(){ applyTheme(!_dark); });
+  window._applyTheme = applyTheme;
+})();
+</script>
+<script>(function(){if(!('serviceWorker' in navigator))return;navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{});})();</script>
+</body>
+</html>

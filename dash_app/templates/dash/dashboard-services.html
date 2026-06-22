@@ -1,0 +1,754 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
+  <title>Services — PU-Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'dash_app/css/dashboard-services.css' %}">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+</head>
+<body>
+<nav class="tnav">
+  <button class="hbg" id="hbg"><span></span><span></span><span></span></button>
+  <div class="tabs">
+    <button class="tab" onclick="location.href='{% url 'dashboard:dashboard' %}'">All</button>
+    <button class="tab" onclick="location.href='#'">Products</button>
+    <button class="tab on">Services</button>
+  </div>
+  <button class="notibtn" id="notifBtn" title="Notifications" aria-label="Notifications">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    <span class="notif-dot" id="notifDot" style="display:none"></span>
+  </button>
+  <button class="thbtn" id="thbtn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+</nav>
+<div class="ov" id="ov" onclick="closeSb()"></div>
+<aside class="sb" id="sb">
+  <div class="sbh"><div class="sbl">PU-<span>Connect</span></div><button class="sbx" onclick="closeSb()">✕</button></div>
+  <div class="sbsec">Navigate</div>
+  <ul class="sbul">
+    <li><a href="{% url 'base:home' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Home</a></li>
+    <li><a href="{% url 'dashboard:dashboard' %}" class="act"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>Dashboard</a></li>
+    <li><a href="{% url 'dashboard:dashboard_services' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>Services</a></li>
+    <li><a href="{% url 'listings:wishlist' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>Wishlist</a></li>
+    <li><a href="{% url 'listings:listings' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>My Listings</a></li>
+  </ul>
+  <div class="sbd"></div>
+  <div class="sbsec">Account</div>
+  <ul class="sbul">
+    <li><a href="{% url 'profile:profile' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Profile</a></li>
+  </ul>
+  <div class="sbd"></div>
+  <div class="sbsec">Account</div>
+  <ul class="sbul">
+    <li><a href="{% url 'profile:profile' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Profile</a></li>
+  </ul>
+  <div class="sbd"></div>
+  <div class="sbsec">Info &amp; Legal</div>
+  <ul class="sbul">
+    <li><a href="{% url 'base:about' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>About Us</a></li>
+    <li><a href="{% url 'base:safety' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Safety</a></li>
+    <li><a href="{% url 'base:help' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>Help Centre</a></li>
+    <li><a href="{% url 'base:privacy' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Privacy Policy</a></li>
+    <li><a href="{% url 'base:terms' %}"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Terms &amp; Conditions</a></li>
+  </ul>
+  <div class="sbd"></div>
+  <ul class="sbul"><li><a href="{% url 'auth:auth_view' %}" style="color:var(--red)"><span class="ico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>Log Out</a></li></ul>
+  <div class="sbft">© 2026 PU-Connect<br>Built for campus, by students.</div>
+</aside>
+
+<div class="wrap"><div class="inner">
+  <div class="srch">
+    <span class="sico"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    <input type="text" id="si" placeholder="Search services, providers, categories…" oninput="doSearch(this)" autocomplete="off"/>
+    <button class="sclr" onclick="clearS()">✕</button>
+  </div>
+  <!-- Category pills -->
+  <div class="cr" id="cr">
+    <div class="cp on" onclick="fcat(this,'all')">All</div>
+    <div class="cp" onclick="fcat(this,'design')">Design</div>
+    <div class="cp" onclick="fcat(this,'tutoring')">Tutoring</div>
+    <div class="cp" onclick="fcat(this,'tech')">Tech &amp; Coding</div>
+    <div class="cp" onclick="fcat(this,'delivery')">Delivery</div>
+    <div class="cp" onclick="fcat(this,'writing')">Writing</div>
+    <div class="cp" onclick="fcat(this,'photo')">Photography</div>
+    <div class="cp" onclick="fcat(this,'food')">Food</div>
+    <div class="cp" onclick="fcat(this,'print')">Printing</div>
+    <div class="cp" onclick="fcat(this,'video')">Video</div>
+  </div>
+  <div class="sort-row">
+    <span class="res-count" id="resCount">Showing all services</span>
+    <select class="sort-sel" onchange="doSort(this.value)">
+      <option value="popular">Most Popular</option>
+      <option value="price-asc">Price: Low → High</option>
+      <option value="price-desc">Price: High → Low</option>
+      <option value="rating">Highest Rated</option>
+    </select>
+  </div>
+  <!-- Boost -->
+  <div class="boost">
+    <div class="bgw"></div><div class="bdt"></div>
+    <div class="btx">
+      <div class="be"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Promote your service</div>
+      <div class="bh2">Get More Campus Clients</div>
+      <div class="bs">Feature your service to students — contact us to get started</div>
+    </div>
+    <div class="bac"><span class="brk"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><button class="bct" onclick="openBoost()">Feature Me</button></div>
+  </div>
+  <!-- Boosted services slider -->
+  <div class="slbl">
+    <h2><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Featured Services<span class="btag">Boosted</span></h2>
+    <a href="{% url 'dashboard:dashboard' %}">← Back to All</a>
+  </div>
+  <div class="fw" id="fw">
+    <button class="far p" onclick="fmv(-1)">&#8592;</button>
+    <button class="far n" onclick="fmv(1)">&#8594;</button>
+    <div class="fwo"><div class="ftr" id="ft">
+      <!-- Boosted service slide will appear here -->
+      <!-- Boosted service slide will appear here -->
+      <!-- Boosted service slide will appear here -->
+      <!-- Boosted service slide will appear here -->
+    </div></div>
+    <div class="fdt" id="fd"></div>
+  </div>
+  <!-- Service category grid with slider -->
+  <div class="slbl"><h2><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg> Browse Categories</h2><a href="#">View all</a></div>
+  <div class="svo">
+    <div class="svw" id="sw"><div class="svt" id="st"></div></div>
+    <div class="svnv">
+      <button class="sva" onclick="smv(-1)">&#8592;</button>
+      <div class="sds" id="sd"></div>
+      <button class="sva" onclick="smv(1)">&#8594;</button>
+    </div>
+  </div>
+  <!-- All Service Providers -->
+  <div class="slbl" style="margin-top:.4rem"><h2><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> All Service Providers</h2><a href="#">Refresh</a></div>
+  <div class="pvgrid" id="pvg"></div>
+</div></div>
+
+<!-- DRAWER -->
+<div class="dr" id="dr">
+  <div class="dov" onclick="closeDr()"></div>
+  <div class="dsh">
+    <div class="dhn"></div>
+    <div class="dh"><span class="dic" id="dico"></span><div class="dtl" id="dttl"></div></div>
+    <div class="dsb" id="dsb"></div>
+    <div class="dg" id="dg"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mov" id="mv" onclick="if(event.target===this)closeMod()">
+  <div class="modal">
+    <div class="mtl">Offer a Service</div>
+    <div class="msb">What would you like to do?</div>
+    <div class="mop">
+      <div class="mo" onclick="location.href='{% url 'listings:create' %}?type=service'"><span class="moic"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><div class="molb">List Service</div></div>
+      <div class="mo" onclick="location.href='{% url 'profile:profile' %}'"><span class="moic"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span><div class="molb">Boost Service</div></div>
+      <div class="mo" onclick="location.href='#'"><span class="moic"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><div class="molb">Arrange Meetup</div></div>
+      <div class="mo" onclick="location.href='{% url 'base:help' %}'"><span class="moic"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><div class="molb">Help Centre</div></div>
+    </div>
+    <button class="mcl" onclick="closeMod()">Cancel</button>
+  </div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="npanel" id="npanel">
+  <div class="nph"><span class="nptitle">Notifications</span><button class="npmrk" onclick="markAllRead()">Mark all read</button></div>
+  <div class="nplist" id="nlist"></div>
+</div>
+
+<!--bottomnav-->
+
+{% include 'dash/bot_nav.html'%}
+
+<!-- ── LISTING DETAIL SHEET ── -->
+<div id="ldOv" style="position:fixed;inset:0;z-index:750;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s;display:flex;align-items:flex-end;justify-content:center">
+  <div id="ldSheet" style="width:100%;max-width:580px;background:var(--card);border-radius:24px 24px 0 0;border-top:1px solid rgba(255,255,255,.1);max-height:88dvh;overflow-y:auto;transform:translateY(100%);transition:transform .38s cubic-bezier(.4,0,.2,1)">
+    <!-- Handle + close -->
+    <div style="position:sticky;top:0;z-index:2;background:var(--card);padding:.75rem 1.1rem .4rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06)">
+      <div style="width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);margin:0 auto;flex:1;max-width:36px"></div>
+      <button id="ldClose" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:var(--m);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+    </div>
+    <!-- Photo gallery -->
+    <div id="ldGallery" style="width:100%;aspect-ratio:4/3;background:var(--inp);overflow:hidden;position:relative;max-height:280px"></div>
+    <!-- Photo dots -->
+    <div id="ldDots" style="display:flex;justify-content:center;gap:.35rem;padding:.5rem 0 0"></div>
+    <!-- Body -->
+    <div style="padding:1.1rem 1.2rem 1.4rem">
+      <!-- Type + category badges -->
+      <div id="ldBadges" style="display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap"></div>
+      <!-- Title -->
+      <div id="ldTitle" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;letter-spacing:-.3px;line-height:1.25;margin-bottom:.4rem"></div>
+      <!-- Price -->
+      <div id="ldPrice" style="font-size:1.25rem;font-weight:800;color:var(--a);font-family:'Playfair Display',serif;margin-bottom:.5rem"></div>
+      <!-- Seller row -->
+      <div style="display:flex;align-items:center;gap:.6rem;padding:.6rem 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:.85rem">
+        <div id="ldAv" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--a),#f5c842);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#0d0e11;flex-shrink:0;font-family:'Playfair Display',serif"></div>
+        <div style="flex:1;min-width:0">
+          <div id="ldSellerName" style="font-size:.84rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+          <div id="ldSellerMeta" style="font-size:.7rem;color:var(--m)"></div>
+        </div>
+        <div id="ldStatus" style="font-size:.65rem;font-weight:700;padding:.2rem .55rem;border-radius:5px"></div>
+      </div>
+      <!-- Detail rows -->
+      <div id="ldRows" style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:.9rem"></div>
+      <!-- Description -->
+      <div id="ldDescWrap" style="display:none;margin-bottom:.9rem">
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--m);margin-bottom:.4rem">Description</div>
+        <div id="ldDesc" style="font-size:.85rem;line-height:1.7;color:var(--t)"></div>
+      </div>
+      <!-- Tags -->
+      <div id="ldTagsWrap" style="display:none;margin-bottom:1rem">
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--m);margin-bottom:.4rem">Tags</div>
+        <div id="ldTags" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <button id="ldChatBtn" style="width:100%;padding:.85rem;border-radius:12px;background:var(--a);color:#0d0e11;border:none;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .2s"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Message Seller</button>
+        <div style="display:flex;gap:.5rem">
+          <button id="ldWishBtn" style="flex:1;padding:.7rem;border-radius:12px;background:rgba(255,255,255,.06);color:var(--t);border:1px solid rgba(255,255,255,.1);font-family:'DM Sans',sans-serif;font-size:.84rem;cursor:pointer"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Save</button>
+          <button id="ldShareBtn" style="flex:1;padding:.7rem;border-radius:12px;background:rgba(255,255,255,.06);color:var(--t);border:1px solid rgba(255,255,255,.1);font-family:'DM Sans',sans-serif;font-size:.84rem;cursor:pointer"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Share</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const html=document.documentElement,tb=document.getElementById('thbtn');let dark=true;
+function applyTheme(d){html.setAttribute('data-theme',d?'dark':'light');const tm=document.getElementById('themeColorMeta');if(tm)tm.setAttribute('content',d?'#0d0e11':'#f0ede8');tb.innerHTML=d?'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';dark=d;localStorage.setItem('pu-theme',d?'dark':'light')}
+const sv=localStorage.getItem('pu-theme');if(sv)applyTheme(sv==='dark');
+tb.addEventListener('click',()=>applyTheme(!dark));
+const sb=document.getElementById('sb'),ov=document.getElementById('ov');
+document.getElementById('hbg').onclick=()=>{sb.classList.add('on');ov.classList.add('on');document.body.style.overflow='hidden'};
+function closeSb(){sb.classList.remove('on');ov.classList.remove('on');document.body.style.overflow=''}
+if(window.innerWidth>=960)sb.classList.add('on');
+window.addEventListener('resize',()=>{if(window.innerWidth>=960){sb.classList.add('on');ov.classList.remove('on')}else{sb.classList.remove('on');}});
+
+/* ── SERVICE CATEGORIES (framework only — no mock sub-items or provider counts) ── */
+const SD=[
+  {id:'design',   icon:'palette', name:'Graphic Design',    cat:'design',    img:'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=300&q=70&auto=format'},
+  {id:'tutoring', icon:'book', name:'Tutoring',           cat:'tutoring',  img:'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&q=70&auto=format'},
+  {id:'tech',     icon:'laptop', name:'Tech & Coding',      cat:'tech',      img:'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=300&q=70&auto=format'},
+  {id:'delivery', icon:'run', name:'Campus Delivery',    cat:'delivery',  img:'https://images.unsplash.com/photo-1526367790999-0150786686a2?w=300&q=70&auto=format'},
+  {id:'writing',  icon:'edit', name:'Writing & Editing',  cat:'writing',   img:'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300&q=70&auto=format'},
+  {id:'photo',    icon:'camera', name:'Photography',        cat:'photo',     img:'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=300&q=70&auto=format'},
+  {id:'food',     icon:'food', name:'Food & Snacks',      cat:'food',      img:'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300&q=70&auto=format'},
+  {id:'print',    icon:'print', name:'Printing',           cat:'print',     img:'https://images.unsplash.com/photo-1612815292986-2c6b8ef9c89d?w=300&q=70&auto=format'},
+  {id:'video',    icon:'video', name:'Video Editing',      cat:'video',     img:'https://images.unsplash.com/photo-1536240478700-b869ad10e128?w=300&q=70&auto=format'},
+];
+
+/* ── CATEGORY badge colour map ── */
+const CAT_STYLE={
+  design:   {bc:'rgba(232,201,106,.18)',bt:'var(--a)'},
+  tutoring: {bc:'rgba(91,229,197,.18)', bt:'#5be5c5'},
+  tech:     {bc:'rgba(160,120,255,.18)',bt:'#a78bfa'},
+  delivery: {bc:'rgba(255,107,107,.18)',bt:'#ff6b6b'},
+  writing:  {bc:'rgba(91,229,197,.18)', bt:'#5be5c5'},
+  photo:    {bc:'rgba(251,146,60,.18)', bt:'#fb923c'},
+  food:     {bc:'rgba(232,201,106,.18)',bt:'var(--a)'},
+  print:    {bc:'rgba(251,146,60,.18)', bt:'#fb923c'},
+  video:    {bc:'rgba(160,120,255,.18)',bt:'#a78bfa'},
+};
+
+/* ── LOAD real service listings posted by users via create-listing.html ──
+   Listings are written to localStorage under 'pu-listings' by the create flow.
+   Each listing has: { id, title, cat, price, seller, sellerUsername, img, date, … }
+   We filter to type === 'service' (or the service categories above).
+   ── */
+async function loadListings(){
+  try{
+    const response = await fetch('/listings/api/all/');
+    const all = await response.json();
+    localStorage.setItem('pu-listings', JSON.stringify(all));
+    // Accept entries explicitly typed as service, or whose cat matches a known service category
+    const svcCats=new Set(SD.map(s=>s.cat));
+    return all.filter(l=>l.type==='service'||svcCats.has(l.cat));
+  }catch(e){
+    console.warn('loadListings:', e);
+    const raw=localStorage.getItem('pu-listings');
+    if(!raw)return[];
+    const all=JSON.parse(raw);
+    const svcCats=new Set(SD.map(s=>s.cat));
+    return all.filter(l=>l.type==='service'||svcCats.has(l.cat));
+  }
+}
+
+/* Convert a raw listing object into the provider card shape */
+function listingToProvider(l){
+  const style=CAT_STYLE[l.cat]||{bc:'rgba(255,255,255,.08)',bt:'var(--t)'};
+  const badge=SD.find(s=>s.cat===l.cat)?.name||l.cat||'Service';
+  return{
+    id:     l.id,
+    name:   l.title||l.name||'Untitled Service',
+    cat:    l.cat||'other',
+    seller: '@'+(l.sellerUsername||l.seller||'anonymous'),
+    price:  l.price?(typeof l.price==='number'?'From GH₵ '+l.price.toLocaleString():''+l.price):'Price on request',
+    rating: l.rating?l.rating:'—',
+    img:    l.img||l.imageUrl||'',
+    badge,
+    bc:     style.bc,
+    bt:     style.bt,
+    raw:    l,
+  };
+}
+
+/* ── STATE ── */
+let ALL_PROVIDERS = [];
+let filtered = [];
+let cur=[...SD],si2=0,sat2,cpp=4;
+
+async function initDashboard() {
+  const listings = await loadListings();
+  ALL_PROVIDERS = listings.map(listingToProvider);
+  filtered = [...ALL_PROVIDERS];
+  updateCategoryCounts();
+  buildSvc(cur);
+  renderProviders(ALL_PROVIDERS);
+}
+
+function getCpp(){const w=window.innerWidth;return w<500?2:w<780?3:4}
+
+/* ── Derive live sub-item counts per category from real listings ── */
+function updateCategoryCounts(){
+  SD.forEach(s=>{
+    const count=ALL_PROVIDERS.filter(p=>p.cat===s.cat).length;
+    s.count=count>0?count+' provider'+(count!==1?'s':''):'No providers yet';
+  });
+}
+
+/* ── RENDER: provider cards ── */
+function renderProviders(data){
+  const g=document.getElementById('pvg');
+  document.getElementById('resCount').textContent=
+    data.length?'Showing '+data.length+' service'+(data.length!==1?'s':''):'No services found';
+
+  if(!data.length){
+    g.innerHTML=`
+      <div style="grid-column:1/-1;text-align:center;padding:3.5rem 1rem">
+        <div style="margin-bottom:.75rem;opacity:.4"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+        <div style="font-size:.95rem;font-weight:600;color:var(--t);margin-bottom:.35rem">No services posted yet</div>
+        <div style="font-size:.8rem;color:var(--m);margin-bottom:1.25rem">Be the first to offer a campus service in this category</div>
+        <button onclick="location.href='{% url 'listings:create' %}'"
+          style="background:var(--a2);color:#0d0e11;border:none;border-radius:10px;padding:.6rem 1.4rem;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:700;cursor:pointer">
+          + Post a Service
+        </button>
+      </div>`;
+    return;
+  }
+
+  g.innerHTML=data.map(p=>`
+    <div class="pvc" onclick="openProviderDetail('${p.id}')">
+      <div class="pvimg">
+        ${p.img
+          ?`<img src="${escH(p.img)}" alt="${escH(p.name)}" loading="lazy"/>`
+          :`<div style="width:100%;height:100%;background:var(--card);display:flex;align-items:center;justify-content:center;">${SD.find(s=>s.cat===p.cat)?.icon||''}</div>`
+        }
+        <span class="pvcat" style="background:${p.bc};color:${p.bt}">${escH(p.badge)}</span>
+      </div>
+      <div class="pvbd">
+        <div class="pvname">${escH(p.name)}</div>
+        <div class="pvprice">${escH(p.price)}</div>
+        <div class="pvrow">
+          <span class="pvsel">${escH(p.seller)}</span>
+          <span class="pvrat">${p.rating}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ── Provider detail: open detail sheet ── */
+function openProviderDetail(id){
+  // id is the listing id from pu-listings
+  openListingDetail(String(id));
+}
+
+/* ── FILTER by category pill ── */
+function fcat(pill,cat){
+  document.querySelectorAll('.cp').forEach(p=>p.classList.remove('on'));
+  pill.classList.add('on');
+  const q=document.getElementById('si').value.toLowerCase().trim();
+  filtered=applySearch(cat==='all'?ALL_PROVIDERS:ALL_PROVIDERS.filter(p=>p.cat===cat),q);
+  cur=cat==='all'?[...SD]:SD.filter(s=>s.cat===cat);
+  si2=0;buildSvc(cur);renderProviders(filtered);
+}
+
+/* ── SEARCH ── */
+function applySearch(pool,q){
+  if(!q)return pool;
+  return pool.filter(p=>
+    p.name.toLowerCase().includes(q)||
+    p.seller.toLowerCase().includes(q)||
+    p.badge.toLowerCase().includes(q)||
+    p.cat.toLowerCase().includes(q)
+  );
+}
+function doSearch(inp){
+  const v=inp.value.toLowerCase().trim();
+  const activeCat=document.querySelector('.cp.on')?.dataset?.cat||'all';
+  const pool=activeCat==='all'?ALL_PROVIDERS:ALL_PROVIDERS.filter(p=>p.cat===activeCat);
+  filtered=applySearch(pool,v);
+  cur=v?SD.filter(s=>s.name.toLowerCase().includes(v)||s.cat.toLowerCase().includes(v)):[...SD];
+  si2=0;buildSvc(cur);renderProviders(filtered);
+}
+function clearS(){const i=document.getElementById('si');i.value='';doSearch(i)}
+
+/* ── SORT ── */
+function doSort(val){
+  const d=[...filtered];
+  if(val==='price-asc')d.sort((a,b)=>parsePrice(a.price)-parsePrice(b.price));
+  else if(val==='price-desc')d.sort((a,b)=>parsePrice(b.price)-parsePrice(a.price));
+  else if(val==='rating')d.sort((a,b)=>{
+    const ra=parseFloat((a.rating||'').replace(/[^\d.]/g,''))||0;
+    const rb=parseFloat((b.rating||'').replace(/[^\d.]/g,''))||0;
+    return rb-ra;
+  });
+  renderProviders(d);
+}
+function parsePrice(str){
+  const m=String(str||'').match(/[\d,]+/);
+  return m?parseInt(m[0].replace(/,/g,''),10):Infinity;
+}
+
+/* ── XSS guard ── */
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── INIT render ── */
+initDashboard();
+
+/* ── Re-read listings on focus (user may have just posted one) ── */
+window.addEventListener('focus',async ()=>{
+  const rawListings = await loadListings();
+  const fresh=rawListings.map(listingToProvider);
+  if(fresh.length!==ALL_PROVIDERS.length){
+    ALL_PROVIDERS=fresh;filtered=[...ALL_PROVIDERS];
+    updateCategoryCounts();buildSvc(cur);renderProviders(filtered);
+  }
+});
+
+/* Category slider */
+function buildSvc(data){
+  cpp=getCpp();const T=document.getElementById('st'),Sd=document.getElementById('sd');T.innerHTML='';Sd.innerHTML='';
+  if(!data.length){T.innerHTML='<div class="svp" style="min-width:100%;padding:.5rem;color:var(--m);font-size:.88rem">No categories found.</div>';return}
+  const pages=Math.ceil(data.length/cpp);
+  for(let p=0;p<pages;p++){
+    const pg=document.createElement('div');pg.className='svp';
+    data.slice(p*cpp,(p+1)*cpp).forEach(s=>{
+      const count=ALL_PROVIDERS.filter(x=>x.cat===s.cat).length;
+      const countTxt=count>0?count+' provider'+(count!==1?'s':''):'No providers yet';
+      pg.innerHTML+=`<div class="svc" onclick="openDr('${s.id}')">
+        <button class="svx" onclick="event.stopPropagation();openDr('${s.id}')">+</button>
+        <div class="svi"><img src="${s.img}" alt="${s.name}" loading="lazy"/></div>
+        <div class="svn">${s.name}</div>
+        <div class="svc2">${countTxt}</div>
+      </div>`;
+    });
+    T.appendChild(pg);
+    const d=document.createElement('div');d.className='sdd'+(p===0?' on':'');d.onclick=()=>{clearTimeout(sat2);gs(p)};Sd.appendChild(d);
+  }
+  gs(0);
+}
+
+/* Drawer — shows live providers in that category, not hardcoded sub-items */
+const DR=document.getElementById('dr');
+function openDr(id){
+  const s=SD.find(x=>x.id===id);if(!s)return;
+  document.getElementById('dico').textContent=s.icon;
+  document.getElementById('dttl').textContent=s.name;
+  const catProviders=ALL_PROVIDERS.filter(p=>p.cat===s.cat);
+  document.getElementById('dsb').textContent=
+    catProviders.length?catProviders.length+' provider'+(catProviders.length!==1?'s':'')+' on campus':'No providers yet — be the first!';
+  document.getElementById('dg').innerHTML=catProviders.length
+    ?catProviders.map(p=>`
+        <div class="di" onclick="openProviderDetail('${p.id}')">
+          <div class="dth">${p.img?`<img src="${escH(p.img)}" alt="${escH(p.name)}" loading="lazy"/>`:`<div style="width:100%;height:100%;background:var(--card);display:flex;align-items:center;justify-content:center;">${s.icon}</div>`}</div>
+          <div>
+            <div class="din">${escH(p.name)}</div>
+            <div class="dip">${escH(p.price)}</div>
+            <div class="dir">${escH(p.seller)}</div>
+          </div>
+        </div>`).join('')
+    :`<div style="grid-column:1/-1;text-align:center;padding:1.5rem;color:var(--m);font-size:.84rem">
+        No services posted yet in this category.<br>
+        <button onclick="closeDr();location.href='{% url 'listings:create' %}'"
+          style="margin-top:.75rem;background:var(--a2);color:#0d0e11;border:none;border-radius:9px;padding:.5rem 1.2rem;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer">
+          + Post a Service
+        </button>
+      </div>`;
+  DR.classList.add('on');document.body.style.overflow='hidden';
+}
+function closeDr(){DR.classList.remove('on');document.body.style.overflow=''}
+
+function gs(i){const pages=document.getElementById('st').querySelectorAll('.svp').length;if(!pages)return;si2=((i%pages)+pages)%pages;document.getElementById('st').style.transform='translateX(-'+si2*100+'%)';document.getElementById('sd').querySelectorAll('.sdd').forEach((d,j)=>d.classList.toggle('on',j===si2))}
+function smv(d){clearTimeout(sat2);gs(si2+d);ssa()}
+function ssa(){sat2=setTimeout(()=>{gs(si2+1);ssa()},3600)}
+buildSvc(cur);ssa();
+const SW=document.getElementById('sw');
+SW.addEventListener('mouseenter',()=>clearTimeout(sat2));
+SW.addEventListener('mouseleave',ssa);
+let stx=0;SW.addEventListener('touchstart',e=>{stx=e.touches[0].clientX},{passive:true});
+SW.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-stx;if(Math.abs(dx)>40){clearTimeout(sat2);gs(si2+(dx<0?1:-1));ssa()}});
+window.addEventListener('resize',()=>{if(getCpp()!==cpp){clearTimeout(sat2);buildSvc(cur);ssa()}});
+
+/* Featured slider */
+const FT=document.getElementById('ft'),FD=document.getElementById('fd');
+const slides=FT.querySelectorAll('.fsl');let fi=0,fat;
+function buildFd(){FD.innerHTML='';slides.forEach((_,i)=>{const d=document.createElement('div');d.className='fd'+(i===0?' on':'');d.onclick=()=>gf(i);FD.appendChild(d)})}
+function gf(i){fi=((i%slides.length)+slides.length)%slides.length;FT.style.transform='translateX(-'+fi*100+'%)';FD.querySelectorAll('.fd').forEach((d,j)=>d.classList.toggle('on',j===fi))}
+function fmv(d){clearInterval(fat);gf(fi+d);sfa()}
+function sfa(){fat=setInterval(()=>gf(fi+1),4200)}
+buildFd();sfa();
+document.getElementById('fw').addEventListener('mouseenter',()=>clearInterval(fat));
+document.getElementById('fw').addEventListener('mouseleave',sfa);
+let ftx=0;FT.addEventListener('touchstart',e=>{ftx=e.touches[0].clientX},{passive:true});
+FT.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-ftx;if(Math.abs(dx)>40){clearInterval(fat);gf(fi+(dx<0?1:-1));sfa()}});
+
+/* Modal */
+const MV=document.getElementById('mv');
+function openMod(){MV.classList.add('on');document.body.style.overflow='hidden'}
+function closeMod(){MV.classList.remove('on');document.body.style.overflow=''}
+
+/* NOTIFICATIONS */
+const NOTIFS=[];
+let notifs=[...NOTIFS];
+function renderNotifs(){const list=document.getElementById('nlist');const unread=notifs.filter(n=>n.unread).length;const badge=document.getElementById('nbadge');if(unread>0){badge.textContent=unread>9?'9+':unread;badge.classList.remove('hidden')}else{badge.classList.add('hidden')}list.innerHTML=notifs.map(n=>`<div class="nitem${n.unread?' unread':''}" onclick="markRead(${n.id})"><div class="nico2" style="background:${n.bg}">${n.icon}</div><div class="ntxt"><div class="ntitle2">${n.title}</div><div class="ndesc">${n.desc}</div></div><div class="ntime">${n.time}</div></div>`).join('')}
+function markRead(id){const n=notifs.find(x=>x.id===id);if(n)n.unread=false;renderNotifs()}
+function markAllRead(){notifs.forEach(n=>n.unread=false);renderNotifs()}
+const NP=document.getElementById('npanel');
+function toggleNotif(){NP.classList.toggle('open')}
+document.addEventListener('click',e=>{if(!e.target.closest('#notibtn')&&!e.target.closest('#npanel'))NP.classList.remove('open')});
+renderNotifs();
+function openBoost(){
+  // Navigate to chat with support context
+  try{localStorage.setItem('pu-chat-open',JSON.stringify({username:'support',listing:'Boost Request'}));}catch(e){}
+  location.href='{% url 'chat:chat' %}';
+}
+
+/* ════════════════════════════════════════════
+   LISTING DETAIL SHEET — shared across dashboards
+════════════════════════════════════════════ */
+(function(){
+  const ldOv  = document.getElementById('ldOv');
+  const ldSh  = document.getElementById('ldSheet');
+  let   curId = null;
+  let   gIdx  = 0;
+  let   gImgs = [];
+  let   wishSet = new Set(JSON.parse(localStorage.getItem('pu-wish-ids')||'[]'));
+
+  function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+  function fmtPrice(l){
+    if(l.contactForPrice)return 'Contact for Price';
+    if(l.priceLabel)return l.priceLabel;
+    if(l.price!=null&&l.price!=='')return 'GH₵ '+Number(l.price).toLocaleString()+(l.negotiable?' (Negotiable)':'');
+    return '—';
+  }
+
+  function timeAgo(ts){
+    if(!ts)return '';
+    const s=Math.floor((Date.now()-ts)/1000);
+    if(s<60)return 'Just now';
+    if(s<3600)return Math.floor(s/60)+'m ago';
+    if(s<86400)return Math.floor(s/3600)+'h ago';
+    if(s<604800)return Math.floor(s/86400)+'d ago';
+    return new Date(ts).toLocaleDateString('en-GH',{day:'numeric',month:'short',year:'numeric'});
+  }
+
+  function initials(name){
+    return String(name||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  }
+
+  /* Build gallery */
+  function buildGallery(imgs){
+    const gal = document.getElementById('ldGallery');
+    const dots = document.getElementById('ldDots');
+    gImgs = imgs.length ? imgs : [];
+    gIdx  = 0;
+    if(!gImgs.length){
+      gal.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--inp)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>';
+      dots.innerHTML = '';
+      return;
+    }
+    function showImg(i){
+      gIdx = i;
+      gal.innerHTML = `<img src="${escH(gImgs[i])}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+      dots.innerHTML = gImgs.length > 1
+        ? gImgs.map((_,j)=>`<div onclick="window._ldGo(${j})" style="width:${j===i?18:7}px;height:7px;border-radius:99px;background:${j===i?'var(--a)':'rgba(255,255,255,.25)'};cursor:pointer;transition:all .3s"></div>`).join('')
+        : '';
+    }
+    window._ldGo = function(i){ showImg(((i%gImgs.length)+gImgs.length)%gImgs.length); };
+    showImg(0);
+    /* Swipe */
+    let tx=0;
+    gal.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+    gal.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)window._ldGo(gIdx+(dx<0?1:-1));});
+    gal.style.cursor='pointer';
+    gal.onclick=()=>{ if(gImgs.length>1) window._ldGo(gIdx+1); };
+  }
+
+  /* Row helper */
+  function row(label,value){
+    return `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:.38rem 0;border-bottom:1px solid rgba(255,255,255,.05);gap:.75rem">
+      <span style="font-size:.75rem;color:var(--m);flex-shrink:0;min-width:90px">${escH(label)}</span>
+      <span style="font-size:.78rem;font-weight:500;text-align:right;word-break:break-word">${escH(value)}</span>
+    </div>`;
+  }
+
+  /* Open */
+  window.openListingDetail = function(id){
+    const all = JSON.parse(localStorage.getItem('pu-listings')||'[]');
+    const l   = all.find(x=>x.id===id);
+    if(!l) return;
+    curId = id;
+
+    /* Increment view count */
+    l.views = (l.views||0)+1;
+    try{ localStorage.setItem('pu-listings',JSON.stringify(all)); }catch(e){}
+
+    /* Gallery */
+    const imgs = Array.isArray(l.images)&&l.images.length ? l.images : (l.img ? [l.img] : []);
+    buildGallery(imgs);
+
+    /* Badges */
+    const isService = l.type==='service';
+    const typeBg    = isService?'rgba(91,229,197,.14)':'rgba(232,201,106,.14)';
+    const typeClr   = isService?'#5be5c5':'var(--a)';
+    document.getElementById('ldBadges').innerHTML =
+      `<span style="background:${typeBg};color:${typeClr};font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:5px">${isService?'Service':'Product'}</span>`+
+      (l.category||l.cat?`<span style="background:rgba(255,255,255,.07);color:var(--m);font-size:.65rem;padding:.2rem .6rem;border-radius:5px">${escH(l.category||l.cat)}</span>`:'')+
+      (l.subcategory?`<span style="background:rgba(255,255,255,.05);color:var(--m);font-size:.65rem;padding:.2rem .6rem;border-radius:5px">${escH(l.subcategory)}</span>`:'');
+
+    /* Title */
+    document.getElementById('ldTitle').textContent = l.title||l.name||'Untitled';
+
+    /* Price */
+    document.getElementById('ldPrice').textContent = fmtPrice(l);
+
+    /* Seller */
+    const sName = l.seller||'Anonymous';
+    document.getElementById('ldAv').innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:55%;height:55%;opacity:.7"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    document.getElementById('ldSellerName').textContent = sName;
+    document.getElementById('ldSellerMeta').textContent =
+      ('@'+(l.sellerUsername||'')) + (l.postedAt ? ' · '+timeAgo(l.postedAt) : '') +
+      (l.meetup ? ' · '+l.meetup : '');
+
+    /* Status badge */
+    const st = l.status||'active';
+    const stMap = {active:['rgba(91,229,197,.12)','#5be5c5','Active'],sold:['rgba(255,107,107,.12)','#ff6b6b','Sold'],paused:['rgba(160,120,255,.12)','#a78bfa','Paused'],boosted:['rgba(232,201,106,.15)','var(--a)','Boosted']};
+    const [sbg,sclr,slbl] = stMap[st]||stMap.active;
+    const stEl = document.getElementById('ldStatus');
+    stEl.style.background = sbg; stEl.style.color = sclr; stEl.textContent = slbl;
+
+    /* Detail rows */
+    const rows = [];
+    if(l.condition)          rows.push(row('Condition', l.condition));
+    if(l.availability)       rows.push(row('Availability', l.availability));
+    if(l.brand)              rows.push(row('Brand', l.brand));
+    if(l.meetup)             rows.push(row('Meetup Spot', l.meetup));
+    if(l.phone)              rows.push(row('Contact', l.phone));
+    document.getElementById('ldRows').innerHTML = rows.join('');
+
+    /* Description */
+    const descWrap = document.getElementById('ldDescWrap');
+    if(l.description){
+      document.getElementById('ldDesc').textContent = l.description;
+      descWrap.style.display='block';
+    } else { descWrap.style.display='none'; }
+
+    /* Tags */
+    const tagsWrap = document.getElementById('ldTagsWrap');
+    if(Array.isArray(l.tags)&&l.tags.length){
+      document.getElementById('ldTags').innerHTML = l.tags.map(t=>`<span style="background:rgba(91,229,197,.1);border:1px solid rgba(91,229,197,.2);border-radius:99px;padding:.18rem .6rem;font-size:.72rem;font-weight:500;color:#5be5c5">${escH(t)}</span>`).join('');
+      tagsWrap.style.display='block';
+    } else { tagsWrap.style.display='none'; }
+
+    /* Message seller */
+    document.getElementById('ldChatBtn').onclick = function(){
+      try{ localStorage.setItem('pu-chat-open', JSON.stringify({username:l.sellerUsername||l.seller,listing:l.title||l.name})); }catch(e){}
+      location.href='{% url 'chat:chat' %}';
+    };
+
+    /* Wishlist / save */
+    const wishBtn = document.getElementById('ldWishBtn');
+    wishBtn.innerHTML = wishSet.has(id) ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Saved' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Save';
+    wishBtn.onclick = function(){
+      if(wishSet.has(id)){ wishSet.delete(id); wishBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Save'; }
+      else { wishSet.add(id); wishBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Saved'; }
+      try{ localStorage.setItem('pu-wish-ids',JSON.stringify([...wishSet])); }catch(e){}
+    };
+
+    /* Share */
+    document.getElementById('ldShareBtn').onclick = function(){
+      const text = (l.title||l.name||'Listing')+' — '+(fmtPrice(l))+' on PU-Connect';
+      if(navigator.share){ navigator.share({title:l.title||l.name||'',text,url:location.href}).catch(()=>{}); }
+      else { navigator.clipboard?.writeText(text).then(()=>ldToast('Link copied!')).catch(()=>ldToast('Copied!')); }
+    };
+
+    /* Show overlay */
+    ldOv.style.pointerEvents='all';
+    ldOv.style.opacity='1';
+    requestAnimationFrame(()=>ldSh.style.transform='translateY(0)');
+    document.body.style.overflow='hidden';
+  };
+
+  /* Close */
+  function closeLD(){
+    ldSh.style.transform='translateY(100%)';
+    ldOv.style.opacity='0';
+    setTimeout(()=>{ ldOv.style.pointerEvents='none'; },380);
+    document.body.style.overflow='';
+    curId=null;
+  }
+
+  document.getElementById('ldClose').onclick = closeLD;
+  ldOv.addEventListener('click',e=>{ if(e.target===ldOv) closeLD(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&curId) closeLD(); });
+
+  /* Swipe down to dismiss */
+  let sy=0;
+  ldSh.addEventListener('touchstart',e=>{ sy=e.touches[0].clientY; },{passive:true});
+  ldSh.addEventListener('touchend',e=>{
+    const dy=e.changedTouches[0].clientY-sy;
+    if(dy>80&&ldSh.scrollTop===0) closeLD();
+  },{passive:true});
+
+  /* Toast */
+  window.ldToast = function(msg){
+    let t=document.getElementById('ld-toast');
+    if(!t){t=document.createElement('div');t.id='ld-toast';t.style.cssText='position:fixed;bottom:calc(var(--bh,78px)+18px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.6rem 1.2rem;font-size:.82rem;font-weight:500;color:var(--t);box-shadow:0 8px 32px rgba(0,0,0,.6);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:999;white-space:nowrap';document.body.appendChild(t);}
+    t.textContent=msg;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+    clearTimeout(window._ldToastT);window._ldToastT=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)';},2600);
+  };
+})();
+
+</script>
+<script>(function(){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.register('/sw.js',{scope:'/'}).then(reg=>{
+    if(!('Notification' in window)||!('PushManager' in window))return;
+    if(Notification.permission==='denied')return;
+    Notification.requestPermission().then(p=>{
+      if(p!=='granted')return;
+      const vapidKey='{{ VAPID_PUBLIC_KEY }}';
+      if(!vapidKey)return;
+      reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:_u8(vapidKey)})
+        .then(sub=>{
+          const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
+          fetch('/chat/api/push-subscribe/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify(sub.toJSON())});
+        }).catch(()=>{});
+    });
+  }).catch(()=>{});
+  function _u8(b64){const p=(b64+'='.repeat((4-b64.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/');const r=atob(p);const o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+})();</script>
+<script src="{% static 'Base_app/js/notifications.js' %}"></script>
+</body>
+</html>

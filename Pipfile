@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+pillow = "*"
+django-allauth = {extras = ["socialaccount"], version = "*"}
+daphne = "*"
+channels = "*"
+channels-redis = "*"
+redis = "==5.0.0"
+whitenoise = "*"
+boto3 = "*"
+pywebpush = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

@@ -1,0 +1,945 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
+  <title>Student Verification — PU-Connect</title>
+  <style>
+  /* ── TOKENS ── */
+  :root{
+    --bg:#0d0e11;--surface:#1c1f27;--surface2:#23272f;
+    --border:rgba(255,255,255,.07);--text:#f0eeea;--m:#7a7e8a;
+    --accent:#e8c96a;--red:#e53e3e;--green:#38a169;--card-r:18px;
+  }
+  [data-theme="light"]{
+    --bg:#f0ede8;--surface:#fff;--surface2:#f4f2ee;
+    --border:rgba(0,0,0,.08);--text:#1a1a1a;--m:#6b7280;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);
+    min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ── TOP NAV ── */
+  .tnav{
+    position:sticky;top:0;z-index:200;
+    display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-back{
+    display:flex;align-items:center;justify-content:center;
+    width:36px;height:36px;border-radius:50%;
+    background:var(--surface2);border:none;color:var(--text);
+  }
+  .nav-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .nav-title{flex:1;font-size:.95rem;font-weight:600}
+
+  /* ── STEP RAIL ── */
+  .step-rail{
+    display:flex;align-items:center;justify-content:center;
+    padding:1.1rem 1rem .5rem;gap:0;
+  }
+  .sr-step{display:flex;flex-direction:column;align-items:center;gap:.25rem;min-width:68px}
+  .sr-dot{
+    width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.72rem;font-weight:700;border:2px solid var(--border);
+    background:var(--surface2);color:var(--m);
+    transition:all .25s;
+  }
+  .sr-step.active .sr-dot{background:var(--accent);color:#1a1400;border-color:var(--accent)}
+  .sr-step.done .sr-dot{background:rgba(56,161,105,.2);color:var(--green);border-color:var(--green)}
+  .sr-step.done .sr-dot::after{content:'✓';font-size:.8rem}
+  .sr-step.done .sr-dot span{display:none}
+  .sr-lbl{font-size:.6rem;font-weight:600;color:var(--m);text-align:center;line-height:1.2}
+  .sr-step.active .sr-lbl{color:var(--accent)}
+  .sr-step.done .sr-lbl{color:var(--green)}
+  .sr-line{flex:1;height:2px;background:var(--border);max-width:28px;margin-bottom:1.4rem;transition:background .25s}
+  .sr-line.done{background:var(--green)}
+
+  /* ── PAGE BODY ── */
+  .vbody{max-width:480px;margin:0 auto;padding:1rem 1.1rem 2.5rem}
+
+  /* ── STEP PANEL ── */
+  .vstep-panel{display:none;animation:fadeSlide .22s ease}
+  .vstep-panel.active{display:block}
+  @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  .step-icon{text-align:center;margin-bottom:.9rem}
+  .step-title{font-size:1.15rem;font-weight:700;margin-bottom:.3rem}
+  .step-sub{font-size:.85rem;color:var(--m);line-height:1.55;margin-bottom:1.1rem}
+
+  /* ── INPUT ── */
+  .field{margin-bottom:1rem}
+  .field label{display:block;font-size:.75rem;font-weight:600;color:var(--m);margin-bottom:.35rem}
+  .field input{
+    width:100%;background:var(--surface2);border:1.5px solid var(--border);
+    border-radius:12px;padding:.7rem .9rem;color:var(--text);
+    font-size:max(.9rem,16px);outline:none;transition:border-color .15s;
+  }
+  .field input:focus{border-color:var(--accent)}
+  .field-hint{font-size:.72rem;color:var(--m);margin-top:.3rem}
+
+  /* ── ID CARD UPLOAD ── */
+  .id-zone{
+    width:100%;aspect-ratio:16/9;border-radius:14px;
+    border:2px dashed var(--border);background:var(--surface2);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:.5rem;cursor:pointer;overflow:hidden;position:relative;
+    transition:border-color .2s,background .2s;
+  }
+  .id-zone:hover,.id-zone.dragover{border-color:var(--accent);background:rgba(232,201,106,.04)}
+  .id-zone.has-photo{border-color:var(--green);border-style:solid}
+  .id-zone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px}
+  .id-zone-inner{display:flex;flex-direction:column;align-items:center;gap:.4rem;pointer-events:none}
+  .id-tips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.85rem;margin-bottom:1rem}
+  .id-tip{font-size:.72rem;color:var(--m);background:var(--surface2);
+    padding:.22rem .6rem;border-radius:999px;border:1px solid var(--border)}
+
+  /* ── CAMERA / LIVENESS ── */
+  .cam-stage{
+    position:relative;width:100%;max-width:300px;
+    aspect-ratio:3/4;border-radius:24px;overflow:hidden;
+    background:#000;margin:0 auto 1rem;
+  }
+  .cam-video{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;transform:scaleX(-1);
+  }
+  .cam-canvas{position:absolute;inset:0;width:100%;height:100%}
+
+  /* Oval cut-out overlay */
+  .cam-overlay{position:absolute;inset:0;pointer-events:none}
+  .cam-overlay svg{width:100%;height:100%}
+
+  /* HUD bar at bottom of camera */
+  .cam-hud{
+    position:absolute;bottom:0;left:0;right:0;
+    background:linear-gradient(transparent,rgba(0,0,0,.75));
+    padding:.65rem .85rem;display:flex;flex-direction:column;gap:.3rem;
+  }
+  .hud-challenge{
+    display:flex;align-items:center;gap:.5rem;
+    font-size:.82rem;font-weight:600;color:#fff;
+  }
+  .hud-challenge-icon{font-size:1.25rem}
+  .hud-bar-wrap{height:5px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+  .hud-bar-fill{height:100%;background:var(--accent);border-radius:3px;width:0;transition:width .1s linear}
+
+  /* Face feedback ring around the oval */
+  #ovalRing{transition:stroke .2s}
+
+  /* Start / result overlays */
+  .cam-start{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:.5rem;
+    background:var(--surface2);color:var(--m);
+    font-size:.85rem;font-weight:600;text-align:center;padding:1rem;
+  }
+  .cam-result{
+    position:absolute;inset:0;display:none;
+    background:rgba(0,0,0,.8);
+    flex-direction:column;align-items:center;justify-content:center;gap:.6rem;
+  }
+  .cam-result.show{display:flex}
+  .result-icon{font-size:2.5rem}
+  .result-label{font-size:.9rem;font-weight:700;color:#fff;text-align:center}
+
+  /* Liveness tips */
+  .lv-tips{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem}
+  .lv-tip{
+    background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:.5rem .65rem;font-size:.73rem;color:var(--m);
+  }
+  .lv-tip strong{display:block;color:var(--text);margin-bottom:.1rem;font-size:.75rem}
+
+  /* ── REVIEW CARD ── */
+  .review-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--card-r);overflow:hidden;margin-bottom:1rem;
+  }
+  .review-row{
+    display:flex;align-items:center;gap:.85rem;
+    padding:.85rem 1rem;border-bottom:1px solid var(--border);
+  }
+  .review-row:last-child{border-bottom:none}
+  .review-thumb{
+    width:54px;height:36px;border-radius:8px;overflow:hidden;
+    background:var(--surface2);flex-shrink:0;
+  }
+  .review-thumb img{width:100%;height:100%;object-fit:cover}
+  .review-thumb-selfie{width:36px;height:36px;border-radius:50%}
+  .review-lbl{font-size:.72rem;color:var(--m);margin-bottom:.1rem}
+  .review-val{font-size:.85rem;font-weight:600;color:var(--text)}
+  .review-check{margin-left:auto;font-size:.85rem;flex-shrink:0}
+  .fee-box{
+    background:rgba(232,201,106,.08);border:1.5px solid rgba(232,201,106,.3);
+    border-radius:var(--card-r);padding:1rem;
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:1.25rem;
+  }
+  .fee-lbl{font-size:.8rem;color:var(--m)}
+  .fee-amt{font-size:1.3rem;font-weight:800;color:var(--accent)}
+
+  /* ── BUTTONS ── */
+  .btn-primary{
+    width:100%;padding:.88rem;border-radius:14px;border:none;
+    background:var(--accent);color:#1a1400;
+    font-size:.92rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;gap:.5rem;
+    transition:opacity .15s;margin-bottom:.55rem;
+  }
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+  .btn-primary:not(:disabled):hover{opacity:.88}
+  .btn-ghost{
+    width:100%;padding:.78rem;border-radius:14px;
+    background:var(--surface2);border:1.5px solid var(--border);
+    color:var(--text);font-size:.88rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;gap:.5rem;
+    transition:border-color .15s;
+  }
+  .btn-ghost:hover{border-color:var(--accent)}
+  .btn-row{display:flex;gap:.5rem}
+  .btn-row .btn-primary,.btn-row .btn-ghost{margin-bottom:0}
+
+  /* ── STATUS ALREADY SUBMITTED ── */
+  .status-banner{
+    text-align:center;padding:2rem 1rem;
+    display:flex;flex-direction:column;align-items:center;gap:.75rem;
+  }
+  .status-icon{font-size:3rem}
+  .status-title{font-size:1.1rem;font-weight:700}
+  .status-sub{font-size:.85rem;color:var(--m);max-width:280px;line-height:1.6}
+
+  /* ── TOAST ── */
+  .toast{
+    position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(12px);
+    background:var(--surface2);color:var(--text);
+    padding:.6rem 1.2rem;border-radius:999px;font-size:.82rem;font-weight:500;
+    box-shadow:0 4px 20px rgba(0,0,0,.35);border:1px solid var(--border);
+    opacity:0;pointer-events:none;white-space:nowrap;z-index:999;
+    transition:opacity .2s,transform .2s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+
+<nav class="tnav">
+  <button class="nav-back" onclick="history.back()">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+  </button>
+  <span class="nav-title">Student Verification</span>
+</nav>
+
+<!-- Already finished states (shown instead of wizard) -->
+{% if verification_status == 'approved' %}
+<div class="vbody">
+  <div class="status-banner">
+    <div class="status-icon">⭐</div>
+    <div class="status-title" style="color:var(--accent)">You're already verified!</div>
+    <div class="status-sub">Your student badge is active and visible on your profile.</div>
+    <a href="{% url 'profile:profile' %}" class="btn-primary" style="width:auto;padding:.65rem 1.5rem;margin-top:.5rem">Back to Profile</a>
+  </div>
+</div>
+{% elif verification_status == 'docs_submitted' %}
+<div class="vbody">
+  <div class="status-banner">
+    <div class="status-icon">⏳</div>
+    <div class="status-title">Under Review</div>
+    <div class="status-sub">Your documents have been submitted. An admin will review and approve your request within 24 hours.</div>
+    <a href="{% url 'profile:profile' %}" class="btn-primary" style="width:auto;padding:.65rem 1.5rem;margin-top:.5rem">Back to Profile</a>
+  </div>
+</div>
+{% else %}
+
+<!-- ── STEP RAIL ── -->
+<div class="step-rail" id="stepRail">
+  <div class="sr-step active" id="sr1">
+    <div class="sr-dot"><span>1</span></div>
+    <div class="sr-lbl">ID<br>Number</div>
+  </div>
+  <div class="sr-line" id="srl1"></div>
+  <div class="sr-step" id="sr2">
+    <div class="sr-dot"><span>2</span></div>
+    <div class="sr-lbl">ID<br>Card</div>
+  </div>
+  <div class="sr-line" id="srl2"></div>
+  <div class="sr-step" id="sr3">
+    <div class="sr-dot"><span>3</span></div>
+    <div class="sr-lbl">Liveness<br>Check</div>
+  </div>
+  <div class="sr-line" id="srl3"></div>
+  <div class="sr-step" id="sr4">
+    <div class="sr-dot"><span>4</span></div>
+    <div class="sr-lbl">Pay &<br>Submit</div>
+  </div>
+</div>
+
+<div class="vbody">
+
+  <!-- ══ STEP 1 — STUDENT ID NUMBER ══ -->
+  <div class="vstep-panel active" id="step1">
+    <div class="step-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="48" height="48"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    </div>
+    <div class="step-title">Your Student ID Number</div>
+    <div class="step-sub">Enter your PU student ID number exactly as printed on your ID card. This will be matched against the photo you submit.</div>
+
+    <div class="field">
+      <label>Student ID Number</label>
+      <input type="text" id="idNumberInput" placeholder="e.g. PU/2021/CS/0042"
+        maxlength="30" autocomplete="off"
+        oninput="validateIdNumber(this)"/>
+      <div class="field-hint" id="idNumberHint">Letters, numbers, slashes and hyphens only</div>
+    </div>
+
+    <button class="btn-primary" id="step1Btn" onclick="goStep(2)" disabled>
+      Continue →
+    </button>
+    <a href="{% url 'profile:profile' %}" class="btn-ghost">Cancel</a>
+  </div>
+
+  <!-- ══ STEP 2 — STUDENT ID CARD PHOTO ══ -->
+  <div class="vstep-panel" id="step2">
+    <div class="step-title">Photo of Your ID Card</div>
+    <div class="step-sub">Take a clear, well-lit photo of the front of your PU student ID card. All four corners must be visible.</div>
+
+    <div class="id-zone" id="idZone"
+         onclick="document.getElementById('idFileInput').click()"
+         ondragover="event.preventDefault();this.classList.add('dragover')"
+         ondragleave="this.classList.remove('dragover')"
+         ondrop="handleIdDrop(event)">
+      <input type="file" id="idFileInput" accept="image/*" capture="environment" style="display:none" onchange="handleIdFile(this)"/>
+      <div class="id-zone-inner" id="idZoneInner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="38" height="38" style="color:var(--m)">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <circle cx="12" cy="12" r="3"/>
+          <line x1="7" y1="5" x2="7" y2="3"/>
+          <line x1="17" y1="5" x2="17" y2="3"/>
+        </svg>
+        <span style="font-size:.86rem;font-weight:600;color:var(--text)">Tap to photograph ID card</span>
+        <span style="font-size:.74rem;color:var(--m)">or drag &amp; drop an image</span>
+      </div>
+      <img id="idPreview" src="" alt="" style="display:none"/>
+    </div>
+
+    <div class="id-tips">
+      <div class="id-tip">✓ All 4 corners visible</div>
+      <div class="id-tip">✓ Name clearly readable</div>
+      <div class="id-tip">✓ Photo on card visible</div>
+      <div class="id-tip">✗ No glare or shadows</div>
+      <div class="id-tip">✗ No blur</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="goStep(1)" style="flex:.4">← Back</button>
+      <button class="btn-primary" id="step2Btn" onclick="goStep(3)" disabled style="flex:1">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3 — LIVENESS CHECK ══ -->
+  <div class="vstep-panel" id="step3">
+    <div class="step-title">Liveness Check</div>
+    <div class="step-sub" id="livenessStatus">Tap <strong>Start Camera</strong>, then follow the on-screen challenges to confirm you're a real person.</div>
+
+    <div class="cam-stage" id="camStage">
+      <video id="camVideo" class="cam-video" autoplay playsinline muted></video>
+      <canvas id="camCanvas" class="cam-canvas"></canvas>
+
+      <!-- Oval guide overlay using SVG mask -->
+      <div class="cam-overlay">
+        <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">
+          <defs>
+            <mask id="facemask">
+              <rect width="300" height="400" fill="white"/>
+              <ellipse cx="150" cy="190" rx="105" ry="135" fill="black"/>
+            </mask>
+          </defs>
+          <rect width="300" height="400" fill="rgba(0,0,0,0.55)" mask="url(#facemask)"/>
+          <ellipse cx="150" cy="190" rx="105" ry="135"
+            fill="none" stroke="#e8c96a" stroke-width="3"
+            stroke-dasharray="0" id="ovalRing"/>
+        </svg>
+      </div>
+
+      <!-- HUD -->
+      <div class="cam-hud" id="camHud" style="display:none">
+        <div class="hud-challenge">
+          <span class="hud-challenge-icon" id="hudIcon"></span>
+          <span id="hudText"></span>
+        </div>
+        <div class="hud-bar-wrap"><div class="hud-bar-fill" id="hudBar"></div></div>
+      </div>
+
+      <!-- Start screen -->
+      <div class="cam-start" id="camStart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="44" height="44" style="color:var(--m)"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Allow camera access, then<br>tap <strong>Start Camera</strong></span>
+      </div>
+
+      <!-- Result overlay -->
+      <div class="cam-result" id="camResult">
+        <div class="result-icon" id="resultIcon"></div>
+        <div class="result-label" id="resultLabel"></div>
+      </div>
+    </div>
+
+    <div class="lv-tips" id="lvTips">
+      <div class="lv-tip"><strong>✓ Good light</strong>Face fully lit from the front</div>
+      <div class="lv-tip"><strong>✓ Face centred</strong>Inside the golden oval</div>
+      <div class="lv-tip"><strong>✗ No glasses</strong>Remove sunglasses</div>
+      <div class="lv-tip"><strong>✗ No hats</strong>Keep forehead visible</div>
+    </div>
+
+    <button class="btn-primary" id="camStartBtn" onclick="startCamera()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Start Camera
+    </button>
+    <div class="btn-row" style="margin-top:.5rem">
+      <button class="btn-ghost" onclick="retakeCamera()" id="retakeBtn" style="display:none;flex:1">Retake</button>
+      <button class="btn-ghost" onclick="goStepBack3()" style="flex:.4">← Back</button>
+    </div>
+    <button class="btn-primary" id="step3Btn" onclick="goStep(4)" disabled style="margin-top:.5rem;display:none">
+      Continue →
+    </button>
+  </div>
+
+  <!-- ══ STEP 4 — REVIEW & PAY ══ -->
+  <div class="vstep-panel" id="step4">
+    <div class="step-title">Review &amp; Pay</div>
+    <div class="step-sub">Check your details below, then pay to submit your verification request to an admin for review.</div>
+
+    <div class="review-card" id="reviewCard">
+      <div class="review-row">
+        <div>
+          <div class="review-lbl">Student ID Number</div>
+          <div class="review-val" id="reviewIdNum">—</div>
+        </div>
+        <div class="review-check">✓</div>
+      </div>
+      <div class="review-row">
+        <div class="review-thumb" id="reviewIdThumb">
+          <img id="reviewIdImg" src="" alt=""/>
+        </div>
+        <div style="flex:1">
+          <div class="review-lbl">ID Card Photo</div>
+          <div class="review-val">Uploaded ✓</div>
+        </div>
+        <button onclick="goStep(2)" style="background:none;border:none;color:var(--m);font-size:.75rem;cursor:pointer">Edit</button>
+      </div>
+      <div class="review-row">
+        <div class="review-thumb review-thumb-selfie">
+          <img id="reviewSelfieImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>
+        </div>
+        <div style="flex:1">
+          <div class="review-lbl">Liveness Selfie</div>
+          <div class="review-val" id="reviewLiveness">—</div>
+        </div>
+        <button onclick="goStep(3)" style="background:none;border:none;color:var(--m);font-size:.75rem;cursor:pointer">Retake</button>
+      </div>
+    </div>
+
+    <div class="fee-box">
+      <div>
+        <div class="fee-lbl">One-time verification fee</div>
+        <div style="font-size:.72rem;color:var(--m);margin-top:.1rem">Non-refundable · Secure payment via Paystack</div>
+      </div>
+      <div class="fee-amt">GH₵ {{ verification_fee }}</div>
+    </div>
+
+    {% if verification_status == 'paid' %}
+    <div style="background:rgba(56,161,105,.08);border:1px solid rgba(56,161,105,.25);border-radius:12px;padding:.75rem 1rem;font-size:.82rem;color:var(--green);margin-bottom:1rem">
+      ✓ Payment already received — submit your documents to complete verification.
+    </div>
+    {% endif %}
+
+    <button class="btn-primary" id="paySubmitBtn" onclick="payAndSubmit()">
+      {% if verification_status == 'paid' %}
+      Submit Documents
+      {% else %}
+      Pay GH₵ {{ verification_fee }} &amp; Submit
+      {% endif %}
+    </button>
+    <button class="btn-ghost" onclick="goStep(3)">← Back</button>
+  </div>
+
+</div><!-- /vbody -->
+{% endif %}
+
+<div class="toast" id="toast"></div>
+
+<!-- MediaPipe Face Mesh for real liveness detection -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+/* ════════════════════════════════════════════
+   STATE
+   ════════════════════════════════════════════ */
+let currentStep = 1;
+let idNumber    = '';
+let idPhotoUrl  = '';
+let selfieUrl   = '';
+let livenessOk  = false;
+let selfieBlob  = null;
+let camStream   = null;
+let faceMesh    = null;
+let mpCamera    = null;
+
+const CSRF = () => document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
+
+/* ════════════════════════════════════════════
+   TOAST
+   ════════════════════════════════════════════ */
+function toast(msg, dur=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+/* ════════════════════════════════════════════
+   STEP RAIL
+   ════════════════════════════════════════════ */
+function setRail(step) {
+  for (let i = 1; i <= 4; i++) {
+    const sr = document.getElementById('sr'+i);
+    const ln = document.getElementById('srl'+i);
+    sr.className = 'sr-step' + (i < step ? ' done' : i === step ? ' active' : '');
+    if (ln) ln.className = 'sr-line' + (i < step ? ' done' : '');
+  }
+}
+
+function showPanel(step) {
+  document.querySelectorAll('.vstep-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('step'+step).classList.add('active');
+  setRail(step);
+  currentStep = step;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goStep(n) {
+  if (n === 2 && !idNumber) { toast('Enter your student ID number first'); return; }
+  if (n === 3 && !idPhotoUrl) { toast('Upload your ID card photo first'); return; }
+  if (n === 4 && !livenessOk) { toast('Complete the liveness check first'); return; }
+  if (n === 4) buildReview();
+  if (n !== 3) stopCamera();
+  showPanel(n);
+}
+
+function goStepBack3() {
+  stopCamera();
+  showPanel(2);
+}
+
+/* ════════════════════════════════════════════
+   STEP 1 — ID NUMBER
+   ════════════════════════════════════════════ */
+function validateIdNumber(input) {
+  const val = input.value.trim();
+  const valid = /^[A-Za-z0-9\/\-\.]{4,}$/.test(val);
+  document.getElementById('step1Btn').disabled = !valid;
+  document.getElementById('idNumberHint').style.color = val && !valid ? 'var(--red)' : 'var(--m)';
+  if (valid) idNumber = val;
+}
+
+/* ════════════════════════════════════════════
+   STEP 2 — ID CARD
+   ════════════════════════════════════════════ */
+function handleIdFile(input) {
+  const f = input.files[0]; if (!f) return;
+  processIdFile(f);
+}
+function handleIdDrop(e) {
+  e.preventDefault();
+  const f = e.dataTransfer.files[0]; if (!f || !f.type.startsWith('image/')) return;
+  document.getElementById('idZone').classList.remove('dragover');
+  processIdFile(f);
+}
+async function processIdFile(file) {
+  const zone = document.getElementById('idZone');
+  const inner= document.getElementById('idZoneInner');
+  const prev = document.getElementById('idPreview');
+  toast('Uploading ID card…');
+  try {
+    const url = await uploadToR2(file);
+    idPhotoUrl = url;
+    prev.src = url; prev.style.display='block'; inner.style.display='none';
+    zone.classList.add('has-photo');
+    document.getElementById('step2Btn').disabled = false;
+    toast('ID card uploaded ✓');
+  } catch { toast('Upload failed — try again'); }
+}
+
+/* ════════════════════════════════════════════
+   STEP 3 — REAL LIVENESS (MediaPipe Face Mesh)
+   ════════════════════════════════════════════ */
+const CHALLENGES_DEF = [
+  { key:'blink',  icon:'😉', text:'Blink both eyes slowly' },
+  { key:'mouth',  icon:'😮', text:'Open your mouth wide' },
+  { key:'turn',   icon:'👈', text:'Turn your head slightly left' },
+  { key:'nod',    icon:'🙂', text:'Nod your head slowly' },
+];
+
+let challenges    = [];
+let challengeIdx  = 0;
+let challengeDone = false;
+let progressPct   = 0;
+
+// EAR = Eye Aspect Ratio — measures blink
+function ear(landmarks, pts) {
+  const P = (i) => landmarks[i];
+  const d = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+  const vertical = (d(P(pts[1]),P(pts[5])) + d(P(pts[2]),P(pts[4])));
+  const horizontal = d(P(pts[0]),P(pts[3]));
+  return vertical / (2.0 * horizontal + 1e-6);
+}
+// LEFT eye landmark indices (face mesh)
+const LEFT_EYE  = [33,160,158,133,153,144];
+const RIGHT_EYE = [362,385,387,263,373,380];
+// Mouth open: ratio of vertical mouth gap to face height
+const MOUTH_TOP = 13; const MOUTH_BOT = 14; const CHIN = 152; const FOREHEAD = 10;
+// Nose tip for horizontal turn
+const NOSE_TIP = 1; const LEFT_CHEEK = 234; const RIGHT_CHEEK = 454;
+
+// Detection state per challenge
+let blinkSeen = false, blinkBaseline = null;
+let mouthSeen = false, mouthBaseline = null;
+let turnSeen  = false, turnBaseline  = null;
+let nodSeen   = false, nodPrev       = null;
+
+function resetDetectors() {
+  blinkSeen=false; blinkBaseline=null;
+  mouthSeen=false; mouthBaseline=null;
+  turnSeen=false;  turnBaseline=null;
+  nodSeen=false;   nodPrev=null;
+  progressPct=0;
+  updateHud();
+}
+
+function detectChallenge(landmarks, key) {
+  const L = landmarks;
+  if (key === 'blink') {
+    const earVal = (ear(L,LEFT_EYE) + ear(L,RIGHT_EYE)) / 2;
+    if (!blinkBaseline) { blinkBaseline = earVal; return false; }
+    // Blink = EAR drops > 30% below baseline for at least one frame
+    if (!blinkSeen && earVal < blinkBaseline * 0.68) blinkSeen = true;
+    return blinkSeen;
+  }
+  if (key === 'mouth') {
+    const gap = Math.abs(L[MOUTH_BOT].y - L[MOUTH_TOP].y);
+    const faceH = Math.abs(L[CHIN].y - L[FOREHEAD].y) || 1;
+    const ratio = gap / faceH;
+    if (!mouthBaseline) { mouthBaseline = ratio; return false; }
+    if (!mouthSeen && ratio > mouthBaseline + 0.08) mouthSeen = true;
+    return mouthSeen;
+  }
+  if (key === 'turn') {
+    const noseX = L[NOSE_TIP].x;
+    const faceW = Math.abs(L[RIGHT_CHEEK].x - L[LEFT_CHEEK].x) || 1;
+    const offset = (noseX - (L[LEFT_CHEEK].x + L[RIGHT_CHEEK].x)/2) / faceW;
+    if (!turnBaseline) { turnBaseline = offset; return false; }
+    if (!turnSeen && Math.abs(offset - turnBaseline) > 0.12) turnSeen = true;
+    return turnSeen;
+  }
+  if (key === 'nod') {
+    const noseY = L[NOSE_TIP].y;
+    if (!nodPrev) { nodPrev = noseY; return false; }
+    const delta = Math.abs(noseY - nodPrev);
+    nodPrev = noseY * 0.3 + nodPrev * 0.7; // smooth
+    if (!nodSeen && delta > 0.015) nodSeen = true;
+    return nodSeen;
+  }
+  return false;
+}
+
+let _progressAnim = null;
+function animateProgress(to, onDone) {
+  clearInterval(_progressAnim);
+  _progressAnim = setInterval(()=>{
+    progressPct = Math.min(progressPct + 2, to);
+    updateHud();
+    if (progressPct >= to) { clearInterval(_progressAnim); if (onDone) onDone(); }
+  }, 16);
+}
+
+function updateHud() {
+  const bar = document.getElementById('hudBar');
+  if (bar) bar.style.width = progressPct + '%';
+}
+
+function onFaceResults(results) {
+  if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
+    // No face detected — flash oval red
+    const ring = document.getElementById('ovalRing');
+    if (ring) ring.setAttribute('stroke','#e53e3e');
+    return;
+  }
+  const ring = document.getElementById('ovalRing');
+  if (ring) ring.setAttribute('stroke','#e8c96a');
+
+  if (challengeIdx >= challenges.length) return;
+  const ch = challenges[challengeIdx];
+  const detected = detectChallenge(results.multiFaceLandmarks[0], ch.key);
+
+  if (detected && !challengeDone) {
+    challengeDone = true;
+    animateProgress(100, ()=>{
+      challengeIdx++;
+      if (challengeIdx < challenges.length) {
+        resetDetectors();
+        challengeDone = false;
+        progressPct = 0;
+        const next = challenges[challengeIdx];
+        document.getElementById('hudIcon').textContent = next.icon;
+        document.getElementById('hudText').textContent = next.text;
+      } else {
+        // All challenges passed — capture frame
+        captureFinalSelfie();
+      }
+    });
+  } else if (!challengeDone) {
+    // Slow fill to show progress
+    if (progressPct < 85) {
+      progressPct = Math.min(progressPct + 0.4, 85);
+      updateHud();
+    }
+  }
+}
+
+async function startCamera() {
+  document.getElementById('camStartBtn').disabled = true;
+  document.getElementById('camStartBtn').textContent = 'Starting…';
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},
+      audio:false
+    });
+    const video = document.getElementById('camVideo');
+    video.srcObject = camStream;
+
+    document.getElementById('camStart').style.display='none';
+    document.getElementById('camHud').style.display='';
+    document.getElementById('lvTips').style.display='none';
+    document.getElementById('camStartBtn').style.display='none';
+
+    // Pick 2 random challenges
+    challenges = CHALLENGES_DEF
+      .sort(()=>Math.random()-0.5)
+      .slice(0,2);
+    challengeIdx  = 0;
+    challengeDone = false;
+    resetDetectors();
+
+    const first = challenges[0];
+    document.getElementById('hudIcon').textContent = first.icon;
+    document.getElementById('hudText').textContent = first.text;
+    document.getElementById('livenessStatus').textContent = 'Follow the prompts — we\'re checking you\'re real.';
+
+    // Load MediaPipe Face Mesh
+    faceMesh = new FaceMesh({
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`
+    });
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+    faceMesh.onResults(onFaceResults);
+
+    mpCamera = new Camera(video, {
+      onFrame: async () => { await faceMesh.send({image: video}); },
+      width: 640, height: 480
+    });
+    mpCamera.start();
+
+  } catch(err) {
+    document.getElementById('camStartBtn').disabled = false;
+    document.getElementById('camStartBtn').textContent = 'Start Camera';
+    if (err.name === 'NotAllowedError') toast('Camera access denied — allow in browser settings');
+    else toast('Could not open camera: ' + err.message);
+  }
+}
+
+function captureFinalSelfie() {
+  const video  = document.getElementById('camVideo');
+  const canvas = document.getElementById('camCanvas');
+  canvas.width  = video.videoWidth  || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.save(); ctx.scale(-1,1); ctx.drawImage(video,-canvas.width,0); ctx.restore();
+
+  canvas.toBlob(blob => {
+    selfieBlob = blob;
+    stopCamera();
+    livenessOk = true;
+
+    // Show result
+    const result = document.getElementById('camResult');
+    document.getElementById('resultIcon').textContent = '✅';
+    document.getElementById('resultLabel').textContent = 'Liveness confirmed!';
+    result.classList.add('show');
+    document.getElementById('livenessStatus').textContent = 'Liveness confirmed ✓ — tap Continue.';
+    document.getElementById('retakeBtn').style.display = '';
+    document.getElementById('step3Btn').style.display  = '';
+    document.getElementById('step3Btn').disabled = false;
+    document.getElementById('camHud').style.display = 'none';
+    progressPct = 100; updateHud();
+  }, 'image/jpeg', 0.9);
+}
+
+function stopCamera() {
+  if (mpCamera) { try { mpCamera.stop(); } catch{} mpCamera = null; }
+  if (faceMesh) { try { faceMesh.close(); } catch{} faceMesh = null; }
+  if (camStream) { camStream.getTracks().forEach(t=>t.stop()); camStream = null; }
+}
+
+function retakeCamera() {
+  const result = document.getElementById('camResult');
+  result.classList.remove('show');
+  document.getElementById('camStart').style.display='';
+  document.getElementById('camHud').style.display='none';
+  document.getElementById('lvTips').style.display='';
+  document.getElementById('retakeBtn').style.display='none';
+  document.getElementById('step3Btn').style.display='none';
+  document.getElementById('camStartBtn').style.display='';
+  document.getElementById('camStartBtn').disabled = false;
+  document.getElementById('camStartBtn').textContent = 'Start Camera';
+  document.getElementById('livenessStatus').textContent = "Tap Start Camera, then follow the on-screen challenges to confirm you're a real person.";
+  livenessOk = false; selfieBlob = null; selfieUrl = '';
+  challengeIdx=0; progressPct=0; challengeDone=false; resetDetectors();
+}
+
+/* ════════════════════════════════════════════
+   STEP 4 — REVIEW
+   ════════════════════════════════════════════ */
+function buildReview() {
+  document.getElementById('reviewIdNum').textContent = idNumber;
+  document.getElementById('reviewIdImg').src = idPhotoUrl;
+  if (selfieBlob) {
+    const objUrl = URL.createObjectURL(selfieBlob);
+    document.getElementById('reviewSelfieImg').src = objUrl;
+  }
+  document.getElementById('reviewLiveness').textContent = livenessOk ? 'Passed ✓' : 'Not confirmed';
+}
+
+/* ════════════════════════════════════════════
+   R2 UPLOAD
+   ════════════════════════════════════════════ */
+async function uploadToR2(fileOrBlob, name='file.jpg') {
+  const fd = new FormData();
+  fd.append('file', fileOrBlob instanceof File ? fileOrBlob : new File([fileOrBlob], name, {type:'image/jpeg'}));
+  fd.append('resource_type','image');
+  const res = await fetch('/api/r2-upload/', {
+    method:'POST', headers:{'X-CSRFToken':CSRF()}, body:fd
+  });
+  if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e.error||'Upload failed'); }
+  return (await res.json()).public_url;
+}
+
+/* ════════════════════════════════════════════
+   PAY & SUBMIT
+   ════════════════════════════════════════════ */
+async function payAndSubmit() {
+  const btn = document.getElementById('paySubmitBtn');
+  btn.disabled = true;
+
+  // 1. Upload selfie if not yet uploaded
+  if (!selfieUrl && selfieBlob) {
+    btn.textContent = 'Uploading selfie…';
+    try {
+      selfieUrl = await uploadToR2(selfieBlob, 'selfie.jpg');
+    } catch {
+      toast('Selfie upload failed'); btn.disabled=false;
+      btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; return;
+    }
+  }
+
+  {% if verification_status == 'paid' %}
+  // Already paid — go straight to doc submit
+  btn.textContent = 'Submitting…';
+  await submitDocs();
+  {% else %}
+  // Need to pay first
+  btn.textContent = 'Creating payment…';
+  try {
+    const applyRes = await fetch('/profile/api/verification/apply/', {
+      method:'POST', headers:{'X-CSRFToken':CSRF()}
+    });
+    if (!applyRes.ok) {
+      const e = await applyRes.json().catch(()=>({}));
+      toast(e.message||'Could not initiate payment');
+      btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; return;
+    }
+    const { fee } = await applyRes.json();
+    const handler = PaystackPop.setup({
+      key: '{{ PAYSTACK_PUBLIC_KEY }}',
+      email: '{{ request.user.email }}',
+      amount: Math.round(parseFloat(fee)*100),
+      currency:'GHS',
+      metadata:{custom_fields:[{display_name:'Purpose',value:'Student Verification'}]},
+      callback: async function(response) {
+        btn.textContent = 'Recording payment…';
+        const paidRes = await fetch('/profile/api/verification/paid/',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','X-CSRFToken':CSRF()},
+          body:JSON.stringify({reference:response.reference})
+        });
+        if (!paidRes.ok) {
+          toast('Could not record payment — contact support@pu-connect');
+          btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; return;
+        }
+        await submitDocs();
+      },
+      onClose: function() {
+        btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit';
+      }
+    });
+    handler.openIframe();
+  } catch { toast('Connection error'); btn.disabled=false; btn.textContent='Pay GH₵ {{ verification_fee }} & Submit'; }
+  {% endif %}
+}
+
+async function submitDocs() {
+  const btn = document.getElementById('paySubmitBtn');
+  btn.textContent = 'Submitting documents…';
+  try {
+    const res = await fetch('/profile/api/verification/submit-docs/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF()},
+      body: JSON.stringify({
+        id_number:        idNumber,
+        id_photo_url:     idPhotoUrl,
+        selfie_url:       selfieUrl,
+        liveness_passed:  livenessOk,
+      })
+    });
+    if (res.ok) {
+      location.href = '{% url "profile:profile" %}?verified=submitted';
+    } else {
+      const e = await res.json().catch(()=>({}));
+      toast(e.message||'Submission failed');
+      btn.disabled=false; btn.textContent='Submit Documents';
+    }
+  } catch { toast('Connection error'); btn.disabled=false; btn.textContent='Submit Documents'; }
+}
+
+/* ════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════ */
+// If user already paid, skip to step 4 with a note
+{% if verification_status == 'paid' %}
+showPanel(1); // still let them redo ID number + docs
+{% endif %}
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
+  <title>Terms & Conditions — PU-Connect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{% static 'Base_app/css/terms.css' %}">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+</head>
+<body>
+
+<nav>
+  <a href="{% url 'base:home' %}" class="logo">PU-<span>Marketplace</span></a>
+  <div class="nav-right">
+    <a href="{% url 'base:privacy' %}" class="nav-link">Privacy Policy</a>
+    <button class="nav-theme-btn" id="themeBtn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+    <a href="{% url 'auth:auth_view' %}" class="nav-btn">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="page-hero">
+  <div class="hero-glow"></div>
+  <div class="page-hero-inner">
+    <div class="page-badge"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Legal</div>
+    <h1 class="page-title">Terms &amp; <em>Conditions</em></h1>
+    <div class="page-meta">
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Effective: 1 January 2026</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Last Updated: 31 March 2026</span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> PU-Connect, University Campus</span>
+    </div>
+  </div>
+</header>
+
+<div class="page-layout">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="toc">
+    <div class="toc-title">On This Page</div>
+    <ul class="toc-list" id="toc-list">
+      <li><a href="#s1">1. Acceptance of Terms</a></li>
+      <li><a href="#s2">2. Eligibility</a></li>
+      <li><a href="#s3">3. User Accounts</a></li>
+      <li><a href="#s4">4. Listings & Transactions</a></li>
+      <li><a href="#s5">5. Prohibited Conduct</a></li>
+      <li><a href="#s6">6. Payments & Fees</a></li>
+      <li><a href="#s7">7. Intellectual Property</a></li>
+      <li><a href="#s8">8. Disclaimers</a></li>
+      <li><a href="#s9">9. Limitation of Liability</a></li>
+      <li><a href="#s10">10. Termination</a></li>
+      <li><a href="#s11">11. Governing Law</a></li>
+      <li><a href="#s12">12. Contact Us</a></li>
+    </ul>
+    <div class="toc-divider"></div>
+    <a href="{% url 'base:privacy' %}" class="toc-back"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Privacy Policy →</a>
+    <a href="{% url 'auth:auth_view' %}" class="toc-back">← Back to Sign Up</a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <div class="intro-box">
+      <strong>Please read these Terms and Conditions carefully before using PU-Connect.</strong> By creating an account or accessing any part of our platform, you agree to be bound by these terms. If you do not agree, please do not use our services.
+    </div>
+
+    <section class="section" id="s1">
+      <div class="section-num">Section 01</div>
+      <h2 class="section-heading">Acceptance of Terms</h2>
+      <p>These Terms and Conditions ("Terms") govern your access to and use of PU-Connect ("the Platform", "we", "us", or "our"), including our website, mobile application, and all related services. By registering an account, browsing listings, or completing any transaction on the Platform, you acknowledge that you have read, understood, and agree to be bound by these Terms.</p>
+      <p>We reserve the right to update or modify these Terms at any time. Continued use of the Platform after any changes constitutes your acceptance of the new Terms. We will notify registered users of material changes via email or an in-app notification.</p>
+    </section>
+
+    <section class="section" id="s2">
+      <div class="section-num">Section 02</div>
+      <h2 class="section-heading">Eligibility</h2>
+      <p>PU-Connect is designed exclusively for use by members of the university community. To create an account and use the Platform, you must meet all of the following criteria:</p>
+      <ul class="term-list">
+        <li>You must be a currently enrolled student, faculty member, or accredited staff of the university.</li>
+        <li>You must be at least 18 years of age, or the age of legal majority in your jurisdiction, whichever is higher.</li>
+        <li>You must not have had a previous account suspended or terminated for violations of these Terms.</li>
+        <li>You must provide accurate, current, and complete registration information.</li>
+        <li>You must have the legal capacity to enter into a binding agreement.</li>
+      </ul>
+      <p>By registering, you represent and warrant that you meet all of the above eligibility requirements. We reserve the right to request verification of your status at any time.</p>
+    </section>
+
+    <section class="section" id="s3">
+      <div class="section-num">Section 03</div>
+      <h2 class="section-heading">User Accounts</h2>
+      <p>When you create an account on PU-Connect, you are responsible for maintaining the confidentiality of your login credentials. You agree to notify us immediately at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="67141217170815132717124a0a06150c0213170b0604024902031249000f">[email&#160;protected]</a></strong> if you suspect any unauthorised access to your account.</p>
+      <ul class="term-list">
+        <li>You may only hold one active account on the Platform at any time.</li>
+        <li>You are solely responsible for all activity that occurs under your account.</li>
+        <li>Account credentials must not be shared with or transferred to any other person.</li>
+        <li>Your username must not impersonate another person or entity, or be offensive or misleading.</li>
+        <li>You must keep your profile information accurate and up to date at all times.</li>
+      </ul>
+      <div class="highlight-box">
+        <strong>Social Sign-In:</strong> If you register via Google or Apple, the respective platform's authentication terms also apply. PU-Connect does not store your third-party passwords and accesses only the profile information you authorise.
+      </div>
+    </section>
+
+    <section class="section" id="s4">
+      <div class="section-num">Section 04</div>
+      <h2 class="section-heading">Listings &amp; Transactions</h2>
+      <p>PU-Connect acts as an intermediary platform connecting buyers and sellers within the university community. We are not a party to any transaction between users and do not take title to any item listed on the Platform.</p>
+      <p><strong>As a Seller, you agree to:</strong></p>
+      <ul class="term-list">
+        <li>Only list items or services that you legally own or have the right to sell.</li>
+        <li>Provide accurate, complete, and non-misleading descriptions and photographs of all listings.</li>
+        <li>Honour agreed prices and complete transactions in good faith.</li>
+        <li>Arrange meetups only within the university campus or other mutually agreed, safe public locations.</li>
+        <li>Remove listings promptly once an item has been sold or is no longer available.</li>
+      </ul>
+      <p><strong>As a Buyer, you agree to:</strong></p>
+      <ul class="term-list">
+        <li>Inspect items to your satisfaction before completing a transaction.</li>
+        <li>Communicate respectfully and in good faith with sellers.</li>
+        <li>Only confirm receipt of an item or service once you are satisfied with what you have received.</li>
+        <li>Not hold PU-Connect liable for the condition, quality, or authenticity of any listed item.</li>
+      </ul>
+      <div class="warning-box">
+        <strong> Dispute Resolution:</strong> While we provide tools to help resolve disputes between users, PU-Connect is not obligated to mediate or resolve disputes and is not liable for losses arising from transactions between users.
+      </div>
+    </section>
+
+    <section class="section" id="s5">
+      <div class="section-num">Section 05</div>
+      <h2 class="section-heading">Prohibited Conduct</h2>
+      <p>The following activities are strictly prohibited on PU-Connect. Violations may result in immediate suspension or permanent termination of your account, and may be reported to the relevant university authorities or law enforcement where appropriate.</p>
+      <ul class="term-list">
+        <li>Listing or selling illegal goods, controlled substances, weapons, counterfeit items, or stolen property.</li>
+        <li>Engaging in fraudulent, deceptive, or misleading conduct of any kind.</li>
+        <li>Harassing, threatening, or abusing other users through the Platform's messaging system.</li>
+        <li>Creating fake listings to deceive buyers or artificially inflate demand.</li>
+        <li>Using automated bots, scrapers, or scripts to interact with the Platform.</li>
+        <li>Attempting to circumvent the Platform's payment or messaging systems to conduct off-platform transactions.</li>
+        <li>Soliciting personal information from other users for purposes unrelated to a legitimate transaction.</li>
+        <li>Posting spam, unsolicited advertisements, or irrelevant content.</li>
+        <li>Impersonating any person, organisation, or university representative.</li>
+        <li>Uploading malicious code, viruses, or any software intended to harm the Platform or its users.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="s6">
+      <div class="section-num">Section 06</div>
+      <h2 class="section-heading">Payments &amp; Fees</h2>
+      <p>PU-Connect currently offers free listing and account services to all verified campus users. We reserve the right to introduce service fees, transaction commissions, or premium listing tiers in the future. Users will be notified with no less than <strong>30 days' advance notice</strong> before any such fees are introduced.</p>
+      <ul class="term-list">
+        <li>All prices on the Platform are in Ghana Cedis (GH₵) unless otherwise stated.</li>
+        <li>Where payment is processed through the Platform's escrow system, funds will only be released to the seller upon the buyer's confirmation of receipt.</li>
+        <li>Mobile Money transactions are subject to the terms and fees of the respective Mobile Money provider.</li>
+        <li>PU-Connect is not responsible for errors or delays caused by third-party payment processors.</li>
+        <li>Refunds and chargebacks for completed transactions are subject to the Platform's dispute resolution policy.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="s7">
+      <div class="section-num">Section 07</div>
+      <h2 class="section-heading">Intellectual Property</h2>
+      <p>All content, design elements, trademarks, logos, and software comprising the PU-Connect Platform are the exclusive property of PU-Connect or its licensors and are protected by applicable intellectual property laws.</p>
+      <p>By posting content (including photographs, descriptions, and reviews) on the Platform, you grant PU-Connect a non-exclusive, royalty-free, worldwide licence to use, display, reproduce, and distribute that content solely for the purpose of operating and promoting the Platform. You retain all ownership rights to your content.</p>
+      <p>You must not reproduce, distribute, modify, or create derivative works of any Platform content without our prior written consent.</p>
+    </section>
+
+    <section class="section" id="s8">
+      <div class="section-num">Section 08</div>
+      <h2 class="section-heading">Disclaimers</h2>
+      <p>PU-Connect provides the Platform on an <strong>"as is" and "as available"</strong> basis. We make no representations or warranties of any kind, express or implied, regarding the reliability, accuracy, or availability of the Platform or any content on it.</p>
+      <div class="warning-box">
+        <strong>Important:</strong> PU-Connect does not verify the authenticity, quality, safety, or legality of any item or service listed by users. All transactions are undertaken at the sole risk of the parties involved. We strongly encourage buyers to inspect all items before completing a purchase.
+      </div>
+      <p>We do not guarantee that the Platform will be uninterrupted, error-free, or free of viruses or other harmful components. We reserve the right to suspend or discontinue the Platform or any feature at any time without notice.</p>
+    </section>
+
+    <section class="section" id="s9">
+      <div class="section-num">Section 09</div>
+      <h2 class="section-heading">Limitation of Liability</h2>
+      <p>To the fullest extent permitted by applicable law, PU-Connect and its officers, employees, agents, and partners shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or in connection with:</p>
+      <ul class="term-list">
+        <li>Your access to, use of, or inability to use the Platform.</li>
+        <li>Any transaction conducted between users of the Platform.</li>
+        <li>Unauthorised access to or alteration of your data or account.</li>
+        <li>Any content posted by other users on the Platform.</li>
+        <li>Loss of data, revenue, or profits, whether or not foreseeable.</li>
+      </ul>
+      <p>In no event shall our total liability to you for all claims exceed the amount you paid to us, if any, in the twelve (12) months preceding the event giving rise to the claim.</p>
+    </section>
+
+    <section class="section" id="s10">
+      <div class="section-num">Section 10</div>
+      <h2 class="section-heading">Termination</h2>
+      <p>We reserve the right to suspend, restrict, or permanently terminate your account at our sole discretion, without prior notice, if we reasonably believe you have violated these Terms or applicable law. Upon termination:</p>
+      <ul class="term-list">
+        <li>Your right to access and use the Platform will immediately cease.</li>
+        <li>All your active listings will be removed from the Platform.</li>
+        <li>Any outstanding transactions may be cancelled at our discretion.</li>
+        <li>You may not create a new account without our express written permission.</li>
+      </ul>
+      <p>You may also delete your account at any time through the account settings page. Deletion requests are processed within 30 days in accordance with our Privacy Policy.</p>
+    </section>
+
+    <section class="section" id="s11">
+      <div class="section-num">Section 11</div>
+      <h2 class="section-heading">Governing Law</h2>
+      <p>These Terms shall be governed by and construed in accordance with the laws of the <strong>Republic of Ghana</strong>, without regard to its conflict of law provisions. Any disputes arising under or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts of Ghana.</p>
+      <p>If any provision of these Terms is found to be unenforceable or invalid by a court of competent jurisdiction, the remaining provisions shall continue in full force and effect.</p>
+    </section>
+
+    <section class="section" id="s12">
+      <div class="section-num">Section 12</div>
+      <h2 class="section-heading">Contact Us</h2>
+      <p>If you have any questions, concerns, or feedback about these Terms and Conditions, please do not hesitate to reach out to us:</p>
+      <div class="highlight-box">
+        <strong>PU-Connect Support Team</strong><br>
+         Email: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="305c5557515c7040451d5d51425b5544405c5153551e5554451e5758">[email&#160;protected]</a></strong><br>
+         Address: Student Affairs Office, University Campus<br>
+         Support Hours: Monday – Friday, 8:00 AM – 5:00 PM GMT
+      </div>
+      <p>For general support or account issues, visit our Help Centre or email <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fd8e888d8d928f89bd8d88d0909c8f9698898d919c9e98d3989988d39a95">[email&#160;protected]</a></strong>.</p>
+    </section>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+{% include 'base/footer.html' %}
+
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ── THEME ── */
+(function(){
+  var _H = document.documentElement;
+  var _TB = document.getElementById('themeBtn');
+  var _dark = localStorage.getItem('pu-theme') !== 'light';
+  function applyTheme(d) {
+    _H.setAttribute('data-theme', d ? 'dark' : 'light');
+    if (_TB) _TB.innerHTML = d ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    _dark = d;
+    localStorage.setItem('pu-theme', d ? 'dark' : 'light');
+    var m = document.getElementById('themeColorMeta');
+    if (m) m.setAttribute('content', d ? '#0d0e11' : '#f0ede8');
+  }
+  applyTheme(_dark);
+  if (_TB) _TB.addEventListener('click', function(){ applyTheme(!_dark); });
+  window._applyTheme = applyTheme;
+})();
+
+  // Highlight active TOC item on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const tocLinks = document.querySelectorAll('.toc-list a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.toc-list a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+<script>(function(){if(!('serviceWorker' in navigator))return;navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{});})();</script>
+</body>
+</html>

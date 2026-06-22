@@ -1,0 +1,76 @@
+﻿<!-- Reusable Listing Card Component -->
+<script>
+/**
+ * Renders a single listing card HTML.
+ * Matches the design and logic of the main dashboard.
+ */
+function listingCardHTML(l) {
+  const isSvc   = l.type === 'service' || l.listing_type === 'service';
+  const typeClr = isSvc ? '#5be5c5' : 'var(--a)';
+  const typeBg  = isSvc ? 'rgba(91,229,197,.14)' : 'rgba(232,201,106,.14)';
+  const price   = l.contactForPrice ? 'Contact'
+    : (l.priceLabel || (l.price != null ? 'GH₵ ' + Number(l.price).toLocaleString() : ''));
+  const isSaved  = isSavedInWishlist(l.id);
+  const catLabel = l.category || l.cat || (isSvc ? 'Service' : 'Product');
+  const isSold   = l.status === 'sold';
+  
+  const titleSafe = String(l.title||l.name||'Untitled').substring(0,36).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const sellerSafe = String(l.sellerUsername||l.seller||'anon').replace(/</g,'&lt;');
+  const idSafe   = String(l.id||'').replace(/'/g,'');
+
+  // Highlight matches if search state exists
+  const displayTitle = typeof highlightQuery === 'function' ? highlightQuery(titleSafe) : titleSafe;
+
+  var imgHTML = (l.img || l.image_url)
+    ? `<img src="${l.img || l.image_url}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover"/>`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--inp);color:var(--m)">${isSvc?'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>':'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>'}</div>`;
+
+  var soldHTML = isSold
+    ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,.52);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:700;letter-spacing:.5px">SOLD</div>'
+    : '';
+
+  return `<div class="lc" data-name="${titleSafe}" data-type="${isSvc?'service':'product'}" onclick="openListingDetail('${idSafe}')">`
+    + `<div class="lcm">`
+    + imgHTML
+    + `<span class="lbg" style="background:${typeBg};color:${typeClr}">${catLabel}</span>`
+    + soldHTML
+    + `</div>`
+    + `<div class="lbd">`
+    + `<div class="lnm">${displayTitle}</div>`
+    + `<div class="lpr">${price}</div>`
+    + `<div class="lrw">`
+    + `<span class="lsl">@${sellerSafe}</span>`
+    + `<button class="lfv" onclick="event.stopPropagation(); toggleWishlist('${idSafe}', this)">${isSaved?'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>':'<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'}</button>`
+    + `</div>`
+    + `</div>`
+    + `</div>`;
+}
+
+/**
+ * Wishlist helpers
+ */
+function isSavedInWishlist(id) {
+  const saved = JSON.parse(localStorage.getItem('pu-wish-ids') || '[]');
+  return saved.includes(String(id));
+}
+
+function toggleWishlist(id, btn) {
+  let saved = JSON.parse(localStorage.getItem('pu-wish-ids') || '[]');
+  id = String(id);
+  if (saved.includes(id)) {
+    saved = saved.filter(i => i !== id);
+    if (btn) btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  } else {
+    saved.push(id);
+    if (btn) btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  }
+  localStorage.setItem('pu-wish-ids', JSON.stringify(saved));
+}
+
+/**
+ * Navigation helper
+ */
+function openListingDetail(id) {
+  window.location.href = '/listings/' + id + '/';
+}
+</script>

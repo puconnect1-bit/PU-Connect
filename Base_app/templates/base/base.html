@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}{% if page_title %}{{ page_title }}{% else %}PU-Connect — Campus Marketplace{% endif %}{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}{% if page_description %}{{ page_description }}{% else %}The campus marketplace for university students. Buy, sell and trade safely on campus.{% endif %}{% endblock %}">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+  <!-- OG -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="{{ request.build_absolute_uri }}">
+  <meta property="og:title"       content="{% if page_title %}{{ page_title }}{% else %}PU-Connect{% endif %}">
+  <meta property="og:description" content="{% if page_description %}{{ page_description }}{% else %}Campus marketplace{% endif %}">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+
+  <!-- PWA -->
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PU-Connect">
+  <meta name="theme-color" content="#c9a030" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#e8c96a" media="(prefers-color-scheme: dark)">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Design system -->
+  <link rel="stylesheet" href="{% static 'Base_app/css/tokens.css' %}">
+
+  {% block extra_css %}{% endblock %}
+</head>
+<!-- Apply saved theme before paint to avoid flash -->
+<script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+<body>
+
+<!-- ── Service Worker + Push ── -->
+<script>
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('/sw.js',{scope:'/'}).then(reg=>{
+    if(!('Notification' in window)||!('PushManager' in window)) return;
+    if(Notification.permission==='denied') return;
+    Notification.requestPermission().then(p=>{
+      if(p!=='granted') return;
+      const key='{{ VAPID_PUBLIC_KEY }}';
+      if(!key) return;
+      reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(key)})
+        .then(sub=>{
+          const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
+          fetch('/chat/api/push-subscribe/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify(sub.toJSON())});
+        }).catch(()=>{});
+    });
+  }).catch(()=>{});
+  function u8(b64){
+    const p=(b64+'='.repeat((4-b64.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/');
+    const r=atob(p); const o=new Uint8Array(r.length);
+    for(let i=0;i<r.length;i++) o[i]=r.charCodeAt(i); return o;
+  }
+})();
+</script>
+
+{% block content %}{% endblock %}
+
+{% block extra_js %}{% endblock %}
+
+<!-- Reveal on scroll -->
+<script>
+(function(){
+  const els=document.querySelectorAll('.reveal');
+  if(!els.length) return;
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+  },{threshold:.1});
+  els.forEach(el=>io.observe(el));
+})();
+</script>
+
+</body>
+</html>

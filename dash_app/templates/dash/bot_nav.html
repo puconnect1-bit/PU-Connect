@@ -1,0 +1,95 @@
+<style>
+.bot-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:56px;z-index:400;
+  display:flex;align-items:center;justify-content:space-around;
+  background:color-mix(in srgb,var(--surface,#1c1f27) 92%,transparent);
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-top:1px solid var(--border,rgba(255,255,255,.07));
+  padding:0 .25rem;
+  padding-bottom:env(safe-area-inset-bottom);
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+}
+@supports(padding-bottom:env(safe-area-inset-bottom)){
+  .bot-nav{padding-bottom:calc(.35rem + env(safe-area-inset-bottom));height:auto;min-height:56px;}
+}
+.bot-nav.bn-hidden{transform:translateY(110%);}
+
+.bn-item{
+  display:flex;flex-direction:column;align-items:center;gap:.18rem;
+  color:var(--text-2,#7a7e8a);text-decoration:none;
+  font-size:.6rem;font-weight:500;letter-spacing:.2px;
+  padding:.4rem .5rem;border-radius:10px;
+  transition:color .15s;min-width:48px;flex:1;
+  background:none;border:none;cursor:pointer;
+  font-family:inherit;
+}
+.bn-item svg{transition:transform .18s;stroke-width:1.8;}
+.bn-item:hover{color:var(--text,#f0eeea);}
+.bn-item:hover svg{transform:translateY(-1px);}
+.bn-item.active{color:var(--accent,#e8c96a);}
+.bn-item.active svg{stroke:var(--accent,#e8c96a);}
+
+/* ── Centre post button ── */
+.bn-post-wrap{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+  flex:1;min-width:56px;
+  /* stays inside nav bounds so it slides fully off-screen with .bn-hidden */
+}
+.bn-post{
+  display:flex;align-items:center;justify-content:center;
+  width:50px;height:50px;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--accent,#e8c96a) 0%,#d4a93a 100%);
+  box-shadow:0 4px 18px rgba(232,201,106,.45),0 2px 6px rgba(0,0,0,.35);
+  color:#1a1400;
+  text-decoration:none;
+  /* visual lift purely via transform — button stays in-flow */
+  transform:translateY(-10px);
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s;
+  border:2.5px solid rgba(255,255,255,.18);
+}
+.bn-post svg{stroke-width:2.4;transition:transform .18s;}
+.bn-post:hover{
+  transform:translateY(-13px) scale(1.08);
+  box-shadow:0 8px 28px rgba(232,201,106,.6),0 2px 8px rgba(0,0,0,.4);
+}
+.bn-post:active{transform:translateY(-10px) scale(.95);}
+.bn-post-label{
+  font-size:.58rem;font-weight:500;letter-spacing:.2px;
+  color:var(--text-2,#7a7e8a);margin-top:-6px;
+}
+
+@media(min-width:768px){.bot-nav{display:none;}}
+</style>
+
+<nav class="bot-nav" id="botNav" aria-label="Bottom navigation">
+  <a href="{% url 'dashboard:dashboard' %}" class="bn-item {% if active_page == 'dashboard' %}active{% endif %}" aria-label="Browse">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+    <span>Browse</span>
+  </a>
+
+  <a href="{% url 'search:search' %}" class="bn-item {% if active_page == 'search' %}active{% endif %}" aria-label="Search">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <span>Search</span>
+  </a>
+
+  <div class="bn-post-wrap">
+    <a href="{% if user.is_authenticated %}{% url 'listings:create' %}{% else %}{% url 'auth:auth_view' %}{% endif %}" class="bn-post" aria-label="Post listing">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </a>
+    <span class="bn-post-label">Post</span>
+  </div>
+
+  <a href="{% if user.is_authenticated %}{% url 'chat:chat' %}{% else %}{% url 'auth:auth_view' %}{% endif %}" class="bn-item {% if active_page == 'chat' %}active{% endif %}" aria-label="Messages">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    <span>Chat</span>
+  </a>
+
+  <a href="{% if user.is_authenticated %}{% url 'profile:profile' %}{% else %}{% url 'auth:auth_view' %}{% endif %}" class="bn-item {% if active_page == 'profile' %}active{% endif %}" aria-label="Profile">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>{% if user.is_authenticated %}Profile{% else %}Login{% endif %}</span>
+  </a>
+</nav>
