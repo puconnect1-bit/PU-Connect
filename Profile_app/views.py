@@ -467,6 +467,37 @@ def following_list(request):
     return JsonResponse({'results': data})
 
 
+@login_required(login_url='auth:auth_view')
+@require_POST
+def change_password(request):
+    """POST /profile/api/change-password/ — change password for logged-in user."""
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+    current  = data.get('current_password', '')
+    new_pw   = data.get('new_password', '')
+    confirm  = data.get('confirm_password', '')
+
+    if not request.user.check_password(current):
+        return JsonResponse({'status': 'error', 'message': 'Current password is incorrect'}, status=400)
+    if len(new_pw) < 8:
+        return JsonResponse({'status': 'error', 'message': 'New password must be at least 8 characters'}, status=400)
+    if new_pw != confirm:
+        return JsonResponse({'status': 'error', 'message': 'Passwords do not match'}, status=400)
+    if new_pw == current:
+        return JsonResponse({'status': 'error', 'message': 'New password must differ from current password'}, status=400)
+
+    request.user.set_password(new_pw)
+    request.user.save()
+
+    from django.contrib.auth import update_session_auth_hash
+    update_session_auth_hash(request, request.user)
+
+    return JsonResponse({'status': 'success', 'message': 'Password changed successfully'})
+
+
 def logout_view(request):
     logout(request)
     return redirect('auth:auth_view') # Standard redirect works for logout

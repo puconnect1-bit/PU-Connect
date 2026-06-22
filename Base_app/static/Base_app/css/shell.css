@@ -24,7 +24,12 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -.4px;
+  color: var(--accent);
 }
+.top-bar-logo span { color: var(--text); }
 .top-bar-logo-img {
   height: 36px;
   width: auto;
@@ -263,11 +268,19 @@
   }
 }
 
-/* ── Extra small screens (< 360px) ── */
+/* ── Mobile tweaks ── */
+@media (max-width: 480px) {
+  .page-inner { padding: 1rem .85rem 0; }
+  .sidebar { width: min(var(--sidebar-w), 85vw); }
+}
+
 @media (max-width: 360px) {
   .top-bar { gap: .4rem; padding: 0 .65rem; }
+  .top-bar-logo { font-size: 1rem; }
   .top-bar-logo-img { height: 28px; }
-  .page-inner { padding: 1rem .75rem 0; }
+  .page-inner { padding: .85rem .7rem 0; }
+  .bn-item { min-width: 40px; padding: .35rem .4rem; font-size: .6rem; }
+  .bn-post { width: 42px; height: 42px; border-radius: 12px; }
 }
 
 /* ── Sidebar toggle script ── */

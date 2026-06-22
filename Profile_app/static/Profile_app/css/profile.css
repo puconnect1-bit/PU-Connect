@@ -472,6 +472,18 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 }
 
 /* ── RESPONSIVE — MOBILE FIRST ── */
+@media(max-width:480px){
+  .quick-grid{gap:.5rem}
+  .quick-tile{padding:.75rem .4rem}
+  .qt-icon{width:36px;height:36px}
+  .page-body{padding:0 .85rem 100px}
+  .profile-card{padding:0 .85rem 1rem}
+  .settings-row{padding:.75rem .85rem}
+  .settings-group-label{padding:.6rem .85rem .2rem}
+  .about-row{padding:.65rem}
+  .stats-row{gap:.35rem}
+}
+
 @media(max-width:400px){
   .quick-grid{grid-template-columns:repeat(4,1fr);gap:.4rem}
   .qt-icon{width:34px;height:34px;border-radius:10px}
@@ -479,6 +491,22 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
   .prof-name{font-size:1.1rem}
   .btn-primary,.btn-ghost{font-size:.74rem;padding:.4rem .7rem}
   .settings-action-btn{font-size:.72rem;padding:.3rem .6rem}
+}
+
+@media(max-width:360px){
+  .quick-grid{grid-template-columns:repeat(4,1fr);gap:.3rem}
+  .quick-tile{padding:.6rem .25rem;border-radius:12px}
+  .qt-icon{width:30px;height:30px;border-radius:8px}
+  .qt-lbl{font-size:.56rem}
+  .prof-name{font-size:1rem}
+  .stat-num{font-size:1rem}
+  .page-body{padding:0 .7rem 100px}
+  .profile-card{padding:0 .7rem 1rem}
+  .avatar{width:70px;height:70px}
+  .banner{height:130px}
+  .settings-card{margin-bottom:.5rem}
+  .settings-row{padding:.65rem .7rem}
+  .modal-sheet{padding:.5rem 1rem 1.5rem}
 }
 
 /* ── DESKTOP ── */

@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 
 class SiteConfig(models.Model):
@@ -54,6 +56,11 @@ class VerificationRequest(models.Model):
     reviewed_at        = models.DateTimeField(null=True, blank=True)
     reviewed_by        = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
                              related_name='verification_reviews')
+    # Annual renewal
+    expires_at         = models.DateTimeField(null=True, blank=True,
+                             help_text='Badge expires 1 year after approval. Null = never set.')
+    renewal_count      = models.PositiveIntegerField(default=0,
+                             help_text='How many times this badge has been renewed.')
 
     class Meta:
         ordering = ['-created_at']
@@ -63,8 +70,25 @@ class VerificationRequest(models.Model):
         return f'Verify @{self.user.username} ({self.status})'
 
     @property
+    def is_expired(self):
+        if self.expires_at is None:
+            return False
+        return timezone.now() > self.expires_at
+
+    @property
     def is_verified(self):
-        return self.status == 'approved'
+        return self.status == 'approved' and not self.is_expired
+
+    def approve(self, reviewed_by_user, renew=False):
+        """Approve or renew the badge. Sets expires_at 1 year from now."""
+        now = timezone.now()
+        if renew and self.status == 'approved':
+            self.renewal_count += 1
+        self.status      = 'approved'
+        self.reviewed_at = now
+        self.reviewed_by = reviewed_by_user
+        self.expires_at  = now + relativedelta(years=1)
+        self.save()
 
 
 class BoostRequest(models.Model):

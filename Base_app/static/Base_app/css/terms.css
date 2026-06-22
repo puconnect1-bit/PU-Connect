@@ -43,7 +43,7 @@
       position: sticky; top: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
       padding: 1.2rem 2.5rem;
-      background: rgba(13,14,17,.9);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
     }
@@ -246,7 +246,7 @@
     @media (max-width: 860px) {
       .page-layout { grid-template-columns: 1fr; gap: 0; }
       .toc { display: none; }
-      nav { padding: 1rem 1.5rem; }
+      nav { padding: .75rem 1rem; } .nav-links { display: none; } .nav-mobile-row { display: flex; }
       .page-hero { padding: 3.5rem 1.5rem 2.5rem; }
       .page-layout { padding: 2.5rem 1.5rem; }
     }

@@ -547,4 +547,17 @@
   .idx-hero-btns { flex-direction: column; }
   .idx-btn-lg { width: 100%; justify-content: center; }
   .idx-stats { gap: 1rem; }
+  .fc1, .fc2, .fc3 { right: -2%; left: auto; }
+  .fc3 { left: -2%; right: auto; }
+  .idx-float-card { font-size: .72rem; padding: .45rem .7rem; }
+  .idx-hero { padding: 6rem 1rem 4rem; }
+  .idx-hero-title { font-size: clamp(1.8rem, 8vw, 2.8rem); }
+}
+
+@media (max-width: 400px) {
+  .idx-nav { padding: 0 1rem; }
+  .idx-cat-grid { grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+  .idx-cat-item { padding: .85rem .5rem; }
+  .idx-stat-num { font-size: 1.5rem; }
+  .idx-feat-card { padding: 1.2rem; }
 }

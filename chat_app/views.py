@@ -52,6 +52,8 @@ def get_conversations(request):
             'avatar_url': avatar_url,
             'listing': c.listing.title if c.listing else 'General',
             'listingEmoji': listing_emoji,
+            'listing_image_url': c.listing.image_url if c.listing else '',
+            'listing_id': c.listing.id if c.listing else None,
             'price': f"GH₵ {c.listing.price}" if c.listing else '',
             'time': last_msg.timestamp.strftime('%I:%M %p') if last_msg else 'New',
             'badge': c.messages.filter(is_read=False).exclude(sender=me).count(),

@@ -7,7 +7,124 @@
     <li><a href="{% url 'base:safety' %}">Safety</a></li>
     <li><a href="{% url 'base:help' %}">Help Centre</a></li>
     <li><a href="{% url 'base:terms' %}">Terms</a></li>
-    <li><button class="nav-theme-btn" id="themeBtn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></li>
+    <li class="nav-theme-li"><button class="nav-theme-btn" id="themeBtn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></li>
     <li><a href="{% url 'auth:auth_view' %}" class="nav-cta">Get Started</a></li>
   </ul>
+  <!-- mobile row: theme toggle always visible + hamburger -->
+  <div class="nav-mobile-row">
+    <button class="nav-theme-btn" id="themeBtnMobile"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </nav>
+
+<!-- Mobile drawer -->
+<div class="nav-drawer" id="navDrawer" aria-hidden="true">
+  <div class="nav-drawer-inner">
+    <a href="{% url 'base:safety' %}" class="nav-drawer-link">Safety</a>
+    <a href="{% url 'base:help' %}" class="nav-drawer-link">Help Centre</a>
+    <a href="{% url 'base:terms' %}" class="nav-drawer-link">Terms</a>
+    <a href="{% url 'auth:auth_view' %}" class="nav-drawer-cta">Get Started</a>
+  </div>
+</div>
+<div class="nav-drawer-backdrop" id="navBackdrop"></div>
+
+<style>
+.nav-mobile-row { display: none; align-items: center; gap: .5rem; }
+.nav-hamburger {
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  gap: 5px; width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(128,128,128,.1); border: none; cursor: pointer; padding: 0;
+}
+.nav-hamburger span {
+  display: block; width: 18px; height: 1.5px;
+  background: var(--text, #f0eeea); border-radius: 2px;
+  transition: transform .25s, opacity .25s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+.nav-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(280px, 80vw); z-index: 999;
+  background: var(--surface, #1c1f27);
+  border-left: 1px solid var(--border, rgba(255,255,255,.07));
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  padding: 4.5rem 1.5rem 2rem;
+  gap: .25rem;
+  box-shadow: -8px 0 32px rgba(0,0,0,.4);
+}
+.nav-drawer.open { transform: translateX(0); }
+.nav-drawer-inner { display: flex; flex-direction: column; gap: .25rem; }
+.nav-drawer-link {
+  display: block; padding: .85rem 1rem; border-radius: 10px;
+  font-size: .95rem; font-weight: 500; color: var(--text, #f0eeea);
+  text-decoration: none; transition: background .15s;
+}
+.nav-drawer-link:hover { background: var(--surface2, rgba(255,255,255,.06)); }
+.nav-drawer-cta {
+  display: block; margin-top: 1rem; padding: .85rem 1rem;
+  border-radius: 10px; text-align: center;
+  background: var(--accent, #e8c96a); color: #1a1400 !important;
+  font-size: .95rem; font-weight: 700; text-decoration: none;
+  transition: opacity .15s;
+}
+.nav-drawer-cta:hover { opacity: .88; }
+.nav-drawer-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 998;
+  background: rgba(0,0,0,.45); backdrop-filter: blur(2px);
+}
+.nav-drawer-backdrop.open { display: block; }
+
+@media (max-width: 768px) {
+  .nav-mobile-row { display: flex; }
+  .nav-theme-li { display: none; }
+}
+</style>
+
+<script>
+(function(){
+  const hamburger = document.getElementById('navHamburger');
+  const drawer    = document.getElementById('navDrawer');
+  const backdrop  = document.getElementById('navBackdrop');
+  const mobileThemeBtn = document.getElementById('themeBtnMobile');
+
+  function openDrawer() {
+    drawer.classList.add('open');
+    backdrop.classList.add('open');
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded','true');
+    drawer.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    backdrop.classList.remove('open');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded','false');
+    drawer.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', () => drawer.classList.contains('open') ? closeDrawer() : openDrawer());
+  backdrop.addEventListener('click', closeDrawer);
+
+  // Sync mobile theme button with the page's theme system
+  if (mobileThemeBtn) {
+    mobileThemeBtn.addEventListener('click', () => {
+      const mainBtn = document.getElementById('themeBtn');
+      if (mainBtn) mainBtn.click();
+      else {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') !== 'light';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        localStorage.setItem('pu-theme', isDark ? 'light' : 'dark');
+      }
+    });
+  }
+})();
+</script>
