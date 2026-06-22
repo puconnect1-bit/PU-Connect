@@ -20,14 +20,16 @@
 }
 
 .top-bar-logo {
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -.4px;
-  color: var(--accent);
   text-decoration: none;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
-.top-bar-logo span { color: var(--text); }
+.top-bar-logo-img {
+  height: 36px;
+  width: auto;
+  display: block;
+}
 
 .top-bar-spacer { flex: 1; }
 
@@ -264,7 +266,7 @@
 /* ── Extra small screens (< 360px) ── */
 @media (max-width: 360px) {
   .top-bar { gap: .4rem; padding: 0 .65rem; }
-  .top-bar-logo { font-size: .95rem; }
+  .top-bar-logo-img { height: 28px; }
   .page-inner { padding: 1rem .75rem 0; }
 }
 

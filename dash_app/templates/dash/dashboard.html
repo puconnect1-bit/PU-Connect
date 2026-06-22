@@ -34,7 +34,9 @@
       <button class="top-bar-menu-btn" onclick="openSidebar()" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
-      <a href="{% url 'base:home' %}" class="top-bar-logo">PU<span>Connect</span></a>
+      <a href="{% url 'base:home' %}" class="top-bar-logo">
+        <img src="{% static 'icons/logo.png' %}" alt="PU Connect" class="top-bar-logo-img">
+      </a>
       <div class="top-bar-spacer"></div>
 
       <div class="top-bar-spacer"></div>

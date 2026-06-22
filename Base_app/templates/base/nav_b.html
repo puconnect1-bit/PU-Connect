@@ -1,5 +1,8 @@
+{% load static %}
 <nav>
-  <a href="{% url 'base:home' %}" class="logo">PU-<span>Connect</span></a>
+  <a href="{% url 'base:home' %}" class="logo">
+    <img src="{% static 'icons/logo.png' %}" alt="PU Connect" class="logo-img">
+  </a>
   <ul class="nav-links">
     <li><a href="{% url 'base:safety' %}">Safety</a></li>
     <li><a href="{% url 'base:help' %}">Help Centre</a></li>

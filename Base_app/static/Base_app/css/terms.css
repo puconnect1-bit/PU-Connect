@@ -47,12 +47,8 @@
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
     }
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-weight: 900; font-size: 1.35rem;
-      color: var(--accent); text-decoration: none; letter-spacing: -.5px;
-    }
-    .logo span { color: var(--text); }
+    .logo { text-decoration: none; display: flex; align-items: center; }
+    .logo-img { height: 40px; width: auto; display: block; }
     .nav-right { display: flex; align-items: center; gap: 1.5rem; }
     .nav-link {
       text-decoration: none; color: var(--muted);
