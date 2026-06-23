@@ -92,10 +92,7 @@
 
   <div class="prof-username-row">
     <div class="prof-username" id="dispUsername"></div>
-    <span class="verify-badge" id="verifyBadge" style="display:none" title="Verified Student">
-      <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><path d="M12 2l2.4 4.8L20 8l-4 3.9.9 5.5L12 15l-4.9 2.4.9-5.5L4 8l5.6-1.2z" fill="#e8c96a" stroke="#c9a93a" stroke-width="1"/><path d="M9 12l2 2 4-4" stroke="#1a1400" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Verified
-    </span>
+    <span class="pu-verified pu-verified-lg" id="verifyBadge" style="display:none" title="Verified Student"><svg width="11" height="9" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
   </div>
   <div class="prof-bio" id="dispBio"></div>
 
@@ -228,14 +225,18 @@
       </div>
       <button class="settings-action-btn" onclick="openModal('changePwModal')">Change</button>
     </div>
+    <div class="settings-row" id="twoFaSettingsRow">
+      <div class="settings-left">
+        <div class="settings-title">Two-Factor Authentication</div>
+        <div class="settings-sub" id="twoFaSub">Add an extra layer of security to your account</div>
+      </div>
+      <button class="settings-action-btn" id="twoFaBtn" onclick="open2FAModal()">Enable</button>
+    </div>
     <div class="settings-row" style="border-bottom:none" id="verifySettingsRow">
       <div class="settings-left">
         <div class="settings-title">
           Student Verification
-          <span class="verify-badge-inline" id="verifyBadgeSettings" style="display:none">
-            <svg viewBox="0 0 24 24" fill="none" width="13" height="13"><path d="M12 2l2.4 4.8L20 8l-4 3.9.9 5.5L12 15l-4.9 2.4.9-5.5L4 8l5.6-1.2z" fill="#e8c96a" stroke="#c9a93a" stroke-width="1"/><path d="M9 12l2 2 4-4" stroke="#1a1400" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Verified
-          </span>
+          <span class="pu-verified pu-verified-sm" id="verifyBadgeSettings" style="display:none;margin-left:.3rem" title="Verified Student"><svg width="8" height="6" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
         <div class="settings-sub" id="verifySettingsSub">Get a badge confirming you're a PU student</div>
       </div>
@@ -294,7 +295,7 @@
     </div>
     <div class="field">
       <label class="field-lbl">Phone Number</label>
-      <input type="text" id="editPhone" placeholder="e.g. 0241234567" maxlength="15"/>
+      <input type="tel" id="editPhone" placeholder="+233 XX XXX XXXX" maxlength="13" oninput="fmtGhPhone(this)" onfocus="fmtGhPhone(this)"/>
     </div>
     <div class="field">
       <label class="field-lbl">Bio <span class="opt">optional</span></label>
@@ -368,6 +369,59 @@
     <p id="pwError" style="color:var(--red);font-size:.83rem;margin:.4rem 0 0;min-height:1.1em"></p>
     <button class="btn-save" style="margin-top:.5rem" onclick="doChangePassword()">Save Password</button>
     <button class="btn-cancel" onclick="closeModal('changePwModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── 2FA SETUP MODAL ── -->
+<div class="modal-ov" id="twoFaSetupModal">
+  <div class="modal-sheet" onclick="event.stopPropagation()" style="max-height:90dvh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div class="modal-icon" style="color:#3897f0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+    </div>
+    <div class="modal-title">Set Up Two-Factor Auth</div>
+    <p class="modal-sub">Scan the QR code with an authenticator app (e.g. Google Authenticator, Authy), then enter the 6-digit code to confirm.</p>
+    <div id="tfaQRWrap" style="text-align:center;margin:.75rem 0">
+      <div id="tfaQRLoader" style="color:var(--m);font-size:.85rem">Loading QR code…</div>
+      <img id="tfaQRImg" src="" alt="2FA QR Code" style="display:none;width:180px;height:180px;border-radius:12px;border:3px solid var(--b)"/>
+    </div>
+    <div style="background:var(--inp);border-radius:8px;padding:.55rem .8rem;font-size:.75rem;color:var(--m);text-align:center;margin-bottom:1rem;word-break:break-all" id="tfaSecretRow" style="display:none">
+      Manual key: <span id="tfaSecretText" style="font-family:monospace;color:var(--t);letter-spacing:.05em"></span>
+    </div>
+    <div class="code-inputs-row" style="display:flex;gap:.4rem;justify-content:center;margin-bottom:.9rem">
+      <input class="tfa-setup-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="sd0" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-setup-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="sd1" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-setup-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="sd2" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-setup-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="sd3" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-setup-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="sd4" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-setup-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="sd5" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+    </div>
+    <p id="tfaSetupErr" style="color:var(--red);font-size:.82rem;min-height:1.1em;text-align:center;margin-bottom:.5rem"></p>
+    <button class="btn-save" id="tfaEnableBtn" onclick="confirmEnable2FA()" disabled>Activate 2FA</button>
+    <button class="btn-cancel" onclick="closeModal('twoFaSetupModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ── 2FA DISABLE MODAL ── -->
+<div class="modal-ov" id="twoFaDisableModal">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-icon" style="color:var(--red)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="36" height="36"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </div>
+    <div class="modal-title">Disable Two-Factor Auth</div>
+    <p class="modal-sub">Enter your current authenticator code to confirm you want to disable 2FA.</p>
+    <div class="code-inputs-row" style="display:flex;gap:.4rem;justify-content:center;margin-bottom:.9rem">
+      <input class="tfa-dis-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="dd0" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-dis-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="dd1" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-dis-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="dd2" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-dis-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="dd3" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-dis-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="dd4" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+      <input class="tfa-dis-digit" type="number" maxlength="1" inputmode="numeric" pattern="[0-9]" id="dd5" style="width:40px;height:50px;border-radius:9px;border:2px solid var(--b);background:var(--inp);color:var(--t);font-size:1.3rem;font-weight:700;text-align:center;outline:none;-moz-appearance:textfield"/>
+    </div>
+    <p id="tfaDisErr" style="color:var(--red);font-size:.82rem;min-height:1.1em;text-align:center;margin-bottom:.5rem"></p>
+    <button class="btn-save" style="background:var(--red);color:#fff" id="tfaDisableBtn" onclick="confirmDisable2FA()" disabled>Disable 2FA</button>
+    <button class="btn-cancel" onclick="closeModal('twoFaDisableModal')">Cancel</button>
   </div>
 </div>
 
@@ -550,10 +604,28 @@ async function loadProfile() {
   } catch { showToast('Could not load profile'); }
 }
 
+/* ── Phone formatter — Ghana +233 + 9 digits ── */
+function fmtGhPhone(el){
+  const PREFIX='233';
+  let d=el.value.replace(/\D/g,'');
+  if(d.startsWith(PREFIX)) d=d.slice(PREFIX.length);
+  else if(d.startsWith('0')) d=d.slice(1);
+  d=d.slice(0,9);
+  el.value = d ? '+233'+d : '';
+}
+function _normalisePhone(v){
+  if(!v) return '';
+  const PREFIX='233';
+  let d=String(v).replace(/\D/g,'');
+  if(d.startsWith(PREFIX)) d=d.slice(PREFIX.length);
+  else if(d.startsWith('0')) d=d.slice(1);
+  return d ? '+233'+d.slice(0,9) : '';
+}
+
 /* ── EDIT MODAL ── */
 function openEditModal() {
   document.getElementById('editName').value     = _profile.name || '';
-  document.getElementById('editPhone').value    = _profile.phone || '';
+  document.getElementById('editPhone').value    = _normalisePhone(_profile.phone);
   document.getElementById('editBio').value      = _profile.bio || '';
   document.getElementById('bioCount').textContent = (_profile.bio || '').length + ' / 200';
   document.getElementById('editFaculty').value  = _profile.faculty || '';
@@ -565,8 +637,11 @@ function openEditModal() {
 async function saveProfile() {
   const name = document.getElementById('editName').value.trim();
   if (!name) { showToast('Name is required'); return; }
+  const rawPhone = document.getElementById('editPhone').value.trim();
+  const phoneDigits = rawPhone.replace(/\D/g,'').replace(/^233/,'').replace(/^0/,'');
+  if(rawPhone && phoneDigits.length !== 9){ showToast('Phone must be exactly 9 digits after +233'); return; }
   const payload = {
-    name, phone: document.getElementById('editPhone').value.trim(),
+    name, phone: rawPhone ? '+233'+phoneDigits : '',
     bio:      document.getElementById('editBio').value.trim(),
     faculty:  document.getElementById('editFaculty').value,
     location: document.getElementById('editLocation').value,
@@ -837,10 +912,11 @@ async function openFollowSheet(type) {
       const av = u.avatar
         ? `<img src="${u.avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
         : fbAv;
+      const vbadge = u.is_verified ? '<span class="pu-verified pu-verified-sm" title="Verified Student"><svg width="8" height="6" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' : '';
       return `<a class="follow-row" href="/profile/${u.username}/">
         <div class="follow-av">${av}</div>
         <div class="follow-info">
-          <div class="follow-name">${u.name}</div>
+          <div class="follow-name">${u.name}${vbadge}</div>
           <div class="follow-username">@${u.username}</div>
         </div>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="color:var(--text-2);flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
@@ -851,11 +927,157 @@ async function openFollowSheet(type) {
   }
 }
 
+/* ── TWO-FACTOR AUTHENTICATION ── */
+let _twoFaEnabled = false;
+
+async function load2FAStatus() {
+  try {
+    const r = await fetch('/profile/api/2fa/status/');
+    if (!r.ok) return;
+    const d = await r.json();
+    _twoFaEnabled = d.enabled;
+    update2FASettingsRow();
+  } catch {}
+}
+
+function update2FASettingsRow() {
+  const btn = document.getElementById('twoFaBtn');
+  const sub = document.getElementById('twoFaSub');
+  if (!btn) return;
+  if (_twoFaEnabled) {
+    btn.textContent = 'Disable';
+    btn.style.background = 'rgba(255,107,107,.12)';
+    btn.style.color = 'var(--red)';
+    if (sub) sub.textContent = '2FA is active — your account is protected';
+  } else {
+    btn.textContent = 'Enable';
+    btn.style.background = '';
+    btn.style.color = '';
+    if (sub) sub.textContent = 'Add an extra layer of security to your account';
+  }
+}
+
+function open2FAModal() {
+  if (_twoFaEnabled) {
+    // Clear disable digits
+    Array.from({length:6},(_,i)=>document.getElementById('dd'+i)).forEach(d=>{ if(d){d.value='';} });
+    document.getElementById('tfaDisErr').textContent = '';
+    document.getElementById('tfaDisableBtn').disabled = true;
+    wireDigits('tfa-dis-digit', 'tfaDisErr', 'tfaDisableBtn');
+    openModal('twoFaDisableModal');
+  } else {
+    startSetup2FA();
+  }
+}
+
+async function startSetup2FA() {
+  openModal('twoFaSetupModal');
+  document.getElementById('tfaQRLoader').style.display = '';
+  document.getElementById('tfaQRImg').style.display = 'none';
+  document.getElementById('tfaSecretRow').style.display = 'none';
+  document.getElementById('tfaSetupErr').textContent = '';
+  document.getElementById('tfaEnableBtn').disabled = true;
+  Array.from({length:6},(_,i)=>document.getElementById('sd'+i)).forEach(d=>{ if(d) d.value=''; });
+  try {
+    const r = await fetch('/profile/api/2fa/setup/');
+    const d = await r.json();
+    document.getElementById('tfaQRImg').src = d.qr;
+    document.getElementById('tfaQRImg').style.display = '';
+    document.getElementById('tfaQRLoader').style.display = 'none';
+    document.getElementById('tfaSecretText').textContent = d.secret;
+    document.getElementById('tfaSecretRow').style.display = '';
+    wireDigits('tfa-setup-digit', 'tfaSetupErr', 'tfaEnableBtn');
+  } catch {
+    document.getElementById('tfaQRLoader').textContent = 'Failed to load. Please retry.';
+  }
+}
+
+function wireDigits(cls, errId, btnId) {
+  const digits = Array.from(document.querySelectorAll('.'+cls));
+  const btn = document.getElementById(btnId);
+  digits.forEach((inp, i) => {
+    inp.oninput = () => {
+      const v = inp.value.replace(/\D/g,'');
+      inp.value = v ? v[v.length-1] : '';
+      if (inp.value && i < digits.length-1) digits[i+1].focus();
+      btn.disabled = digits.map(d=>d.value).join('').length !== 6;
+    };
+    inp.onkeydown = e => {
+      if (e.key==='Backspace' && !inp.value && i>0) { digits[i-1].focus(); digits[i-1].value=''; btn.disabled=true; }
+      if (e.key==='Enter' && !btn.disabled) btn.click();
+    };
+    inp.onpaste = e => {
+      e.preventDefault();
+      const text = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'');
+      text.split('').slice(0,6).forEach((ch,j)=>{ if(digits[j]) digits[j].value=ch; });
+      const next=Math.min(text.length,5); digits[next].focus();
+      btn.disabled = digits.map(d=>d.value).join('').length !== 6;
+    };
+  });
+}
+
+async function confirmEnable2FA() {
+  const code = Array.from({length:6},(_,i)=>document.getElementById('sd'+i)).map(d=>d?.value||'').join('');
+  if (code.length!==6) return;
+  const btn = document.getElementById('tfaEnableBtn');
+  btn.disabled = true; btn.textContent = 'Activating…';
+  try {
+    const r = await fetch('/profile/api/2fa/enable/', {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCSRF()},
+      body: JSON.stringify({code})
+    });
+    const d = await r.json();
+    if (r.ok) {
+      closeModal('twoFaSetupModal');
+      _twoFaEnabled = true;
+      update2FASettingsRow();
+      showToast('2FA enabled ✓ Your account is now more secure');
+    } else {
+      document.getElementById('tfaSetupErr').textContent = d.message || 'Invalid code.';
+      Array.from({length:6},(_,i)=>document.getElementById('sd'+i)).forEach(d=>{ if(d) d.value=''; });
+      document.getElementById('sd0')?.focus();
+      btn.disabled = false; btn.textContent = 'Activate 2FA';
+    }
+  } catch {
+    document.getElementById('tfaSetupErr').textContent = 'Connection error.';
+    btn.disabled = false; btn.textContent = 'Activate 2FA';
+  }
+}
+
+async function confirmDisable2FA() {
+  const code = Array.from({length:6},(_,i)=>document.getElementById('dd'+i)).map(d=>d?.value||'').join('');
+  if (code.length!==6) return;
+  const btn = document.getElementById('tfaDisableBtn');
+  btn.disabled = true; btn.textContent = 'Disabling…';
+  try {
+    const r = await fetch('/profile/api/2fa/disable/', {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCSRF()},
+      body: JSON.stringify({code})
+    });
+    const d = await r.json();
+    if (r.ok) {
+      closeModal('twoFaDisableModal');
+      _twoFaEnabled = false;
+      update2FASettingsRow();
+      showToast('2FA disabled');
+    } else {
+      document.getElementById('tfaDisErr').textContent = d.message || 'Invalid code.';
+      Array.from({length:6},(_,i)=>document.getElementById('dd'+i)).forEach(d=>{ if(d) d.value=''; });
+      document.getElementById('dd0')?.focus();
+      btn.disabled = false; btn.textContent = 'Disable 2FA';
+    }
+  } catch {
+    document.getElementById('tfaDisErr').textContent = 'Connection error.';
+    btn.disabled = false; btn.textContent = 'Disable 2FA';
+  }
+}
+
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(isDark);
   loadProfile();
   loadVerificationInfo();
+  load2FAStatus();
 });
 </script>
 

@@ -170,9 +170,19 @@ DATABASE_ROUTERS = ['pu_mp.router.PURouter']
 
 
 
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+# ── Password hashing ──────────────────────────────────────────────────────────
+# Explicit hasher list — new passwords use SHA-256 (SHA-2) + random salt via
+# PBKDF2.  Legacy entries stored under the built-in PBKDF2PasswordHasher are
+# accepted transparently; Django re-hashes them on next successful login.
+PASSWORD_HASHERS = [
+    # Primary: our explicit SHA-2 + salt hasher (PBKDF2-SHA256)
+    'pu_mp.hashers.SHA256SaltedHasher',
+    # Fallback: Django's identical built-in — handles hashes created before
+    # this setting was added (same algorithm, interoperable).
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
 
+# ── Password validation ────────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

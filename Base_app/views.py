@@ -53,9 +53,12 @@ def help_page(request):
     - Troubleshooting
     - Contact support
     """
+    from .models import SiteConfig as _SC
+    _cfg = _SC.get()
     context = {
         'page_title': 'Help & Support - PU-Marketplace',
         'page_description': 'Find answers to common questions and get support.',
+        'support_email': _cfg.support_email,
         'faqs': [
             {
                 'question': 'How do I verify my student status?',
@@ -732,6 +735,7 @@ def admin_api_config_get(request):
         'verification_fee': float(cfg.verification_fee),
         'platform_name': cfg.platform_name,
         'admin_email': cfg.admin_email,
+        'support_email': cfg.support_email,
         'max_listing_price': float(cfg.max_listing_price),
         'max_video_size_mb': cfg.max_video_size_mb,
         'report_sla_hours': cfg.report_sla_hours,
@@ -754,6 +758,8 @@ def admin_api_config_save(request):
             cfg.platform_name = data['platform_name'].strip()
         if 'admin_email' in data:
             cfg.admin_email = data['admin_email'].strip()
+        if 'support_email' in data:
+            cfg.support_email = data['support_email'].strip()
         if 'max_listing_price' in data:
             cfg.max_listing_price = max(0, float(data['max_listing_price']))
         if 'max_video_size_mb' in data:
@@ -778,6 +784,8 @@ def public_config(request):
     return JsonResponse({
         'boost_fee': float(cfg.boost_fee),
         'boost_duration_days': cfg.boost_duration_days,
+        'support_email': cfg.support_email,
+        'admin_email': cfg.admin_email,
     })
 
 
@@ -816,7 +824,7 @@ def initiate_boost_payment(request):
     callback_url = request.build_absolute_uri(f'/api/boost/callback/?ref={reference}')
 
     payload = json.dumps({
-        'email': request.user.email or f'{request.user.username}@pu-connect.edu.gh',
+        'email': request.user.email or f'{request.user.username}@{cfg.admin_email.split("@")[-1]}',
         'amount': amount_kobo,
         'currency': 'GHS',
         'reference': reference,

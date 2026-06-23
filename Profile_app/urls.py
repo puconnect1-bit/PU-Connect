@@ -20,6 +20,10 @@ urlpatterns = [
     path('api/verification/paid/', views.verification_paid, name='verification_paid'),
     path('api/verification/submit-docs/', views.verification_submit_docs, name='verification_submit_docs'),
     path('api/change-password/', views.change_password, name='change_password'),
+    path('api/2fa/status/', views.twofa_status, name='twofa_status'),
+    path('api/2fa/setup/', views.twofa_setup, name='twofa_setup'),
+    path('api/2fa/enable/', views.twofa_enable, name='twofa_enable'),
+    path('api/2fa/disable/', views.twofa_disable, name='twofa_disable'),
     path('<str:username>/', views.public_profile_page, name='public_profile'),
 ]
 

@@ -138,6 +138,7 @@ def listing_detail(request, pk):
         else f"{price_display} · {listing.category} · Listed on PU Connect"
     )
 
+    from Base_app.models import user_is_verified
     context = {
         'listing':          listing,
         'image_url':        image_url,
@@ -150,6 +151,7 @@ def listing_detail(request, pk):
         'seller_phone':     seller_phone,
         'seller_whatsapp':  seller_whatsapp,
         'seller_faculty':   seller_faculty,
+        'seller_verified':  user_is_verified(seller),
         'is_owner':         request.user.is_authenticated and request.user == seller,
     }
     return render(request, 'listings/detail.html', context)

@@ -180,7 +180,7 @@
             <span class="acc-question">My account was suspended. What do I do?</span>
             <span class="acc-chevron">▼</span>
           </button>
-          <div class="acc-body"><div class="acc-content">If your account was suspended, you should receive an email explaining the reason. If you believe the suspension was in error, you can appeal by emailing <a href="mailto:appeals@pu-Connect.edu.gh">appeals@pu-Connect.edu.gh</a> with your username and a brief description. We aim to review all appeals within 5 business days.</div></div>
+          <div class="acc-body"><div class="acc-content">If your account was suspended, you should receive an email explaining the reason. If you believe the suspension was in error, you can appeal by emailing <a href="mailto:{{ support_email }}">{{ support_email }}</a> with your username and a brief description. We aim to review all appeals within 5 business days.</div></div>
         </div>
       </div>
     </div>
@@ -232,7 +232,7 @@
             <span class="acc-question">Why was my listing removed?</span>
             <span class="acc-chevron">▼</span>
           </button>
-          <div class="acc-body"><div class="acc-content">Listings are removed if they violate our <a href="{% url 'base:terms' %}">Terms of Service</a> — for example, prohibited items, misleading descriptions, or duplicate listings. You'll receive a notification explaining the reason. If you believe the removal was an error, email <a href="mailto:support@pentvarsconnect.com">support@pentvarsconnect.com</a>.</div></div>
+          <div class="acc-body"><div class="acc-content">Listings are removed if they violate our <a href="{% url 'base:terms' %}">Terms of Service</a> — for example, prohibited items, misleading descriptions, or duplicate listings. You'll receive a notification explaining the reason. If you believe the removal was an error, email <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</div></div>
         </div>
       </div>
     </div>
@@ -260,7 +260,7 @@
             <span class="acc-question">What if the item isn't as described?</span>
             <span class="acc-chevron">▼</span>
           </button>
-          <div class="acc-body"><div class="acc-content">If an item significantly differs from its description and you used our escrow payment system, <strong>do not confirm receipt</strong> — funds won't be released to the seller until you do. Contact us at <a href="mailto:support@pentvarsconnect.com">support@pentvarsconnect.com</a> within 24 hours of the meetup to open a dispute.</div></div>
+          <div class="acc-body"><div class="acc-content">If an item significantly differs from its description and you used our escrow payment system, <strong>do not confirm receipt</strong> — funds won't be released to the seller until you do. Contact us at <a href="mailto:{{ support_email }}">{{ support_email }}</a> within 24 hours of the meetup to open a dispute.</div></div>
         </div>
         <div class="acc-item">
           <button class="acc-trigger" onclick="toggleAcc(this)">
@@ -306,7 +306,7 @@
               <li>The seller cancelled the transaction</li>
               <li>The item was proven to be significantly not as described</li>
             </ul>
-            Cash transactions between users are not covered by our refund policy. Always use escrow for protection. Contact <a href="mailto:support@pentvarsconnect.com">support@pentvarsconnect.com</a> to initiate a refund claim.
+            Cash transactions between users are not covered by our refund policy. Always use escrow for protection. Contact <a href="mailto:{{ support_email }}">{{ support_email }}</a> to initiate a refund claim.
           </div></div>
         </div>
         <div class="acc-item">
@@ -328,7 +328,7 @@
             <span class="acc-question">How do I report a user or listing?</span>
             <span class="acc-chevron">▼</span>
           </button>
-          <div class="acc-body"><div class="acc-content">Tap the <strong>⋯ More</strong> menu on any listing or user profile and select <strong>"Report"</strong>. Choose the reason (fraud, prohibited item, harassment, etc.), add details, and submit. Our safety team reviews all reports within 2 hours. You can also email <a href="mailto:support@pentvarsconnect.com">support@pentvarsconnect.com</a> directly.</div></div>
+          <div class="acc-body"><div class="acc-content">Tap the <strong>⋯ More</strong> menu on any listing or user profile and select <strong>"Report"</strong>. Choose the reason (fraud, prohibited item, harassment, etc.), add details, and submit. Our safety team reviews all reports within 2 hours. You can also email <a href="mailto:{{ support_email }}">{{ support_email }}</a> directly.</div></div>
         </div>
         <div class="acc-item">
           <button class="acc-trigger" onclick="toggleAcc(this)">
@@ -340,7 +340,7 @@
             1. Do NOT release escrow payment if you haven't already.<br>
             2. Document everything — screenshots of messages, listings, and any receipts.<br>
             3. Report the user through the app (⋯ More → Report).<br>
-            4. Email <a href="mailto:support@pentvarsconnect.com">support@pentvarsconnect.com</a> with your evidence.<br>
+            4. Email <a href="mailto:{{ support_email }}">{{ support_email }}</a> with your evidence.<br>
             5. If you've suffered financial loss or feel unsafe, contact campus security.<br><br>
             We take fraud extremely seriously and will act on all substantiated reports.
           </div></div>
@@ -372,17 +372,17 @@
     <h2 class="block-title">Get in Touch with Our Team</h2>
     <p class="block-sub">Can't find what you're looking for? Our support team is here Monday to Friday, 8am – 5pm GMT.</p>
     <div class="contact-grid">
-      <a href="mailto:support@pentvarsconnect.com" class="contact-card">
+      <a href="mailto:{{ support_email }}" class="contact-card">
         <span class="cc-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg></span>
         <div class="cc-title">Email Support</div>
         <p class="cc-desc">Send us a message and we'll get back to you within 24 hours on business days.</p>
-        <div class="cc-action">support@pentvarsconnect.com →</div>
+        <div class="cc-action">{{ support_email }} →</div>
       </a>
-      <a href="mailto:support@pentvarsconnect.com" class="contact-card">
+      <a href="mailto:{{ support_email }}" class="contact-card">
         <span class="cc-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
         <div class="cc-title">Safety Team</div>
         <p class="cc-desc">Report fraud, harassment, or safety concerns. We respond within 2 hours.</p>
-        <div class="cc-action">support@pentvarsconnect.com →</div>
+        <div class="cc-action">{{ support_email }} →</div>
       </a>
       <a href="{% url 'base:safety' %}" class="contact-card">
         <span class="cc-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>

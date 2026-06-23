@@ -4,7 +4,7 @@
 [data-theme="light"]{--bg:#f0ede8;--card:#fff;--t:#1a1a1a;--m:#888;--b:rgba(0,0,0,.08);--g:rgba(255,255,255,.78);--gb:rgba(0,0,0,.1);--sh:0 8px 32px rgba(0,0,0,.1);--inp:rgba(0,0,0,.05)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;min-height:100vh;padding-bottom:calc(var(--bh)+24px);transition:background .3s,color .3s}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;min-height:100dvh;padding-bottom:calc(var(--bh)+24px+env(safe-area-inset-bottom,0px));transition:background .3s,color .3s}
 
 /* ── TOP NAV ── */
 .tnav{position:sticky;top:0;z-index:300;height:var(--nh);display:flex;align-items:center;gap:.6rem;padding:0 1rem;background:var(--g);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border-bottom:1px solid var(--gb);box-shadow:var(--sh)}
@@ -56,8 +56,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overfl
 .result-meta .sep{color:var(--b)}
 
 /* ── PRODUCT / SERVICE CARDS ── */
-.listing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:1.2rem}
-@media(max-width:480px){.listing-grid{grid-template-columns:repeat(2,1fr)}}
+.listing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,45%),1fr));gap:clamp(.5rem,2vw,.75rem);margin-bottom:1.2rem}
+@media(max-width:480px){.listing-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}}
 .lcard{background:var(--card);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s}
 .lcard:hover{transform:translateY(-3px);border-color:rgba(232,201,106,.22)}
 .lcard-img{width:100%;aspect-ratio:1;overflow:hidden;position:relative;background:var(--inp)}
@@ -73,7 +73,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overfl
 .lcard-type{font-size:.6rem;font-weight:700;padding:.12rem .42rem;border-radius:4px;display:inline-block;margin-bottom:.25rem}
 
 /* ── USER CARDS ── */
-.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem;margin-bottom:1.2rem}
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:.75rem;margin-bottom:1.2rem}
 @media(max-width:480px){.user-grid{grid-template-columns:1fr}}
 .ucard{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:.9rem 1rem;display:flex;gap:.75rem;align-items:flex-start;cursor:pointer;transition:transform .25s,border-color .25s}
 .ucard:hover{transform:translateY(-2px);border-color:rgba(91,229,197,.22)}

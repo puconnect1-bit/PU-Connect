@@ -164,12 +164,14 @@ def search_users(request):
             .filter(participants=u)
             .first()
         )
+        from Base_app.models import user_is_verified
         data.append({
             'id': u.id,
             'name': u.get_full_name() or u.username,
             'username': u.username,
             'avatar_url': avatar_url,
             'conv_id': existing_conv.id if existing_conv else None,
+            'is_verified': user_is_verified(u),
         })
     return JsonResponse(data, safe=False)
 

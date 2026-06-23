@@ -10,7 +10,7 @@ from .models import SiteConfig, BoostRequest, VerificationRequest
 @admin.register(SiteConfig)
 class SiteConfigAdmin(admin.ModelAdmin):
     fieldsets = (
-        ('Platform',     {'fields': ('platform_name', 'admin_email')}),
+        ('Platform',     {'fields': ('platform_name', 'admin_email', 'support_email')}),
         ('Listings',     {'fields': ('max_listing_price', 'max_listings_per_user', 'max_video_size_mb')}),
         ('Boost',        {'fields': ('boost_fee', 'boost_duration_days')}),
         ('Verification', {'fields': ('verification_fee',),

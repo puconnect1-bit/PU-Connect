@@ -17,45 +17,68 @@ from django.urls import reverse
 @require_POST
 def login_view(request):
     try:
-        # Parse the JSON data from the request body
         data = json.loads(request.body)
         username = data.get('username')
         password = data.get('password')
 
-        # Basic validation
         if not username or not password:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Username and password are required.'
-            }, status=400)
+            return JsonResponse({'status': 'error', 'message': 'Username and password are required.'}, status=400)
 
-        # Authenticate against Django's auth system
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            # Create the session
+            try:
+                profile = user.profile
+                if profile.totp_enabled and profile.totp_secret:
+                    # Park the user ID in session; do NOT call login() yet
+                    request.session['pending_2fa_user_id'] = user.pk
+                    request.session['pending_2fa_backend'] = 'django.contrib.auth.backends.ModelBackend'
+                    return JsonResponse({'status': 'require_2fa'}, status=200)
+            except Exception:
+                pass
             login(request, user)
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Login successful'
-            }, status=200)
+            return JsonResponse({'status': 'success', 'message': 'Login successful'}, status=200)
         else:
-            # Authentication failed
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Invalid email or password.'
-            }, status=401)
+            return JsonResponse({'status': 'error', 'message': 'Invalid email or password.'}, status=401)
 
     except json.JSONDecodeError:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'Invalid JSON data.'
-        }, status=400)
-    except Exception as e:
-        return JsonResponse({
-            'status': 'error',
-            'message': 'A server error occurred.'
-        }, status=500)
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON data.'}, status=400)
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'A server error occurred.'}, status=500)
+
+
+@require_POST
+def verify_2fa_view(request):
+    """Completes login for users who have 2FA enabled."""
+    pending_id = request.session.get('pending_2fa_user_id')
+    if not pending_id:
+        return JsonResponse({'status': 'error', 'message': 'No pending 2FA session.'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        code = data.get('code', '').strip().replace(' ', '')
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON.'}, status=400)
+
+    if not code:
+        return JsonResponse({'status': 'error', 'message': 'Code is required.'}, status=400)
+
+    try:
+        import pyotp
+        from django.contrib.auth.models import User as _User
+        user = _User.objects.get(pk=pending_id)
+        totp = pyotp.TOTP(user.profile.totp_secret)
+        if not totp.verify(code, valid_window=1):
+            return JsonResponse({'status': 'error', 'message': 'Invalid or expired code.'}, status=401)
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Verification failed.'}, status=500)
+
+    # Clear the pending flag and complete login
+    del request.session['pending_2fa_user_id']
+    request.session.pop('pending_2fa_backend', None)
+    user.backend = 'django.contrib.auth.backends.ModelBackend'
+    login(request, user)
+    return JsonResponse({'status': 'success', 'message': 'Login successful'}, status=200)
     
 
 #===================================================
@@ -124,6 +147,15 @@ def signup_api(request):
 @ensure_csrf_cookie
 def login_page(request):
     return render(request, 'login.html')
+
+
+@ensure_csrf_cookie
+def two_fa_page(request):
+    """Renders the 2FA code-entry page. Rejects users with no pending session."""
+    if not request.session.get('pending_2fa_user_id'):
+        from django.shortcuts import redirect
+        return redirect('auth:auth_view')
+    return render(request, 'auth/two_fa.html')
 
 
 # Additional views for registration, password reset, etc. can be added here as needed.

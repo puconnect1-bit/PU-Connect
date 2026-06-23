@@ -30,8 +30,8 @@ html{scroll-behavior:smooth}
 body{
   font-family:'DM Sans',system-ui,-apple-system,sans-serif;
   background:var(--bg);color:var(--text);
-  min-height:100vh;-webkit-font-smoothing:antialiased;
-  padding-bottom:calc(70px + env(safe-area-inset-bottom));
+  min-height:100dvh;-webkit-font-smoothing:antialiased;
+  padding-bottom:calc(var(--nh,70px) + 1rem + env(safe-area-inset-bottom));
 }
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer}
@@ -79,7 +79,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 
 /* ── BANNER ── */
 .banner{
-  position:relative;width:100%;height:160px;
+  position:relative;width:100%;height:clamp(130px,22vw,190px);
   background:linear-gradient(135deg,#1a1800 0%,#2a2410 40%,#3a3218 100%);
   overflow:hidden;
 }
@@ -187,7 +187,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 .stat-sep{width:1px;height:28px;background:var(--border)}
 
 /* ── PAGE BODY ── */
-.page-body{padding:0 1rem 100px}
+.page-body{padding:0 clamp(.75rem,4vw,1rem) 100px}
 
 /* quick grid */
 .quick-grid{
@@ -513,7 +513,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.6}
 @media(min-width:768px){
   .page-body{max-width:680px;margin:0 auto;padding-bottom:40px}
   .profile-card{max-width:680px;margin:0 auto .75rem;border-radius:var(--card-r)}
-  .banner{height:220px}
+  .banner{height:clamp(190px,28vw,260px)}
   .modal-ov{align-items:center}
   .modal-sheet{border-radius:20px;margin-bottom:0;max-height:85dvh}
   .avatar{width:96px;height:96px}

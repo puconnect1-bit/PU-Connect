@@ -193,7 +193,10 @@
         body: JSON.stringify({ username: email, password: pw })
       });
       const data = await res.json();
-      if (res.ok) {
+      if (res.ok && data.status === 'require_2fa') {
+        showToast('Enter your 2FA code…');
+        setTimeout(() => { window.location.href = '{% url "auth:two_fa_page" %}'; }, 700);
+      } else if (res.ok) {
         showToast('Welcome back!');
         setTimeout(() => { window.location.href = '{% url "dashboard:dashboard" %}'; }, 1000);
       } else { throw new Error(data.message || 'Login failed'); }

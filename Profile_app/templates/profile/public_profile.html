@@ -369,7 +369,16 @@ function render(d){
   _data = d;
   document.title = `${d.name} (@${d.username}) — PU-Connect`;
   document.getElementById('barTitle').textContent = '@' + d.username;
-  document.getElementById('pubName').textContent  = d.name;
+  const _nameEl = document.getElementById('pubName');
+  _nameEl.textContent = d.name;
+  if(d.is_verified){
+    const _vb = document.createElement('span');
+    _vb.className = 'pu-verified pu-verified-lg';
+    _vb.title = 'Verified Student';
+    _vb.style.marginLeft = '.3rem';
+    _vb.innerHTML = '<svg width="11" height="9" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    _nameEl.appendChild(_vb);
+  }
   document.getElementById('pubUsername').textContent = '@' + d.username + (d.joined ? ' · Joined ' + d.joined : '');
 
   if(d.bio){ const b = document.getElementById('pubBio'); b.textContent = d.bio; b.style.display = ''; }

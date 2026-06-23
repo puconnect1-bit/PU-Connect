@@ -223,7 +223,7 @@
 /* ── Main layout ── */
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .app-main {
@@ -233,9 +233,9 @@
 }
 
 .page-inner {
-  max-width: 960px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 1.25rem 1rem 0;
+  padding: var(--page-pad) var(--page-pad) 0;
 }
 
 /* ── Desktop: persistent sidebar ── */
@@ -244,7 +244,7 @@
     transform: translateX(0);
     top: 0;
     position: sticky;
-    height: 100vh;
+    height: 100dvh;
     border-right: 1px solid var(--border);
     flex-shrink: 0;
   }
@@ -266,19 +266,22 @@
     height: auto;
     min-height: var(--bot-h);
   }
+  .app-main {
+    padding-bottom: calc(var(--bot-h) + 16px + env(safe-area-inset-bottom));
+  }
 }
 
 /* ── Mobile tweaks ── */
 @media (max-width: 480px) {
-  .page-inner { padding: 1rem .85rem 0; }
+  .page-inner { padding: 1rem var(--page-pad) 0; }
   .sidebar { width: min(var(--sidebar-w), 85vw); }
 }
 
-@media (max-width: 360px) {
-  .top-bar { gap: .4rem; padding: 0 .65rem; }
+@media (max-width: 380px) {
+  .top-bar { gap: .4rem; padding: 0 .65rem; height: var(--nav-h); }
   .top-bar-logo { font-size: 1rem; }
   .top-bar-logo-img { height: 28px; }
-  .page-inner { padding: .85rem .7rem 0; }
+  .page-inner { padding: .85rem var(--page-pad) 0; }
   .bn-item { min-width: 40px; padding: .35rem .4rem; font-size: .6rem; }
   .bn-post { width: 42px; height: 42px; border-radius: 12px; }
 }

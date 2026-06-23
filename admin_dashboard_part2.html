@@ -1,0 +1,443 @@
+<section class="section" id="sec-reports">
+  <div class="section-header">
+    <h2 class="section-title">Reports</h2>
+    <div class="filter-row">
+      <select class="select-filter" id="reportStatusFilter" onchange="filterReports()">
+        <option value="">All Statuses</option>
+        <option value="open">Open</option>
+        <option value="investigating">Investigating</option>
+        <option value="resolved">Resolved</option>
+      </select>
+      <select class="select-filter" id="reportPriorityFilter" onchange="filterReports()">
+        <option value="">All Priorities</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <input type="text" class="search-input" id="reportSearch" placeholder="Search reports…" oninput="filterReports()" />
+    </div>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="data-table" id="reports-table">
+      <thead>
+        <tr>
+          <th>Reporter</th>
+          <th>Reported User</th>
+          <th>Reason</th>
+          <th>Details</th>
+          <th>Priority</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="reports-tbody">
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination" id="reports-pagination"></div>
+  <div class="empty-state hidden" id="reportsEmpty">
+    <div class="empty-icon">🚩</div>
+    <div class="empty-title">No reports found</div>
+    <div class="empty-sub">No reports match the current filters.</div>
+  </div>
+</section>
+
+<section class="section" id="sec-verifications">
+  <div class="section-header">
+    <h2 class="section-title">Verifications</h2>
+    <div class="filter-row">
+      <select class="select-filter" id="verifStatusFilter" onchange="filterVerifs()">
+        <option value="">All</option>
+        <option value="pending_payment">Pending Payment</option>
+        <option value="paid">Paid</option>
+        <option value="docs_submitted">Docs Submitted</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem">
+    <span class="stat-pill" id="vpill-pending_payment" style="padding:.35rem .85rem;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--card2);color:var(--m);border:1px solid var(--border)">Pending: —</span>
+    <span class="stat-pill" id="vpill-paid" style="padding:.35rem .85rem;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--card2);color:var(--gold);border:1px solid var(--border)">Paid: —</span>
+    <span class="stat-pill" id="vpill-docs_submitted" style="padding:.35rem .85rem;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--card2);color:var(--blue);border:1px solid var(--border)">Docs Submitted: —</span>
+    <span class="stat-pill" id="vpill-approved" style="padding:.35rem .85rem;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--card2);color:var(--teal);border:1px solid var(--border)">Approved: —</span>
+    <span class="stat-pill" id="vpill-rejected" style="padding:.35rem .85rem;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--card2);color:var(--red);border:1px solid var(--border)">Rejected: —</span>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="data-table" id="verifs-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Student ID</th>
+          <th>Liveness</th>
+          <th>Status</th>
+          <th>Fee Paid (GH₵)</th>
+          <th>Submitted</th>
+          <th>Expires</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="verifs-tbody">
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination" id="verifs-pagination"></div>
+  <div class="empty-state hidden" id="verifsEmpty">
+    <div class="empty-icon">🎓</div>
+    <div class="empty-title">No verifications found</div>
+    <div class="empty-sub">No verification requests match the current filters.</div>
+  </div>
+</section>
+
+<section class="section" id="sec-boosts">
+  <div class="section-header">
+    <h2 class="section-title">Listing Boosts</h2>
+    <div class="filter-row">
+      <select class="select-filter" id="boostStatusFilter" onchange="filterBoosts()">
+        <option value="">All</option>
+        <option value="pending_payment">Pending Payment</option>
+        <option value="paid">Paid</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="data-table" id="boosts-table">
+      <thead>
+        <tr>
+          <th>Listing</th>
+          <th>Seller</th>
+          <th>Fee Paid (GH₵)</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Admin Note</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="boosts-tbody">
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination" id="boosts-pagination"></div>
+  <div class="empty-state hidden" id="boostsEmpty">
+    <div class="empty-icon">🚀</div>
+    <div class="empty-title">No boost requests found</div>
+    <div class="empty-sub">No boost requests match the current filters.</div>
+  </div>
+</section>
+
+<section class="section" id="sec-transactions">
+  <div class="section-header">
+    <h2 class="section-title">Transactions</h2>
+  </div>
+  <div class="card" style="margin-bottom:1.25rem;padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem">
+    <span style="color:var(--m);font-size:.85rem;font-weight:500">Total GMV:</span>
+    <span style="font-size:1.25rem;font-weight:700;color:var(--teal)" id="txGMV">GH₵ —</span>
+  </div>
+  <div class="filter-row" style="margin-bottom:1.25rem">
+    <input type="text" class="search-input" id="txSearch" placeholder="Search by TX ID, item, seller…" oninput="filterTransactions()" />
+    <select class="select-filter" id="txStatusFilter" onchange="filterTransactions()">
+      <option value="">All Statuses</option>
+      <option value="pending">Pending</option>
+      <option value="completed">Completed</option>
+      <option value="failed">Failed</option>
+      <option value="refunded">Refunded</option>
+    </select>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="data-table" id="transactions-table">
+      <thead>
+        <tr>
+          <th>TX ID</th>
+          <th>Item</th>
+          <th>Seller</th>
+          <th>Amount (GH₵)</th>
+          <th>Category</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="transactions-tbody">
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination" id="transactions-pagination"></div>
+  <div class="empty-state hidden" id="transactionsEmpty">
+    <div class="empty-icon">💳</div>
+    <div class="empty-title">No transactions found</div>
+    <div class="empty-sub">No transactions match the current filters.</div>
+  </div>
+</section>
+
+<section class="section" id="sec-conversations">
+  <div class="section-header">
+    <h2 class="section-title">Conversations</h2>
+  </div>
+  <p style="color:var(--m);font-size:.875rem;margin-bottom:1.25rem">Read-only view of all marketplace conversations.</p>
+  <div style="overflow-x:auto">
+    <table class="data-table" id="conversations-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Participants</th>
+          <th>Listing Title</th>
+          <th>Messages</th>
+          <th>Last Activity</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody id="conversations-tbody">
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination" id="conversations-pagination"></div>
+  <div class="empty-state hidden" id="conversationsEmpty">
+    <div class="empty-icon">💬</div>
+    <div class="empty-title">No conversations found</div>
+    <div class="empty-sub">There are no marketplace conversations yet.</div>
+  </div>
+</section>
+
+<section class="section" id="sec-settings">
+  <div class="section-header">
+    <h2 class="section-title">Settings</h2>
+  </div>
+  <div class="settings-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+
+    <div class="card" style="padding:1.5rem">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.25rem;color:var(--t)">Platform Configuration</h3>
+      <form id="configForm" onsubmit="saveConfig(event)">
+        <div class="form-group">
+          <label class="form-label" for="cfg-platform_name">Platform Name</label>
+          <input class="form-control" type="text" id="cfg-platform_name" name="platform_name" placeholder="PU·Connect" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-admin_email">Admin Email</label>
+          <input class="form-control" type="email" id="cfg-admin_email" name="admin_email" placeholder="admin@puconnect.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-support_email">Support Email</label>
+          <input class="form-control" type="email" id="cfg-support_email" name="support_email" placeholder="support@puconnect.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-max_listing_price">Max Listing Price (GH₵)</label>
+          <input class="form-control" type="number" id="cfg-max_listing_price" name="max_listing_price" placeholder="9999" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-max_listings_per_user">Max Listings Per User</label>
+          <input class="form-control" type="number" id="cfg-max_listings_per_user" name="max_listings_per_user" placeholder="50" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-max_video_size_mb">Max Video Size (MB)</label>
+          <input class="form-control" type="number" id="cfg-max_video_size_mb" name="max_video_size_mb" placeholder="100" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-report_sla_hours">Report SLA (Hours)</label>
+          <input class="form-control" type="number" id="cfg-report_sla_hours" name="report_sla_hours" placeholder="48" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-boost_fee">Boost Fee (GH₵)</label>
+          <input class="form-control" type="number" id="cfg-boost_fee" name="boost_fee" placeholder="5.00" min="0" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-boost_duration_days">Boost Duration (Days)</label>
+          <input class="form-control" type="number" id="cfg-boost_duration_days" name="boost_duration_days" placeholder="7" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cfg-verification_fee">Verification Fee (GH₵)</label>
+          <input class="form-control" type="number" id="cfg-verification_fee" name="verification_fee" placeholder="2.00" min="0" step="0.01" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:.5rem">Save Configuration</button>
+      </form>
+    </div>
+
+    <div class="card" style="padding:1.5rem">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.25rem;color:var(--t)">Platform Toggles</h3>
+      <div style="display:flex;flex-direction:column;gap:1.1rem">
+        <label class="toggle-label" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:1rem">
+          <span style="color:var(--t);font-size:.9rem;font-weight:500">Maintenance Mode</span>
+          <span style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+            <input type="checkbox" class="toggle-input hidden" id="tog-maintenance_mode" onchange="saveToggle('maintenance_mode',this.checked)" />
+            <span class="toggle-slider" style="position:relative;display:inline-block;width:44px;height:24px;background:var(--border);border-radius:999px;transition:background .2s;cursor:pointer" onclick="document.getElementById('tog-maintenance_mode').click()">
+              <span style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;transform:translateX(0)" class="tog-thumb-maintenance_mode"></span>
+            </span>
+          </span>
+        </label>
+        <label class="toggle-label" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:1rem">
+          <span style="color:var(--t);font-size:.9rem;font-weight:500">Registration Open</span>
+          <span style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+            <input type="checkbox" class="toggle-input hidden" id="tog-registration_open" onchange="saveToggle('registration_open',this.checked)" />
+            <span class="toggle-slider" style="position:relative;display:inline-block;width:44px;height:24px;background:var(--border);border-radius:999px;transition:background .2s;cursor:pointer" onclick="document.getElementById('tog-registration_open').click()">
+              <span style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;transform:translateX(0)" class="tog-thumb-registration_open"></span>
+            </span>
+          </span>
+        </label>
+        <label class="toggle-label" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:1rem">
+          <span style="color:var(--t);font-size:.9rem;font-weight:500">Listing Creation Open</span>
+          <span style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+            <input type="checkbox" class="toggle-input hidden" id="tog-listing_create_open" onchange="saveToggle('listing_create_open',this.checked)" />
+            <span class="toggle-slider" style="position:relative;display:inline-block;width:44px;height:24px;background:var(--border);border-radius:999px;transition:background .2s;cursor:pointer" onclick="document.getElementById('tog-listing_create_open').click()">
+              <span style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;transform:translateX(0)" class="tog-thumb-listing_create_open"></span>
+            </span>
+          </span>
+        </label>
+        <label class="toggle-label" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:1rem">
+          <span style="color:var(--t);font-size:.9rem;font-weight:500">Reels Upload Open</span>
+          <span style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">
+            <input type="checkbox" class="toggle-input hidden" id="tog-reels_upload_open" onchange="saveToggle('reels_upload_open',this.checked)" />
+            <span class="toggle-slider" style="position:relative;display:inline-block;width:44px;height:24px;background:var(--border);border-radius:999px;transition:background .2s;cursor:pointer" onclick="document.getElementById('tog-reels_upload_open').click()">
+              <span style="position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;transform:translateX(0)" class="tog-thumb-reels_upload_open"></span>
+            </span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card" style="padding:1.5rem;grid-column:1/-1">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.25rem;color:var(--t)">System Info</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem">
+        <div style="display:flex;flex-direction:column;gap:.25rem;padding:.85rem 1rem;background:var(--card2);border-radius:.6rem;border:1px solid var(--border)">
+          <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);font-weight:600">Django Version</span>
+          <span style="font-size:.95rem;font-weight:600;color:var(--t)">4.2</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.25rem;padding:.85rem 1rem;background:var(--card2);border-radius:.6rem;border:1px solid var(--border)">
+          <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);font-weight:600">Environment</span>
+          <span style="font-size:.95rem;font-weight:600;color:var(--teal)">Production</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.25rem;padding:.85rem 1rem;background:var(--card2);border-radius:.6rem;border:1px solid var(--border)">
+          <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);font-weight:600">Database</span>
+          <span style="font-size:.95rem;font-weight:600;color:var(--t)">SQLite</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.25rem;padding:.85rem 1rem;background:var(--card2);border-radius:.6rem;border:1px solid var(--border)">
+          <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);font-weight:600">CDN</span>
+          <span style="font-size:.95rem;font-weight:600;color:var(--t)">Cloudflare R2</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.25rem;padding:.85rem 1rem;background:var(--card2);border-radius:.6rem;border:1px solid var(--border)">
+          <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);font-weight:600">Server</span>
+          <span style="font-size:.95rem;font-weight:600;color:var(--t)">Daphne / ASGI</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.25rem;padding:.85rem 1rem;background:var(--card2);border-radius:.6rem;border:1px solid var(--border)">
+          <span style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);font-weight:600">Region</span>
+          <span style="font-size:.95rem;font-weight:600;color:var(--t)">af-south-1</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:1.5rem">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.25rem;color:var(--t)">Quick Actions</h3>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <button class="btn btn-ghost" style="width:100%;justify-content:flex-start" onclick="clearCache()">🗑 Clear Cache</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:flex-start" onclick="backupDB()">💾 Backup Database</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:flex-start" onclick="downloadLogs()">📥 Download Logs</button>
+        <button class="btn btn-primary" style="width:100%;justify-content:flex-start" onclick="openBroadcastModal()">📢 Broadcast Message</button>
+      </div>
+    </div>
+
+    <div class="card" style="padding:1.5rem">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.25rem;color:var(--t)">Broadcast Message</h3>
+      <div class="form-group">
+        <label class="form-label" for="broadcastMsg">Platform-wide Message</label>
+        <textarea id="broadcastMsg" class="form-control" rows="5" placeholder="Write a platform-wide message…" style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:.25rem" onclick="sendBroadcast()">Send Broadcast</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- =============================================
+     MODALS
+     ============================================= -->
+
+<!-- Modal 1: User Detail -->
+<div class="modal-overlay hidden" id="userModal" onclick="closeModal(event,'userModal')">
+  <div class="modal-box" style="max-width:540px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="userModalTitle">User Details</h3>
+      <button class="modal-close" onclick="closeModal(null,'userModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="userModalBody"><!-- JS fills this --></div>
+    <div class="modal-footer" id="userModalFooter"></div>
+  </div>
+</div>
+
+<!-- Modal 2: Report Detail -->
+<div class="modal-overlay hidden" id="reportModal" onclick="closeModal(event,'reportModal')">
+  <div class="modal-box" style="max-width:580px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="reportModalTitle">Report Details</h3>
+      <button class="modal-close" onclick="closeModal(null,'reportModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="reportModalBody"><!-- JS fills this --></div>
+    <div class="modal-footer" id="reportModalFooter"></div>
+  </div>
+</div>
+
+<!-- Modal 3: Confirm Action -->
+<div class="modal-overlay hidden" id="confirmModal" onclick="closeModal(event,'confirmModal')">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="confirmTitle">Confirm Action</h3>
+      <button class="modal-close" onclick="closeModal(null,'confirmModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMsg" style="color:var(--m);line-height:1.6"></p>
+    </div>
+    <div class="modal-footer" style="display:flex;gap:.75rem;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal(null,'confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 4: Broadcast Message -->
+<div class="modal-overlay hidden" id="broadcastModal" onclick="closeModal(event,'broadcastModal')">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-header">
+      <h3 class="modal-title">Broadcast Message</h3>
+      <button class="modal-close" onclick="closeModal(null,'broadcastModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label class="form-label">Message to all users</label>
+      <textarea id="broadcastModalMsg" class="form-control" rows="5" placeholder="Write your platform-wide announcement…" style="resize:vertical"></textarea>
+    </div>
+    <div class="modal-footer" style="display:flex;gap:.75rem;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal(null,'broadcastModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendBroadcast()">Send Broadcast</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 5: Transaction Detail -->
+<div class="modal-overlay hidden" id="txModal" onclick="closeModal(event,'txModal')">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-header">
+      <h3 class="modal-title" id="txModalTitle">Transaction Detail</h3>
+      <button class="modal-close" onclick="closeModal(null,'txModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="txModalBody"><!-- JS fills this --></div>
+    <div class="modal-footer" id="txModalFooter"></div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Django CSRF -->
+{% csrf_token %}
+
+<!-- Superuser flags -->
+<script>const IS_SUPERUSER = {{ request.user.is_superuser|yesno:"true,false" }}; const ADMIN_USERNAME = "{{ request.user.username }}";</script>
+
+</div><!-- /.content -->
+</div><!-- /.main -->
+</div><!-- /.shell -->
+
+<!-- JS PART 3 GOES HERE -->
+
+</body>
+</html>

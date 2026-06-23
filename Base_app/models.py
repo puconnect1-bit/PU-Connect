@@ -10,6 +10,8 @@ class SiteConfig(models.Model):
     boost_duration_days = models.PositiveIntegerField(default=7)
     platform_name = models.CharField(max_length=100, default='PU-Connect')
     admin_email = models.EmailField(default='admin@pu-connect.edu.gh')
+    support_email = models.EmailField(default='support@pu-connect.edu.gh',
+        help_text='Public-facing contact/support email shown on help pages and error messages.')
     max_listing_price = models.DecimalField(max_digits=10, decimal_places=2, default=10000.00)
     max_video_size_mb = models.PositiveIntegerField(default=100)
     report_sla_hours = models.PositiveIntegerField(default=2)
@@ -89,6 +91,15 @@ class VerificationRequest(models.Model):
         self.reviewed_by = reviewed_by_user
         self.expires_at  = now + relativedelta(years=1)
         self.save()
+
+
+def user_is_verified(user):
+    """Return True if the given User has an active, non-expired verified badge."""
+    try:
+        vr = user.verificationrequest
+        return vr.is_verified
+    except Exception:
+        return False
 
 
 class BoostRequest(models.Model):

@@ -186,8 +186,8 @@
 
   <div class="f">
     <label class="fl" for="phone">Phone Number <span class="req">*</span></label>
-    <input type="tel" id="phone" placeholder="e.g. 0241234567" maxlength="12" oninput="fmtPh(this)"/>
-    <div class="em" id="phone-em">Enter a valid Ghana number (min 9 digits)</div>
+    <input type="tel" id="phone" placeholder="+233 XX XXX XXXX" maxlength="13" oninput="fmtPh(this)" onfocus="fmtPh(this)"/>
+    <div class="em" id="phone-em">Enter a valid Ghanaian number (9 digits after +233)</div>
     <div class="fh">Stays private until you agree to meet a buyer</div>
   </div>
 
@@ -449,8 +449,20 @@ function renderImgs(){
 }
 function rmImg(i){imgs.splice(i,1);renderImgs();}
 
-/* PHONE */
-function fmtPh(el){let v=el.value.replace(/\D/g,'');if(v.length>10)v=v.slice(0,10);el.value=v;}
+/* PHONE — always shows +233 prefix, 9 local digits only */
+function fmtPh(el){
+  const PREFIX='233';
+  let d=el.value.replace(/\D/g,'');
+  // Strip leading 233 or 0
+  if(d.startsWith(PREFIX)) d=d.slice(PREFIX.length);
+  else if(d.startsWith('0')) d=d.slice(1);
+  d=d.slice(0,9);
+  el.value = d ? '+233'+d : '';
+}
+function ghPhoneDigits(el){
+  const d=el.value.replace(/\D/g,'');
+  return d.startsWith('233')?d.slice(3):(d.startsWith('0')?d.slice(1):d);
+}
 
 /* NAVIGATION */
 function goNext(){if(!validate(cur))return;cur++;if(cur>5){publish();return;}switchS(cur);}
@@ -523,10 +535,10 @@ function validate(n){
     const nmEl=document.getElementById('sname');
     const phEl=document.getElementById('phone');
     const nm=nmEl.value.trim();
-    const ph=phEl.value.replace(/\D/g,'');
+    const ph=ghPhoneDigits(phEl);
     if(!nm){sE('sname-em',true,'sname');ok=false;}
     else{clrE('sname-em');nmEl.classList.remove('err');}
-    if(ph.length<9){sE('phone-em',true,'phone');ok=false;}
+    if(ph.length!==9){sE('phone-em',true,'phone');ok=false;}
     else{clrE('phone-em');phEl.classList.remove('err');}
   }
 

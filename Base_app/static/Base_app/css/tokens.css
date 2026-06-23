@@ -33,6 +33,12 @@
   --bot-h:       72px;
   --sidebar-w:   240px;
 
+  /* ── Responsive layout ── */
+  --page-max:    960px;
+  --page-pad:    clamp(.75rem, 4vw, 1.25rem);
+  --gap-sm:      clamp(.5rem,  2vw, .85rem);
+  --gap-md:      clamp(.75rem, 3vw, 1.25rem);
+
   --font-sans:   'Inter', system-ui, -apple-system, sans-serif;
   --font-display:'Inter', system-ui, sans-serif;
 
@@ -126,6 +132,27 @@ button {
 .t-2xl  { font-size: 1.8rem;  font-weight: 800; letter-spacing: -.5px; }
 .t-3xl  { font-size: 2.4rem;  font-weight: 800; letter-spacing: -.8px; }
 .t-muted { color: var(--text-2); }
+
+/* ── Verified badge (Instagram-style) — global ── */
+.pu-verified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3897f0;
+  flex-shrink: 0;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+.pu-verified svg {
+  display: block;
+}
+/* Sizes */
+.pu-verified-sm { width: 13px; height: 13px; }
+.pu-verified-lg { width: 20px; height: 20px; }
 
 /* ── Utility buttons ── */
 .btn {
@@ -401,4 +428,46 @@ button {
   border-radius: 50%;
   background: var(--accent);
   margin-top: .35rem;
+}
+
+/* ══════════════════════════════════════════
+   Global responsive overrides
+   Single source of truth — override per-page
+   tokens at known breakpoints so every page
+   inherits fluid sizing without hardcoding.
+══════════════════════════════════════════ */
+
+/* Fluid font-size base: 14px → 16px over 320–768px */
+html { font-size: clamp(14px, 0.875rem + 0.5vw, 16px); }
+
+/* Tighten nav on small phones */
+@media (max-width: 380px) {
+  :root {
+    --nav-h: 52px;
+    --bot-h: 64px;
+  }
+}
+
+/* Tablet: wider sidebar */
+@media (min-width: 768px) and (max-width: 959px) {
+  :root { --sidebar-w: 220px; }
+}
+
+/* Desktop: sidebar always visible */
+@media (min-width: 960px) {
+  :root { --page-pad: clamp(1rem, 2vw, 1.5rem); }
+}
+
+/* Inputs: prevent iOS zoom (font-size < 16px triggers it) */
+@media (max-width: 767px) {
+  .input, input, textarea, select {
+    font-size: max(.9rem, 16px) !important;
+  }
+}
+
+/* Safe-area-aware bottom padding for scrollable pages */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .app-main {
+    padding-bottom: calc(var(--bot-h) + 16px + env(safe-area-inset-bottom));
+  }
 }

@@ -1,0 +1,2205 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PU·Connect Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* =============================================
+   CSS CUSTOM PROPERTIES / DESIGN TOKENS
+   ============================================= */
+[data-theme="dark"] {
+  --bg: #0d0e11;
+  --card: #1c1f27;
+  --card2: #151820;
+  --gold: #e8c96a;
+  --teal: #5be5c5;
+  --blue: #3897f0;
+  --red: #ff6b6b;
+  --t: #f0eeea;
+  --m: #7a7e8a;
+  --border: rgba(255,255,255,.07);
+  --sb-bg: rgba(13,14,17,.85);
+  --topbar-bg: rgba(13,14,17,.85);
+  --shadow: 0 4px 24px rgba(0,0,0,.4);
+  --shadow-card: 0 2px 12px rgba(0,0,0,.3);
+  --shimmer-base: #1c1f27;
+  --shimmer-highlight: #252933;
+  --input-bg: #151820;
+  --hover-bg: rgba(255,255,255,.04);
+  --scroll-thumb: rgba(255,255,255,.12);
+}
+
+[data-theme="light"] {
+  --bg: #f0ede8;
+  --card: #fff;
+  --card2: #f5f3ef;
+  --gold: #c9a84c;
+  --teal: #1ab8a0;
+  --blue: #1a73e8;
+  --red: #d93025;
+  --t: #1a1a1a;
+  --m: #888;
+  --border: rgba(0,0,0,.08);
+  --sb-bg: rgba(240,237,232,.85);
+  --topbar-bg: rgba(240,237,232,.85);
+  --shadow: 0 4px 24px rgba(0,0,0,.1);
+  --shadow-card: 0 2px 12px rgba(0,0,0,.08);
+  --shimmer-base: #ece9e4;
+  --shimmer-highlight: #f5f3ef;
+  --input-bg: #f5f3ef;
+  --hover-bg: rgba(0,0,0,.03);
+  --scroll-thumb: rgba(0,0,0,.15);
+}
+
+/* =============================================
+   RESET & BASE
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--t);
+  line-height: 1.5;
+  transition: background .2s ease, color .2s ease;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--t);
+}
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+  transition: color .2s ease, opacity .2s ease;
+}
+
+a:hover {
+  opacity: .8;
+}
+
+button {
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all .2s ease;
+}
+
+input, select, textarea {
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: all .2s ease;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+img, svg {
+  display: block;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--m);
+}
+
+/* =============================================
+   LAYOUT SHELL
+   ============================================= */
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  transition: grid-template-columns .2s ease;
+}
+
+/* =============================================
+   SIDEBAR
+   ============================================= */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: var(--sb-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  transition: transform .2s ease, background .2s ease;
+  overflow: hidden;
+}
+
+.sb-logo {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.4rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sb-logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--gold) 0%, #c9a84c 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: .85rem;
+  color: #0d0e11;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(232,201,106,.3);
+}
+
+.sb-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: .95rem;
+  color: var(--t);
+  line-height: 1.2;
+}
+
+.sb-logo-text span {
+  display: block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .65rem;
+  font-weight: 500;
+  color: var(--m);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-top: 1px;
+}
+
+.sb-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: .75rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+
+.sb-section-label {
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--m);
+  padding: .9rem 1.25rem .4rem;
+  user-select: none;
+}
+
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .65rem 1.25rem;
+  margin: .1rem .6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--m);
+  font-size: .875rem;
+  font-weight: 500;
+  transition: all .2s ease;
+  user-select: none;
+  position: relative;
+}
+
+.sb-item:hover {
+  background: var(--hover-bg);
+  color: var(--t);
+}
+
+.sb-item.active {
+  background: linear-gradient(135deg, rgba(232,201,106,.15) 0%, rgba(232,201,106,.05) 100%);
+  color: var(--gold);
+  border: 1px solid rgba(232,201,106,.2);
+}
+
+[data-theme="light"] .sb-item.active {
+  background: linear-gradient(135deg, rgba(201,168,76,.12) 0%, rgba(201,168,76,.04) 100%);
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,.2);
+}
+
+.sb-item.active::before {
+  content: '';
+  position: absolute;
+  left: -0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--gold);
+  border-radius: 0 2px 2px 0;
+}
+
+.sb-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sb-footer {
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  flex-shrink: 0;
+  background: var(--sb-bg);
+}
+
+.sb-user {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+
+.sb-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.sb-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sb-user-name {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--t);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sb-user-role {
+  font-size: .68rem;
+  color: var(--gold);
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.sb-logout {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .8rem;
+  color: var(--m);
+  padding: .4rem .6rem;
+  border-radius: 8px;
+  transition: all .2s ease;
+}
+
+.sb-logout:hover {
+  background: rgba(255,107,107,.1);
+  color: var(--red);
+}
+
+.sb-logout svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* =============================================
+   MAIN AREA
+   ============================================= */
+.main {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--bg);
+  transition: background .2s ease;
+}
+
+/* =============================================
+   TOPBAR
+   ============================================= */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: var(--topbar-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .85rem 1.5rem;
+  gap: 1rem;
+  transition: background .2s ease;
+  flex-shrink: 0;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--t);
+  transition: all .2s ease;
+  flex-shrink: 0;
+}
+
+.hamburger:hover {
+  background: var(--hover-bg);
+}
+
+.hamburger svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#pageTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--t);
+  transition: color .2s ease;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .35rem .75rem;
+  background: rgba(91,229,197,.1);
+  border: 1px solid rgba(91,229,197,.2);
+  border-radius: 20px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--teal);
+  white-space: nowrap;
+}
+
+[data-theme="light"] .status-pill {
+  background: rgba(26,184,160,.1);
+  border-color: rgba(26,184,160,.2);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34,197,94,.6);
+  animation: pulse-dot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .7; transform: scale(.85); }
+}
+
+.topbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--m);
+  transition: all .2s ease;
+  flex-shrink: 0;
+}
+
+.topbar-btn:hover {
+  background: var(--hover-bg);
+  color: var(--t);
+  border-color: var(--gold);
+}
+
+.topbar-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.topbar-btn.spin-active svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+#lastRefreshed {
+  font-size: .72rem;
+  color: var(--m);
+  white-space: nowrap;
+  display: none;
+}
+
+@media (min-width: 900px) {
+  #lastRefreshed {
+    display: block;
+  }
+}
+
+/* =============================================
+   CONTENT WRAPPER
+   ============================================= */
+.content {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+/* =============================================
+   SECTIONS
+   ============================================= */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--t);
+  margin-bottom: 1.25rem;
+}
+
+.section-subtitle {
+  font-size: .85rem;
+  color: var(--m);
+  margin-top: .25rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+}
+
+/* =============================================
+   KPI GRID
+   ============================================= */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--border);
+  transition: all .2s ease;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent, var(--gold)), transparent);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+  border-color: rgba(232,201,106,.2);
+}
+
+.kpi-card:hover::before {
+  opacity: 1;
+}
+
+.kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: .85rem;
+  background: var(--icon-bg, rgba(232,201,106,.12));
+}
+
+.kpi-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--icon-color, var(--gold));
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kpi-label {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--m);
+  margin-bottom: .35rem;
+}
+
+.kpi-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--t);
+  line-height: 1;
+  margin-bottom: .3rem;
+}
+
+.kpi-secondary {
+  font-size: .72rem;
+  color: var(--m);
+}
+
+/* =============================================
+   ROW CARDS
+   ============================================= */
+.row-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1100px) {
+  .row-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all .2s ease;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem .75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--t);
+}
+
+.card-body {
+  padding: 1rem 1.25rem;
+}
+
+/* =============================================
+   DATA TABLE
+   ============================================= */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .835rem;
+}
+
+.data-table thead {
+  background: var(--card2);
+}
+
+.data-table th {
+  text-align: left;
+  padding: .75rem 1rem;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--m);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--t);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr {
+  transition: background .15s ease;
+}
+
+.data-table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+.data-table .rank-cell {
+  font-weight: 700;
+  color: var(--gold);
+  width: 40px;
+}
+
+/* Small inline table for overview cards */
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .82rem;
+}
+
+.mini-table th {
+  text-align: left;
+  padding: .5rem .75rem;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--m);
+  border-bottom: 1px solid var(--border);
+}
+
+.mini-table td {
+  padding: .6rem .75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--t);
+  vertical-align: middle;
+}
+
+.mini-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.mini-table tbody tr {
+  transition: background .15s ease;
+}
+
+.mini-table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+/* =============================================
+   BADGES
+   ============================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: .2rem .55rem;
+  font-size: .7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  gap: .3rem;
+}
+
+.badge-green {
+  background: rgba(34,197,94,.12);
+  color: #22c55e;
+  border: 1px solid rgba(34,197,94,.2);
+}
+
+[data-theme="light"] .badge-green {
+  background: rgba(22,163,74,.1);
+  color: #16a34a;
+  border-color: rgba(22,163,74,.2);
+}
+
+.badge-red {
+  background: rgba(255,107,107,.12);
+  color: var(--red);
+  border: 1px solid rgba(255,107,107,.2);
+}
+
+[data-theme="light"] .badge-red {
+  background: rgba(217,48,37,.1);
+  border-color: rgba(217,48,37,.2);
+}
+
+.badge-blue {
+  background: rgba(56,151,240,.12);
+  color: var(--blue);
+  border: 1px solid rgba(56,151,240,.2);
+}
+
+[data-theme="light"] .badge-blue {
+  background: rgba(26,115,232,.1);
+  border-color: rgba(26,115,232,.2);
+}
+
+.badge-gold {
+  background: rgba(232,201,106,.12);
+  color: var(--gold);
+  border: 1px solid rgba(232,201,106,.2);
+}
+
+.badge-teal {
+  background: rgba(91,229,197,.12);
+  color: var(--teal);
+  border: 1px solid rgba(91,229,197,.2);
+}
+
+[data-theme="light"] .badge-teal {
+  background: rgba(26,184,160,.1);
+  border-color: rgba(26,184,160,.2);
+}
+
+.badge-gray {
+  background: rgba(122,126,138,.12);
+  color: var(--m);
+  border: 1px solid rgba(122,126,138,.2);
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: .45rem 1rem;
+  border-radius: 8px;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .2s ease;
+  white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: #0d0e11;
+  border-color: var(--gold);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 2px 12px rgba(232,201,106,.35);
+  transform: translateY(-1px);
+}
+
+.btn-teal {
+  background: rgba(91,229,197,.15);
+  color: var(--teal);
+  border-color: rgba(91,229,197,.3);
+}
+
+.btn-teal:hover {
+  background: rgba(91,229,197,.25);
+  box-shadow: 0 2px 8px rgba(91,229,197,.2);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .btn-teal {
+  background: rgba(26,184,160,.1);
+  color: var(--teal);
+  border-color: rgba(26,184,160,.25);
+}
+
+.btn-danger {
+  background: rgba(255,107,107,.15);
+  color: var(--red);
+  border-color: rgba(255,107,107,.3);
+}
+
+.btn-danger:hover {
+  background: rgba(255,107,107,.25);
+  box-shadow: 0 2px 8px rgba(255,107,107,.2);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .btn-danger {
+  background: rgba(217,48,37,.1);
+  color: var(--red);
+  border-color: rgba(217,48,37,.25);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--m);
+  border-color: var(--border);
+}
+
+.btn-ghost:hover {
+  background: var(--hover-bg);
+  color: var(--t);
+  border-color: var(--m);
+}
+
+.btn-sm {
+  padding: .3rem .65rem;
+  font-size: .75rem;
+  border-radius: 7px;
+}
+
+.btn-xs {
+  padding: .2rem .5rem;
+  font-size: .7rem;
+  border-radius: 6px;
+}
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 7px;
+}
+
+/* =============================================
+   FILTER ROW
+   ============================================= */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  stroke: var(--m);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .55rem .75rem .55rem 2.25rem;
+  color: var(--t);
+  font-size: .855rem;
+}
+
+.search-input::placeholder {
+  color: var(--m);
+}
+
+.search-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(232,201,106,.1);
+}
+
+.filter-select {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .55rem .85rem;
+  color: var(--t);
+  font-size: .855rem;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.filter-select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(232,201,106,.1);
+}
+
+option {
+  background: var(--card);
+  color: var(--t);
+}
+
+/* =============================================
+   PAGINATION
+   ============================================= */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 1rem 0 .5rem;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  font-size: .8rem;
+  color: var(--m);
+  padding: 0 .5rem;
+}
+
+.pagination .btn {
+  min-width: 36px;
+}
+
+/* =============================================
+   EMPTY STATE
+   ============================================= */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 2rem;
+  color: var(--m);
+  text-align: center;
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  stroke: var(--border);
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  font-size: .9rem;
+  color: var(--m);
+  max-width: 280px;
+}
+
+/* =============================================
+   AVATAR INITIALS
+   ============================================= */
+.avatar-initials {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.listing-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   CHART
+   ============================================= */
+.chart-section {
+  margin-bottom: 1.5rem;
+}
+
+.chart-wrap {
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.chart-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--t);
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: .5rem;
+  height: 140px;
+  padding-bottom: 2rem;
+  position: relative;
+}
+
+.chart-bars::after {
+  content: '';
+  position: absolute;
+  bottom: 2rem;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+.bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .4rem;
+  height: 100%;
+  position: relative;
+}
+
+.bar {
+  width: 100%;
+  background: linear-gradient(180deg, var(--gold) 0%, rgba(232,201,106,.4) 100%);
+  border-radius: 5px 5px 0 0;
+  min-height: 4px;
+  transition: height .5s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+
+[data-theme="light"] .bar {
+  background: linear-gradient(180deg, var(--gold) 0%, rgba(201,168,76,.35) 100%);
+}
+
+.bar:hover {
+  filter: brightness(1.15);
+}
+
+.bar-tooltip {
+  position: absolute;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: .25rem .5rem;
+  font-size: .7rem;
+  color: var(--t);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s ease;
+  z-index: 10;
+}
+
+.bar-wrap:hover .bar-tooltip {
+  opacity: 1;
+}
+
+.bar-label {
+  font-size: .68rem;
+  color: var(--m);
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* =============================================
+   SKELETON LOADING
+   ============================================= */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--shimmer-base) 25%, var(--shimmer-highlight) 50%, var(--shimmer-base) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+  color: transparent !important;
+}
+
+.skeleton * {
+  visibility: hidden !important;
+}
+
+.skeleton-text {
+  height: .8rem;
+  border-radius: 4px;
+  margin-bottom: .4rem;
+}
+
+.skeleton-text.w-60 { width: 60%; }
+.skeleton-text.w-40 { width: 40%; }
+.skeleton-text.w-80 { width: 80%; }
+.skeleton-text.w-100 { width: 100%; }
+
+.skeleton-value {
+  height: 2rem;
+  width: 70%;
+  border-radius: 6px;
+  margin-bottom: .4rem;
+}
+
+/* =============================================
+   TOAST
+   ============================================= */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  pointer-events: none;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(.96);
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  font-size: .82rem;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+  animation: toast-in .25s ease forwards;
+  max-width: 320px;
+  border: 1px solid var(--border);
+}
+
+.toast.hiding {
+  animation: toast-out .2s ease forwards;
+}
+
+.toast-success {
+  background: var(--card);
+  color: #22c55e;
+  border-color: rgba(34,197,94,.25);
+}
+
+.toast-error {
+  background: var(--card);
+  color: var(--red);
+  border-color: rgba(255,107,107,.25);
+}
+
+.toast-warning {
+  background: var(--card);
+  color: var(--gold);
+  border-color: rgba(232,201,106,.25);
+}
+
+.toast-info {
+  background: var(--card);
+  color: var(--blue);
+  border-color: rgba(56,151,240,.25);
+}
+
+.toast svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.toast-msg {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* =============================================
+   MODAL
+   ============================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-box {
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  max-width: 480px;
+  width: 100%;
+  padding: 1.75rem;
+  transform: scale(.95) translateY(10px);
+  transition: transform .2s ease;
+}
+
+.modal-overlay.open .modal-box {
+  transform: scale(1) translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--t);
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--m);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.modal-close:hover {
+  background: var(--hover-bg);
+  color: var(--t);
+}
+
+.modal-close svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.modal-body {
+  font-size: .875rem;
+  color: var(--m);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: .6rem;
+}
+
+/* =============================================
+   LOADER SPIN
+   ============================================= */
+.loader-spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 30px rgba(0,0,0,.4);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .sb-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    background: rgba(0,0,0,.5);
+    backdrop-filter: blur(2px);
+  }
+
+  .sb-overlay.open {
+    display: block;
+  }
+
+  .topbar {
+    padding: .75rem 1rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .row-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-wrap {
+    min-width: unset;
+  }
+
+  .filter-select {
+    min-width: unset;
+  }
+
+  .status-pill {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .data-table {
+    font-size: .78rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: .6rem .7rem;
+  }
+}
+
+/* =============================================
+   UTILITY CLASSES
+   ============================================= */
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; }
+.gap-2 { gap: .5rem; }
+.gap-3 { gap: .75rem; }
+.text-muted { color: var(--m); }
+.text-gold { color: var(--gold); }
+.text-teal { color: var(--teal); }
+.text-red { color: var(--red); }
+.text-blue { color: var(--blue); }
+.text-sm { font-size: .82rem; }
+.text-xs { font-size: .72rem; }
+.font-mono { font-family: 'Courier New', monospace; }
+.truncate { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mb-1 { margin-bottom: .5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mt-1 { margin-top: .5rem; }
+.hidden { display: none !important; }
+
+/* =============================================
+   ACTION CELL
+   ============================================= */
+.action-cell {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex-wrap: wrap;
+}
+
+/* =============================================
+   SECTION HEADER ROW
+   ============================================= */
+.sec-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.sec-header-actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar overlay for mobile -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+<!-- Confirmation Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title" id="confirmTitle">Confirm Action</h3>
+      <button class="modal-close" onclick="closeModal('confirmModal')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="confirmBody">Are you sure you want to proceed?</div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- App Shell -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">PU</div>
+      <div class="sb-logo-text">
+        PU·Connect Admin
+        <span>Management Portal</span>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Main</div>
+
+      <div class="sb-item active" id="nav-overview" onclick="nav('overview',this)">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Overview
+      </div>
+
+      <div class="sb-item" id="nav-users" onclick="nav('users',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Users
+      </div>
+
+      <div class="sb-item" id="nav-listings" onclick="nav('listings',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+          <line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        Listings
+      </div>
+
+      <div class="sb-section-label">Moderation</div>
+
+      <div class="sb-item" id="nav-reports" onclick="nav('reports',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+          <line x1="4" y1="22" x2="4" y2="15"/>
+        </svg>
+        Reports
+      </div>
+
+      <div class="sb-item" id="nav-verifications" onclick="nav('verifications',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+        Verifications
+      </div>
+
+      <div class="sb-section-label">Commerce</div>
+
+      <div class="sb-item" id="nav-boosts" onclick="nav('boosts',this)">
+        <svg viewBox="0 0 24 24">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Boosts
+      </div>
+
+      <div class="sb-item" id="nav-transactions" onclick="nav('transactions',this)">
+        <svg viewBox="0 0 24 24">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        Transactions
+      </div>
+
+      <div class="sb-section-label">Support</div>
+
+      <div class="sb-item" id="nav-conversations" onclick="nav('conversations',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Conversations
+      </div>
+
+      <div class="sb-section-label">System</div>
+
+      <div class="sb-item" id="nav-settings" onclick="nav('settings',this)">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </div>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatarInitials">
+          {% with name=request.user.get_full_name|default:request.user.username %}
+          {{ name|slice:":2"|upper }}
+          {% endwith %}
+        </div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="sb-user-role">
+            {% if request.user.is_superuser %}Superuser{% elif request.user.is_staff %}Staff{% else %}Admin{% endif %}
+          </div>
+        </div>
+      </div>
+      <a href="/accounts/logout/" class="sb-logout">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sign Out
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="menuBtn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+          <svg viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <h1 id="pageTitle">Overview</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          System Online
+        </div>
+        <button class="topbar-btn" id="adminThemeBtn" onclick="toggleTheme()" aria-label="Toggle theme">
+          <svg id="themeIconSun" viewBox="0 0 24 24" style="display:none">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg id="themeIconMoon" viewBox="0 0 24 24">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <button class="topbar-btn" onclick="refreshCurrentSection()" id="refreshBtn" aria-label="Refresh data">
+          <svg viewBox="0 0 24 24">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
+        <span id="lastRefreshed"></span>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ======================================
+           SECTION: OVERVIEW
+           ====================================== -->
+      <section class="section active" id="sec-overview">
+        <div class="sec-header">
+          <div>
+            <h2 class="section-title">Dashboard Overview</h2>
+            <p class="section-subtitle">Real-time platform statistics and activity</p>
+          </div>
+          <div class="sec-header-actions">
+            <button class="btn btn-ghost btn-sm" onclick="loadOverview()">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid" id="kpiGrid">
+          <!-- Total Users -->
+          <div class="kpi-card" style="--accent:var(--blue)">
+            <div class="kpi-icon" style="--icon-bg:rgba(56,151,240,.12);--icon-color:var(--blue)">
+              <svg viewBox="0 0 24 24">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Total Users</div>
+            <div class="kpi-value" id="stat-total-users">—</div>
+            <div class="kpi-secondary" id="stat-total-users-sub">Loading…</div>
+          </div>
+
+          <!-- Active Listings -->
+          <div class="kpi-card" style="--accent:var(--teal)">
+            <div class="kpi-icon" style="--icon-bg:rgba(91,229,197,.12);--icon-color:var(--teal)">
+              <svg viewBox="0 0 24 24">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                <line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Active Listings</div>
+            <div class="kpi-value" id="stat-active-listings">—</div>
+            <div class="kpi-secondary" id="stat-active-listings-sub">Loading…</div>
+          </div>
+
+          <!-- Total Listings -->
+          <div class="kpi-card" style="--accent:var(--gold)">
+            <div class="kpi-icon" style="--icon-bg:rgba(232,201,106,.12);--icon-color:var(--gold)">
+              <svg viewBox="0 0 24 24">
+                <rect x="2" y="7" width="20" height="14" rx="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Total Listings</div>
+            <div class="kpi-value" id="stat-total-listings">—</div>
+            <div class="kpi-secondary" id="stat-total-listings-sub">Loading…</div>
+          </div>
+
+          <!-- Conversations -->
+          <div class="kpi-card" style="--accent:var(--blue)">
+            <div class="kpi-icon" style="--icon-bg:rgba(56,151,240,.12);--icon-color:var(--blue)">
+              <svg viewBox="0 0 24 24">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Conversations</div>
+            <div class="kpi-value" id="stat-conversations">—</div>
+            <div class="kpi-secondary" id="stat-conversations-sub">Loading…</div>
+          </div>
+
+          <!-- Messages -->
+          <div class="kpi-card" style="--accent:var(--teal)">
+            <div class="kpi-icon" style="--icon-bg:rgba(91,229,197,.12);--icon-color:var(--teal)">
+              <svg viewBox="0 0 24 24">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Messages</div>
+            <div class="kpi-value" id="stat-messages">—</div>
+            <div class="kpi-secondary" id="stat-messages-sub">Loading…</div>
+          </div>
+
+          <!-- Suspended Users -->
+          <div class="kpi-card" style="--accent:var(--red)">
+            <div class="kpi-icon" style="--icon-bg:rgba(255,107,107,.12);--icon-color:var(--red)">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Suspended Users</div>
+            <div class="kpi-value" id="stat-suspended-users">—</div>
+            <div class="kpi-secondary" id="stat-suspended-users-sub">Loading…</div>
+          </div>
+
+          <!-- Open Reports -->
+          <div class="kpi-card" style="--accent:var(--red)">
+            <div class="kpi-icon" style="--icon-bg:rgba(255,107,107,.12);--icon-color:var(--red)">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Open Reports</div>
+            <div class="kpi-value" id="stat-open-reports">—</div>
+            <div class="kpi-secondary" id="stat-open-reports-sub">Loading…</div>
+          </div>
+
+          <!-- Pending Verifications -->
+          <div class="kpi-card" style="--accent:var(--gold)">
+            <div class="kpi-icon" style="--icon-bg:rgba(232,201,106,.12);--icon-color:var(--gold)">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="kpi-label">Pending Verifications</div>
+            <div class="kpi-value" id="stat-pending-verifications">—</div>
+            <div class="kpi-secondary" id="stat-pending-verifications-sub">Loading…</div>
+          </div>
+
+          <!-- GMV -->
+          <div class="kpi-card" style="--accent:var(--gold)">
+            <div class="kpi-icon" style="--icon-bg:rgba(232,201,106,.12);--icon-color:var(--gold)">
+              <svg viewBox="0 0 24 24">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div class="kpi-label">GMV (GH₵)</div>
+            <div class="kpi-value" id="stat-gmv">—</div>
+            <div class="kpi-secondary" id="stat-gmv-sub">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Row -->
+        <div class="row-cards mb-3">
+          <!-- Top Sellers -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Top Sellers</h3>
+              <span class="badge badge-gold">Top 5</span>
+            </div>
+            <div id="topSellersWrap">
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Seller</th>
+                    <th>Sales</th>
+                    <th>GMV</th>
+                  </tr>
+                </thead>
+                <tbody id="topSellersBody">
+                  <tr>
+                    <td colspan="4">
+                      <div class="empty-state" style="padding:1.5rem">
+                        <svg viewBox="0 0 24 24" style="width:32px;height:32px;margin-bottom:.5rem"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        <p>Loading top sellers…</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Newest Users -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Newest Users</h3>
+              <span class="badge badge-teal">Latest 5</span>
+            </div>
+            <div id="newestUsersWrap">
+              <table class="mini-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody id="newestUsersBody">
+                  <tr>
+                    <td colspan="3">
+                      <div class="empty-state" style="padding:1.5rem">
+                        <svg viewBox="0 0 24 24" style="width:32px;height:32px;margin-bottom:.5rem"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                        <p>Loading newest users…</p>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Listings Chart -->
+        <div class="chart-section">
+          <div class="chart-wrap">
+            <div class="chart-header">
+              <h3 class="chart-title">Weekly Listings Activity</h3>
+              <span class="badge badge-gray text-xs" id="chartWeekLabel">This week</span>
+            </div>
+            <div class="chart-bars" id="weeklyChart">
+              <div class="bar-wrap">
+                <div class="bar-tooltip" id="bar-tip-0">0</div>
+                <div class="bar" id="bar-0" style="height:4px"></div>
+                <span class="bar-label">Mon</span>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar-tooltip" id="bar-tip-1">0</div>
+                <div class="bar" id="bar-1" style="height:4px"></div>
+                <span class="bar-label">Tue</span>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar-tooltip" id="bar-tip-2">0</div>
+                <div class="bar" id="bar-2" style="height:4px"></div>
+                <span class="bar-label">Wed</span>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar-tooltip" id="bar-tip-3">0</div>
+                <div class="bar" id="bar-3" style="height:4px"></div>
+                <span class="bar-label">Thu</span>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar-tooltip" id="bar-tip-4">0</div>
+                <div class="bar" id="bar-4" style="height:4px"></div>
+                <span class="bar-label">Fri</span>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar-tooltip" id="bar-tip-5">0</div>
+                <div class="bar" id="bar-5" style="height:4px"></div>
+                <span class="bar-label">Sat</span>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar-tooltip" id="bar-tip-6">0</div>
+                <div class="bar" id="bar-6" style="height:4px"></div>
+                <span class="bar-label">Sun</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- /sec-overview -->
+
+      <!-- ======================================
+           SECTION: USERS
+           ====================================== -->
+      <section class="section" id="sec-users">
+        <div class="sec-header">
+          <div>
+            <h2 class="section-title">Users</h2>
+            <p class="section-subtitle">Manage platform user accounts</p>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-input" id="usersSearch" placeholder="Search by name, username or email…" oninput="debounceUsers()" />
+          </div>
+          <select class="filter-select" id="usersStatusFilter" onchange="loadUsers(1)">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+            <option value="staff">Staff</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <table class="data-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Faculty</th>
+                <th>Joined</th>
+                <th>Listings</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr>
+                <td colspan="9">
+                  <div class="empty-state">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <p>Loading users…</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="users-pagination"></div>
+
+        <!-- Empty state (shown by JS) -->
+        <div class="empty-state hidden" id="usersEmpty">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <p>No users match your search or filter criteria.</p>
+        </div>
+      </section>
+      <!-- /sec-users -->
+
+      <!-- ======================================
+           SECTION: LISTINGS
+           ====================================== -->
+      <section class="section" id="sec-listings">
+        <div class="sec-header">
+          <div>
+            <h2 class="section-title">Listings</h2>
+            <p class="section-subtitle">Manage all marketplace listings</p>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-input" id="listingsSearch" placeholder="Search by title or seller…" oninput="debounceListings()" />
+          </div>
+          <select class="filter-select" id="listingsCategoryFilter" onchange="loadListings(1)">
+            <option value="">All Categories</option>
+            <option value="books">Books</option>
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="furniture">Furniture</option>
+            <option value="services">Services</option>
+            <option value="other">Other</option>
+          </select>
+          <select class="filter-select" id="listingsStatusFilter" onchange="loadListings(1)">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+            <option value="sold">Sold</option>
+            <option value="boosted">Boosted</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+          <table class="data-table" id="listingsTable">
+            <thead>
+              <tr>
+                <th>Thumb</th>
+                <th>Title</th>
+                <th>Seller</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Price (GH₵)</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="listingsTableBody">
+              <tr>
+                <td colspan="9">
+                  <div class="empty-state">
+                    <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    <p>Loading listings…</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="listings-pagination"></div>
+
+        <!-- Empty state (shown by JS) -->
+        <div class="empty-state hidden" id="listingsEmpty">
+          <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <p>No listings match your search or filter criteria.</p>
+        </div>
+      </section>
+</div><!-- /sec-listings -->

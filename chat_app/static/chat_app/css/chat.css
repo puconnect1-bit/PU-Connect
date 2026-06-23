@@ -1,7 +1,8 @@
 /* ── TOKENS ── */
 :root {
   --red: #ff6b6b;
-  --r: 16px; --nh: 59px; --bh: 78px; --sw: 340px;
+  --r: 16px; --nh: 59px; --bh: 78px;
+  --sw: clamp(260px, 35vw, 360px);
   --ease: cubic-bezier(.4,0,.2,1);
   --teal: #00a884;
   --blue-tick: #53bdeb;
@@ -64,7 +65,7 @@ html { scroll-behavior: smooth; height: 100%; }
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
   background: var(--bg); color: var(--t);
-  overflow: hidden; height: 100vh;
+  overflow: hidden; height: 100dvh;
   transition: background .3s, color .3s;
   -webkit-font-smoothing: antialiased;
 }
@@ -73,7 +74,7 @@ button { font-family: inherit; }
 /* ══════════════════════════════════════
    SHELL
 ══════════════════════════════════════ */
-.shell { display: flex; height: 100vh; overflow: hidden; }
+.shell { display: flex; height: 100dvh; overflow: hidden; }
 
 /* ══════════════════════════════════════
    LEFT — conversation list
@@ -887,18 +888,27 @@ button { font-family: inherit; }
 @media (max-width: 767px) {
   body { overflow: hidden; height: 100dvh; }
   .shell { position: relative; overflow: hidden; height: 100dvh; }
-  .left { position: absolute; inset: 0; width: 100%; z-index: 10; transform: translateX(0); }
+  /* Full-screen left panel on mobile */
+  .left { position: absolute; inset: 0; width: 100%; z-index: 10; transform: translateX(0); transition: transform .3s var(--ease); }
   .left.hidden { transform: translateX(-100%); }
-  .right { position: absolute; inset: 0; width: 100%; z-index: 20; transform: translateX(100%); height: 100dvh; padding-bottom: 0; }
+  /* Full-screen right panel on mobile */
+  .right { position: absolute; inset: 0; width: 100%; z-index: 20; transform: translateX(100%); height: 100dvh; padding-bottom: 0; transition: transform .3s var(--ease); }
   .right.visible { transform: translateX(0); }
   .back-btn { display: flex; }
   .conv { padding: .82rem 1rem; }
-  .conv-av { width: 50px; height: 50px; }
+  .conv-av { width: clamp(42px, 11vw, 52px); height: clamp(42px, 11vw, 52px); }
   .chat-av { width: 38px; height: 38px; }
-  .msg { max-width: 82%; }
+  .msg { max-width: min(82%, 420px); }
   .bubble { font-size: .9375rem; }
   .photo-preview-grid { grid-template-columns: repeat(2, 1fr); }
   .listing-banner { padding: .5rem .75rem; }
+  /* Input bar safe area */
+  .inp-wrap { padding-bottom: max(.5rem, env(safe-area-inset-bottom)); }
+}
+
+@media (max-width: 767px) and (orientation: landscape) {
+  .msgs { padding: .4rem .85rem; }
+  .inp-wrap { padding-top: .35rem; padding-bottom: .35rem; }
 }
 
 @media (max-width: 480px) {

@@ -63,10 +63,8 @@ def settings(request):
 
 
 def _get_verified_status(user):
-    try:
-        return user.verification_request.status == 'approved'
-    except Exception:
-        return False
+    from Base_app.models import user_is_verified
+    return user_is_verified(user)
 
 def _get_verification_status(user):
     try:
@@ -198,7 +196,16 @@ def update_profile_api(request):
         p.bio = data.get('bio', '')
         p.faculty = data.get('faculty', '')
         p.location = data.get('location', '')
-        p.phone = data.get('phone', '')
+        raw_phone = data.get('phone', '').strip()
+        if raw_phone:
+            import re as _re
+            _d = _re.sub(r'\D', '', raw_phone)
+            if _d.startswith('233'): _d = _d[3:]
+            elif _d.startswith('0'): _d = _d[1:]
+            if len(_d) != 9:
+                return JsonResponse({'status': 'error', 'message': 'Enter a valid Ghanaian number (9 digits after +233).'}, status=400)
+            raw_phone = f'+233{_d}'
+        p.phone = raw_phone
         if data.get('avatarSrc'):
             p.avatar_url = data.get('avatarSrc')
         if data.get('bannerSrc'):
@@ -243,6 +250,7 @@ def public_profile_api(request, username):
         is_following = Follow.objects.filter(follower=request.user, following=target).exists()
         follows_you  = Follow.objects.filter(follower=target, following=request.user).exists()
 
+    from Base_app.models import user_is_verified
     return JsonResponse({
         'username':        target.username,
         'name':            target.get_full_name() or target.username,
@@ -257,6 +265,7 @@ def public_profile_api(request, username):
         'is_following':    is_following,
         'follows_you':     follows_you,
         'is_own':          is_own,
+        'is_verified':     user_is_verified(target),
         'active_listings': active_listings,
     })
 
@@ -436,10 +445,12 @@ def followers_list(request):
             avatar = u.profile.avatar_url or ''
         except Exception:
             avatar = ''
+        from Base_app.models import user_is_verified
         data.append({
             'username': u.username,
             'name': u.get_full_name() or u.username,
             'avatar': avatar,
+            'is_verified': user_is_verified(u),
         })
     return JsonResponse({'results': data})
 
@@ -460,10 +471,12 @@ def following_list(request):
             avatar = u.profile.avatar_url or ''
         except Exception:
             avatar = ''
+        from Base_app.models import user_is_verified
         data.append({
             'username': u.username,
             'name': u.get_full_name() or u.username,
             'avatar': avatar,
+            'is_verified': user_is_verified(u),
         })
     return JsonResponse({'results': data})
 
@@ -497,6 +510,79 @@ def change_password(request):
     update_session_auth_hash(request, request.user)
 
     return JsonResponse({'status': 'success', 'message': 'Password changed successfully'})
+
+
+@login_required
+def twofa_setup(request):
+    """Generate a new TOTP secret and return the provisioning URI + QR data URL."""
+    import pyotp, qrcode, base64
+    from io import BytesIO
+    profile = request.user.profile
+    # Generate a fresh secret (not saved yet — user must confirm with a valid code first)
+    secret = pyotp.random_base32()
+    request.session['pending_totp_secret'] = secret
+    totp = pyotp.TOTP(secret)
+    uri = totp.provisioning_uri(
+        name=request.user.email or request.user.username,
+        issuer_name='PU-Connect'
+    )
+    img = qrcode.make(uri)
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    qr_b64 = base64.b64encode(buf.getvalue()).decode()
+    return JsonResponse({'secret': secret, 'qr': 'data:image/png;base64,' + qr_b64})
+
+
+@login_required
+@require_POST
+def twofa_enable(request):
+    """Verify the setup code and permanently enable 2FA."""
+    import pyotp, json as _json
+    secret = request.session.get('pending_totp_secret')
+    if not secret:
+        return JsonResponse({'status': 'error', 'message': 'No setup session found. Start setup again.'}, status=400)
+    try:
+        data = _json.loads(request.body)
+        code = data.get('code', '').strip().replace(' ', '')
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(code, valid_window=1):
+        return JsonResponse({'status': 'error', 'message': 'Invalid code. Please try again.'}, status=400)
+    profile = request.user.profile
+    profile.totp_secret = secret
+    profile.totp_enabled = True
+    profile.save(update_fields=['totp_secret', 'totp_enabled'])
+    del request.session['pending_totp_secret']
+    return JsonResponse({'status': 'success', 'message': '2FA enabled successfully.'})
+
+
+@login_required
+@require_POST
+def twofa_disable(request):
+    """Disable 2FA after confirming the current TOTP code."""
+    import pyotp, json as _json
+    profile = request.user.profile
+    if not profile.totp_enabled:
+        return JsonResponse({'status': 'error', 'message': '2FA is not enabled.'}, status=400)
+    try:
+        data = _json.loads(request.body)
+        code = data.get('code', '').strip().replace(' ', '')
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
+    totp = pyotp.TOTP(profile.totp_secret)
+    if not totp.verify(code, valid_window=1):
+        return JsonResponse({'status': 'error', 'message': 'Invalid code. Please try again.'}, status=400)
+    profile.totp_enabled = False
+    profile.totp_secret = ''
+    profile.save(update_fields=['totp_secret', 'totp_enabled'])
+    return JsonResponse({'status': 'success', 'message': '2FA disabled.'})
+
+
+@login_required
+def twofa_status(request):
+    """Returns whether 2FA is currently enabled for the logged-in user."""
+    return JsonResponse({'enabled': request.user.profile.totp_enabled})
 
 
 def logout_view(request):

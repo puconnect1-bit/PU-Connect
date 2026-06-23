@@ -9,3 +9,5 @@ whitenoise
 boto3
 pywebpush
 python-dateutil
+pyotp
+qrcode

@@ -49,6 +49,18 @@ class ProfileSetupForm(forms.Form):
             raise forms.ValidationError('That username is already taken.')
         return username
 
+    def clean_phone(self):
+        import re
+        raw = self.cleaned_data.get('phone', '').strip()
+        digits = re.sub(r'\D', '', raw)
+        if digits.startswith('233'):
+            digits = digits[3:]
+        elif digits.startswith('0'):
+            digits = digits[1:]
+        if len(digits) != 9:
+            raise forms.ValidationError('Enter a valid Ghanaian number (9 digits after +233).')
+        return f'+233{digits}'
+
     def clean_faculty(self):
         faculty = self.cleaned_data['faculty']
         if not faculty:

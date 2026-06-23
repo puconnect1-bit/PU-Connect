@@ -34,7 +34,7 @@ body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   overflow-x: hidden;
 }
@@ -51,13 +51,13 @@ body::before {
 .left-panel {
   position: relative;
   width: 45%;
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--surface);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 3rem;
+  padding: clamp(1.5rem, 5vw, 3rem);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -538,8 +538,8 @@ body::before {
   html { overflow-x: hidden; }
   .right-panel {
     width: 100%;
-    min-height: 100vh;
-    padding: 2.5rem 1.5rem;
+    min-height: 100dvh;
+    padding: clamp(1.5rem, 5vw, 2.5rem) clamp(1rem, 5vw, 1.5rem);
     align-items: flex-start;
     justify-content: flex-start;
     box-sizing: border-box;
