@@ -11,3 +11,6 @@ pywebpush
 python-dateutil
 pyotp
 qrcode
+
+
+docker compose up
