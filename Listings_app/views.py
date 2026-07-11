@@ -100,13 +100,56 @@ def _svg_escape(text):
             .replace("'", '&#39;'))
 
 
+def split_listing_images(value):
+    """Normalize a single or multi-image payload into a stable ordered URL list."""
+    if value is None:
+        return []
+
+    if isinstance(value, (list, tuple)):
+        urls = []
+        for item in value:
+            urls.extend(split_listing_images(item))
+        return [url for url in dict.fromkeys(urls) if url]
+
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+
+        try:
+            decoded = json.loads(text)
+        except Exception:
+            decoded = None
+
+        if isinstance(decoded, dict):
+            for key in ('images', 'image_urls', 'image_url'):
+                if key in decoded:
+                    return split_listing_images(decoded[key])
+
+        if isinstance(decoded, (list, tuple)):
+            return split_listing_images(list(decoded))
+
+        parts = re.split(r'[\n,;]+', text)
+        urls = []
+        for part in parts:
+            part = part.strip().strip('[]\'"')
+            if part:
+                urls.append(part)
+        return [url for url in dict.fromkeys(urls) if url]
+
+    return [str(value)]
+
+
 def listing_detail(request, pk):
     """Full detail page for a single listing."""
     listing = get_object_or_404(Listing, pk=pk)
 
-    image_url = listing.image_url or ''
-    if image_url and not image_url.startswith('http'):
-        image_url = request.build_absolute_uri(image_url)
+    image_urls = split_listing_images(listing.image_url)
+    image_urls = [
+        url if url.startswith(('http://', 'https://')) else request.build_absolute_uri(url)
+        for url in image_urls
+    ]
+    image_url = image_urls[0] if image_urls else ''
 
     seller = listing.user
     try:
@@ -142,6 +185,7 @@ def listing_detail(request, pk):
     context = {
         'listing':          listing,
         'image_url':        image_url,
+        'image_urls':       image_urls,
         'og_image':         og_image,
         'full_url':         full_url,
         'page_title':       f"{listing.title} — PU Connect",
@@ -238,11 +282,12 @@ def create_listing_api(request):
         image_url = data.get('image_url', '')
         contact_for_price = data.get('contact_for_price', False)
 
+        image_urls = split_listing_images(image_url)
+        if not image_urls:
+            return JsonResponse({'status': 'error', 'message': 'At least one photo is required'}, status=400)
+
         if not title or price is None:
             return JsonResponse({'status': 'error', 'message': 'Title and price are required'}, status=400)
-
-        if not image_url:
-            return JsonResponse({'status': 'error', 'message': 'At least one photo is required'}, status=400)
 
         from Base_app.models import SiteConfig
         _cfg = SiteConfig.get()
@@ -259,6 +304,8 @@ def create_listing_api(request):
             profile.save()
 
         # Create the database entry
+        stored_image_url = ', '.join(image_urls)
+
         new_listing = Listing.objects.create(
             user=request.user,
             title=title,
@@ -268,7 +315,7 @@ def create_listing_api(request):
             category=category,
             subcategory=subcategory,
             condition=condition,
-            image_url=image_url,
+            image_url=stored_image_url,
             contact_for_price=contact_for_price,
         )
 
@@ -290,12 +337,15 @@ def get_my_listings(request):
     listings = Listing.objects.filter(user=request.user).order_by('-created_at')
     listings_data = []
     for item in listings:
+        image_urls = split_listing_images(item.image_url)
+        primary_image_url = image_urls[0] if image_urls else ''
         listings_data.append({
             'id': item.id,
             'title': item.title,
             'price': str(item.price),
             'contact_for_price': item.contact_for_price,
-            'img': item.image_url,
+            'img': primary_image_url,
+            'images': image_urls,
             'description': item.description,
             'listing_type': item.listing_type,
             'type': item.listing_type,
@@ -342,11 +392,14 @@ def get_all_listings(request):
             phone = item.user.profile.phone or ''
         except Exception:
             pass
+        image_urls = split_listing_images(item.image_url)
+        primary_image_url = image_urls[0] if image_urls else ''
         listings_data.append({
             'id': item.id,
             'title': item.title,
             'price': str(item.price),
-            'img': item.image_url,
+            'img': primary_image_url,
+            'images': image_urls,
             'description': item.description,
             'listing_type': item.listing_type,
             'type': item.listing_type,

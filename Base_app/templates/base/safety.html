@@ -235,12 +235,19 @@
 <!-- FOOTER -->
  {% include 'base/footer.html' %}
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-})();
-
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
   const reveals = document.querySelectorAll('.reveal');
-  const obs = new IntersectionObserver((e) => e.forEach(el => { if (el.isIntersecting) el.target.classList.add('visible'); }), { threshold: 0.08 });
-  reveals.forEach(el => obs.observe(el));
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.08 });
+    reveals.forEach((el) => obs.observe(el));
+  } else {
+    reveals.forEach((el) => el.classList.add('visible'));
+  }
 </script>
 {% include 'base/theme.html' %}
 <script>(function(){if(!('serviceWorker' in navigator))return;navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{});})();</script>

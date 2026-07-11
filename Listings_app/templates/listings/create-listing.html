@@ -67,7 +67,13 @@
 
   <div class="f" id="sf" style="display:none">
     <label class="fl" for="subcat">Sub-category <span class="opt">(optional)</span></label>
-    <select id="subcat"><option value="">— Select sub-category —</option></select>
+    <select id="subcat" onchange="onSubCatCh()"><option value="">— Select sub-category —</option></select>
+  </div>
+
+  <div class="f" id="custom-category-wrap" style="display:none">
+    <label class="fl" for="customCategory">Preferred category <span class="req">*</span></label>
+    <input type="text" id="customCategory" maxlength="60" placeholder="Type your preferred category here"/>
+    <div class="em" id="custom-category-em" style="display:none">Please enter your preferred category</div>
   </div>
 </div>
 
@@ -339,6 +345,28 @@ function selCG(el){
   clrE('cg-em');
 }
 
+function syncCustomCategoryState(){
+  const customWrap=document.getElementById('custom-category-wrap');
+  const customInput=document.getElementById('customCategory');
+  const customEm=document.getElementById('custom-category-em');
+  const selectedSubcat=(document.getElementById('subcat')?.value || '').trim();
+  const needsCustom = Boolean(
+    (catV || '').toLowerCase().includes('other') ||
+    (selectedSubcat || '').toLowerCase().includes('other') ||
+    (catV === 'Other' || catV === 'Other Services' || catV === 'Other Products' || catV === 'Miscellaneous')
+  );
+
+  if(needsCustom){
+    if(customWrap) customWrap.style.display='block';
+    if(customInput) customInput.value = customInput.value || '';
+    if(customEm) customEm.style.display='none';
+  } else {
+    if(customWrap) customWrap.style.display='none';
+    if(customInput) customInput.value='';
+    if(customEm) customEm.style.display='none';
+  }
+}
+
 function onCatCh(){
   catV=document.getElementById('cat').value;subV='';
   const sf=document.getElementById('sf'),ss=document.getElementById('subcat');
@@ -347,7 +375,14 @@ function onCatCh(){
       CATS[cgV][catV].map(s=>`<option value="${s}">${s}</option>`).join('');
     sf.style.display='block';
   } else {sf.style.display='none';}
+
+  syncCustomCategoryState();
   clrE('cat-em');
+}
+
+function onSubCatCh(){
+  subV=document.getElementById('subcat').value;
+  syncCustomCategoryState();
 }
 
 function showCondF(){
@@ -497,6 +532,23 @@ function validate(n){
     const catEl=document.getElementById('cat');
     catV=catEl.value;
     if(!catV){sE('cat-em');ok=false;}else clrE('cat-em');
+
+    const customWrap=document.getElementById('custom-category-wrap');
+    const customInput=document.getElementById('customCategory');
+    const customEm=document.getElementById('custom-category-em');
+    const selectedSubcat=(document.getElementById('subcat')?.value || '').trim();
+    const needsCustom = Boolean(
+      (catV || '').toLowerCase().includes('other') ||
+      (selectedSubcat || '').toLowerCase().includes('other') ||
+      (catV === 'Other' || catV === 'Other Services' || catV === 'Other Products' || catV === 'Miscellaneous')
+    );
+    if(needsCustom && !customInput.value.trim()){
+      customWrap.style.display='block';
+      customEm.style.display='block';
+      ok=false;
+    } else if(customEm){
+      customEm.style.display='none';
+    }
   }
 
   if(n===2){
@@ -567,6 +619,7 @@ function saveDraft(){
   const draft={
     cgV,catV,
     subcat:document.getElementById('subcat')?.value||'',
+    customCategory:document.getElementById('customCategory')?.value||'',
     condV,availV,negV,ctaV,tags,
     title:document.getElementById('title')?.value||'',
     brand:document.getElementById('brand')?.value||'',
@@ -596,6 +649,8 @@ function loadDraft(){
       if(catEl){catEl.value=d.catV;onCatCh();}
     }
     if(d.subcat){const s=document.getElementById('subcat');if(s)s.value=d.subcat;}
+    if(d.customCategory){const c=document.getElementById('customCategory');if(c)c.value=d.customCategory;}
+    syncCustomCategoryState();
     // Restore condition
     if(d.condV){
       const cp=document.querySelector(`.cp[data-cv="${d.condV}"]`);
@@ -765,7 +820,9 @@ function buildReview(){
   const ph=document.getElementById('phone').value.trim();
   const subcatVal=document.getElementById('subcat').value;
   const priceStr=ctaV?'Contact Buyer':(price?(negV?`GH₵ ${parseFloat(price).toLocaleString()} (Negotiable)`:`GH₵ ${parseFloat(price).toLocaleString()}`):'—');
-  const catFull=catV+(subcatVal?` › ${subcatVal}`:'');
+  const customCategoryVal=document.getElementById('customCategory')?.value.trim() || '';
+  const categoryDisplay = customCategoryVal || catV;
+  const catFull = categoryDisplay + (subcatVal ? ` › ${subcatVal}` : '');
 
   const infoRows=[
     ['Type',cgV],
@@ -813,6 +870,9 @@ async function publish(){
   const nm=document.getElementById('sname').value.trim();
   const ph=document.getElementById('phone').value.trim();
   const subcatVal=document.getElementById('subcat').value;
+  const customCategoryVal=document.getElementById('customCategory')?.value.trim() || '';
+  const resolvedCategory = customCategoryVal || catV;
+  const resolvedSubcategory = subcatVal || (customCategoryVal && catV ? catV : '');
 
   // Map the PU-Connect category to the dashboard-services cat key
   const CATMAP={
@@ -838,10 +898,10 @@ async function publish(){
     price: ctaV ? 0 : (parseFloat(priceRaw) || 0),
     description: desc,
     listing_type: cgV.toLowerCase().slice(0, -1), // 'Products' -> 'product', 'Services' -> 'service'
-    category: catV,
-    subcategory: subcatVal,
+    category: resolvedCategory,
+    subcategory: resolvedSubcategory,
     condition: condV,
-    image_url: imgs.length ? imgs[0].src : '',
+    image_url: imgs.map(i => i.src).join(', '),
     contact_for_price: ctaV,
     phone: ph
   };
@@ -870,8 +930,8 @@ async function publish(){
       name:title,
       type:cgV==='Services'?'service':'product',
       cat:catSlug,
-      category:catV,
-      subcategory:subcatVal||'',
+      category:resolvedCategory,
+      subcategory:resolvedSubcategory||'',
       brand:brand||'',
       condition:cgV==='Products'?condV:'',
       availability:availV,

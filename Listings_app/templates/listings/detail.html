@@ -135,8 +135,19 @@
   aspect-ratio: 4/3;
   background: var(--surface-2);
   overflow: hidden;
+  position: relative;
 }
-.dtp-img-wrap img {
+.dtp-img-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform .25s ease;
+}
+.dtp-img-panel {
+  min-width: 100%;
+  height: 100%;
+}
+.dtp-img-panel img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -149,6 +160,46 @@
   align-items: center;
   justify-content: center;
   color: var(--text-2);
+}
+.dtp-gallery-controls {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .55rem .7rem;
+  pointer-events: none;
+}
+.dtp-gallery-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 999px;
+  background: rgba(9,12,18,.55);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.dtp-gallery-dots {
+  display: flex;
+  gap: .3rem;
+  align-items: center;
+  pointer-events: auto;
+}
+.dtp-gallery-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.45);
+}
+.dtp-gallery-dot.active {
+  width: 18px;
+  border-radius: 999px;
+  background: #fff;
 }
 
 /* ── Content card ── */
@@ -470,15 +521,32 @@
   {% endif %}
 
   <!-- Image -->
-  <div class="dtp-img-wrap">
-    {% if image_url %}
-    <img src="{{ image_url }}" alt="{{ listing.title }}">
-    {% else %}
-    <div class="dtp-img-placeholder">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+  {% if image_urls %}
+  <div class="dtp-img-wrap" id="galleryWrap">
+    <div class="dtp-img-track" id="galleryTrack">
+      {% for img in image_urls %}
+      <div class="dtp-img-panel"><img src="{{ img }}" alt="{{ listing.title }}"></div>
+      {% endfor %}
+    </div>
+    {% if image_urls|length > 1 %}
+    <div class="dtp-gallery-controls">
+      <button class="dtp-gallery-btn" id="galleryPrev" aria-label="Previous photo">&#10094;</button>
+      <div class="dtp-gallery-dots" id="galleryDots">
+        {% for img in image_urls %}
+        <span class="dtp-gallery-dot{% if forloop.first %} active{% endif %}"></span>
+        {% endfor %}
+      </div>
+      <button class="dtp-gallery-btn" id="galleryNext" aria-label="Next photo">&#10095;</button>
     </div>
     {% endif %}
   </div>
+  {% else %}
+  <div class="dtp-img-wrap">
+    <div class="dtp-img-placeholder">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Main card -->
   <div class="dtp-card">
@@ -599,6 +667,28 @@
 
 <script>
 const LISTING_ID = '{{ listing.id }}';
+
+/* ── Gallery slideshow ── */
+const galleryTrack = document.getElementById('galleryTrack');
+const galleryPrev = document.getElementById('galleryPrev');
+const galleryNext = document.getElementById('galleryNext');
+const galleryDots = Array.from(document.querySelectorAll('.dtp-gallery-dot'));
+let galleryIndex = 0;
+
+function updateGallery(index){
+  if(!galleryTrack || !galleryDots.length) return;
+  const panels = galleryTrack.querySelectorAll('.dtp-img-panel');
+  if(!panels.length) return;
+  galleryIndex = (index + panels.length) % panels.length;
+  galleryTrack.style.transform = `translateX(-${galleryIndex * 100}%)`;
+  galleryDots.forEach((dot, i) => dot.classList.toggle('active', i === galleryIndex));
+}
+
+if(galleryTrack && galleryPrev && galleryNext){
+  galleryPrev.addEventListener('click', () => updateGallery(galleryIndex - 1));
+  galleryNext.addEventListener('click', () => updateGallery(galleryIndex + 1));
+  setInterval(() => updateGallery(galleryIndex + 1), 5000);
+}
 
 /* ── Theme — handled by base/theme.html include below ── */
 
