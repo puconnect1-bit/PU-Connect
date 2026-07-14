@@ -3,6 +3,13 @@
 import os
 import sys
 
+# Load .env file before any Django imports
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 
 def main():
     """Run administrative tasks."""

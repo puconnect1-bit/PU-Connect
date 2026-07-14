@@ -133,7 +133,7 @@ button {
 .t-3xl  { font-size: 2.4rem;  font-weight: 800; letter-spacing: -.8px; }
 .t-muted { color: var(--text-2); }
 
-/* ── Verified badge (gold rosette) — global ── */
+/* ── Verified badge (blue rosette — Instagram-style) — global ── */
 .pu-verified {
   display: inline-flex;
   align-items: center;
@@ -141,34 +141,20 @@ button {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #fff8dc 0 14%, transparent 15%),
-    radial-gradient(circle at 50% 18%, #f8d774 0 16%, transparent 17%),
-    radial-gradient(circle at 50% 82%, #f8d774 0 16%, transparent 17%),
-    radial-gradient(circle at 18% 50%, #f8d774 0 16%, transparent 17%),
-    radial-gradient(circle at 82% 50%, #f8d774 0 16%, transparent 17%),
-    linear-gradient(135deg, #f2d271 0%, #cf8e1a 55%, #8a5700 100%);
-  border: 1px solid rgba(232, 201, 106, .95);
-  box-shadow: 0 0 0 1px rgba(255, 244, 196, .45), 0 2px 8px rgba(0,0,0,.3);
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #0095f6 100%);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
   flex-shrink: 0;
   vertical-align: middle;
   position: relative;
   top: -1px;
 }
-.pu-verified::after {
-  content: '';
-  position: absolute;
-  inset: 2.4px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255, 245, 195, .75), rgba(199, 135, 18, .92));
-  opacity: .95;
-  z-index: 0;
+[data-theme="dark"] .pu-verified {
+  border-color: #0F1117;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
 }
 .pu-verified svg {
-  position: relative;
-  z-index: 1;
   display: block;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));
 }
 /* Sizes */
 .pu-verified-sm { width: 13px; height: 13px; }

@@ -11,3 +11,4 @@ pywebpush
 python-dateutil
 pyotp
 qrcode
+python-dotenv
