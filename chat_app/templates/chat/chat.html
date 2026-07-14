@@ -1317,7 +1317,7 @@ function userRowHTML(u){
     ? `<img src="${u.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
     : AV_SVG;
   const convId = u.conv_id || u.convId || null;
-  const vbadge = u.is_verified ? '<span class="pu-verified pu-verified-sm" title="Verified Student"><svg width="8" height="6" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' : '';
+  const vbadge = u.is_verified ? '<span class="pu-verified pu-verified-sm" title="Verified Student"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L14.09 8.26L21 9.27L16.5 13.14L17.82 20.02L12 16.77L6.18 20.02L7.5 13.14L3 9.27L9.91 8.26L12 2Z" fill="white"/></svg></span>' : '';
   return `<div class="nc-user" onclick='startChat(${JSON.stringify({id:u.id,name:u.name,username:u.username,avatar_url:u.avatar_url||'',convId:convId})})'>
     <div class="nc-av">${avatarHTML}</div>
     <div class="nc-info">

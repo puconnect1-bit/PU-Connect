@@ -160,6 +160,12 @@ button {
 .pu-verified-sm { width: 13px; height: 13px; }
 .pu-verified-lg { width: 20px; height: 20px; }
 
+/* Rosette/star shape for verified badge */
+.pu-verified svg {
+  width: 60%;
+  height: 60%;
+}
+
 /* ── Utility buttons ── */
 .btn {
   display: inline-flex;
