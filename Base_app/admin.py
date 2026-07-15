@@ -338,7 +338,7 @@ class CustomListingAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'user', 'listing_type', 'status', 'price', 'created_at')
     list_filter = ('listing_type', 'status', 'created_at')
     search_fields = ('title', 'user__username', 'category')
-    readonly_fields = ('user', 'created_at', 'updated_at')
+    readonly_fields = ('user', 'created_at',)
     actions = ['boost_listing', 'unboost_listing']
     
     def boost_listing(self, request, queryset):
