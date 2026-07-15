@@ -899,7 +899,7 @@ async function payAndSubmit() {
         btn.disabled = false; btn.textContent = BTN_LABEL;
       },
     });
-    handler.openIframe();
+    handler.open();
   } catch(e) {
     toast('Connection error — check your internet and try again');
     btn.disabled = false; btn.textContent = BTN_LABEL;

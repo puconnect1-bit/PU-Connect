@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from .models import SiteConfig, BoostRequest, VerificationRequest
+from Listings_app.models import Listing
 
 
 @admin.register(SiteConfig)
@@ -250,4 +251,122 @@ class BoostRequestAdmin(admin.ModelAdmin):
     list_filter    = ('status',)
     search_fields  = ('user__username', 'listing__title', 'paystack_reference')
     readonly_fields = ('user', 'listing', 'fee_paid', 'paystack_reference', 'paid_at', 'created_at')
+    actions = ['approve_boost_directly', 'reject_boost']
     ordering = ('-created_at',)
+
+    def approve_boost_directly(self, request, queryset):
+        """Grant boost without requiring payment - admin override"""
+        count = 0
+        for obj in queryset.exclude(status='approved'):
+            obj.status = 'approved'
+            obj.fee_paid = 0  # Mark as no payment required
+            obj.reviewed_at = timezone.now()
+            obj.reviewed_by = request.user
+            obj.save()
+            
+            # Update the listing status to boosted
+            obj.listing.status = 'boosted'
+            obj.listing.save()
+            
+            count += 1
+        self.message_user(request, f'{count} boost(s) granted directly (no payment required).')
+    approve_boost_directly.short_description = '✓ Grant boost (bypass payment)'
+
+    def reject_boost(self, request, queryset):
+        updated = queryset.exclude(status='approved').update(
+            status='rejected',
+            reviewed_by=request.user,
+            reviewed_at=timezone.now(),
+        )
+        self.message_user(request, f'{updated} boost request(s) rejected.')
+    reject_boost.short_description = '✗ Reject boost request'
+
+
+# Add inline admin for granting badges/boosts directly from User and Listing pages
+from django.contrib.auth.admin import UserAdmin as DefaultUserAdmin
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+class CustomUserAdmin(DefaultUserAdmin):
+    actions = ['grant_verification_badge', 'remove_verification_badge']
+    
+    def grant_verification_badge(self, request, queryset):
+        """Grant verification badge to selected users without payment"""
+        from Profile_app.models import Profile
+        count = 0
+        for user in queryset:
+            # Create or get verification request
+            vr, created = VerificationRequest.objects.get_or_create(
+                user=user,
+                defaults={'status': 'approved', 'fee_paid': 0}
+            )
+            if not created:
+                # If it exists, approve it
+                vr.status = 'approved'
+                vr.fee_paid = 0
+                vr.save()
+            
+            # Use the approve method to set expiry
+            vr.approve(reviewed_by_user=request.user)
+            count += 1
+        self.message_user(request, f'Verification badge granted to {count} user(s).')
+    grant_verification_badge.short_description = '✓ Grant verification badge (no payment)'
+
+    def remove_verification_badge(self, request, queryset):
+        """Remove verification badge from selected users"""
+        count = 0
+        for user in queryset:
+            try:
+                vr = user.verificationrequest
+                vr.status = 'rejected'
+                vr.save()
+                count += 1
+            except VerificationRequest.DoesNotExist:
+                pass
+        self.message_user(request, f'Verification badge removed from {count} user(s).')
+    remove_verification_badge.short_description = '✗ Remove verification badge'
+
+# Unregister the default User admin and register our custom one
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+
+
+# Add custom admin for Listing model to allow direct boosting
+from Listings_app.models import Listing as DefaultListing
+
+class CustomListingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'user', 'listing_type', 'status', 'price', 'created_at')
+    list_filter = ('listing_type', 'status', 'created_at')
+    search_fields = ('title', 'user__username', 'category')
+    readonly_fields = ('user', 'created_at', 'updated_at')
+    actions = ['boost_listing', 'unboost_listing']
+    
+    def boost_listing(self, request, queryset):
+        """Boost selected listings directly (no payment required)"""
+        count = 0
+        for listing in queryset.exclude(status='boosted'):
+            listing.status = 'boosted'
+            listing.save()
+            count += 1
+        self.message_user(request, f'{count} listing(s) boosted successfully.')
+    boost_listing.short_description = '⚡ Boost listing (feature in carousel)'
+    
+    def unboost_listing(self, request, queryset):
+        """Remove boost from selected listings"""
+        count = 0
+        for listing in queryset.filter(status='boosted'):
+            listing.status = 'active'
+            listing.save()
+            count += 1
+        self.message_user(request, f'{count} listing(s) unboosted.')
+    unboost_listing.short_description = '✗ Remove boost'
+
+# Unregister the default Listing admin if it exists and register our custom one
+try:
+    admin.site.unregister(DefaultListing)
+except admin.sites.NotRegistered:
+    pass
+
+@admin.register(Listing)
+class ListingAdmin(CustomListingAdmin):
+    pass

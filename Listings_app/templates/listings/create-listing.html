@@ -197,6 +197,26 @@
     <div class="fh">Stays private until you agree to meet a buyer</div>
   </div>
 
+  <script>
+    // Prefill name and phone from user profile
+    (async function prefills() {
+      try {
+        const res = await fetch('/profile/api/me/');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.name) {
+          document.getElementById('sname').value = data.name;
+        }
+        if (data.phone) {
+          document.getElementById('phone').value = data.phone;
+        }
+      } catch (e) {
+        // Silently fail - fields will remain empty for manual entry
+        console.log('Could not prefill contact details');
+      }
+    })();
+  </script>
+
   <div class="div"></div>
 
   <div class="f">
