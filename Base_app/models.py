@@ -94,9 +94,14 @@ class VerificationRequest(models.Model):
 
 
 def user_is_verified(user):
-    """Return True if the given User has an active, non-expired verified badge."""
+    """
+    Return True if the given User has an active, non-expired verified badge.
+    Staff and superusers are always considered verified.
+    """
+    if user.is_staff or user.is_superuser:
+        return True
     try:
-        vr = user.verificationrequest
+        vr = user.verification_request
         return vr.is_verified
     except Exception:
         return False

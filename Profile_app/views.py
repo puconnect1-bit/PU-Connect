@@ -104,6 +104,8 @@ def get_my_profile(request):
         'bannerSrc': profile.banner_url or "",
         'joined': user.date_joined.strftime('%B %Y'),
         'is_verified': _get_verified_status(user),
+        'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
         'verification_status': _get_verification_status(user),
         'listing_count': listing_qs.count(),
         'sold_count': listing_qs.filter(status='sold').count(),

@@ -317,7 +317,7 @@ class CustomUserAdmin(DefaultUserAdmin):
         count = 0
         for user in queryset:
             try:
-                vr = user.verificationrequest
+                vr = user.verification_request
                 vr.status = 'rejected'
                 vr.save()
                 count += 1
@@ -349,7 +349,7 @@ class CustomListingAdmin(admin.ModelAdmin):
             listing.save()
             count += 1
         self.message_user(request, f'{count} listing(s) boosted successfully.')
-    boost_listing.short_description = '⚡ Boost listing (feature in carousel)'
+    boost_listing.short_description = ' Boost listing (feature in carousel)'
     
     def unboost_listing(self, request, queryset):
         """Remove boost from selected listings"""

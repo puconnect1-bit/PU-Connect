@@ -983,6 +983,9 @@ async function loadUsers(page=1){
           <td>${userBadge(u)}</td>
           <td><div class="td-actions">
             <button class="btn btn-ghost btn-sm" onclick='openUserModal(${JSON.stringify(u)})'>View</button>
+            ${u.is_verified
+              ? `<button class="btn btn-gold btn-sm" onclick="userAction(${u.id},'remove_badge','@${esc(u.username)}')">Badge ✓</button>`
+              : `<button class="btn btn-gold btn-sm" onclick="userAction(${u.id},'grant_badge','@${esc(u.username)}')">Grant Badge</button>`}
             ${u.is_active
               ? `<button class="btn btn-red btn-sm" onclick="userAction(${u.id},'suspend','@${esc(u.username)}')">Suspend</button>`
               : `<button class="btn btn-teal btn-sm" onclick="userAction(${u.id},'unsuspend','@${esc(u.username)}')">Restore</button>`}
@@ -1065,6 +1068,7 @@ async function loadListings(page=1){
           <td><div class="td-actions">
             ${l.status!=='paused'?`<button class="btn btn-red btn-sm" onclick="listingAction(${l.id},'remove','${esc(l.title)}')">Remove</button>`:''}
             ${l.status==='paused'?`<button class="btn btn-teal btn-sm" onclick="listingAction(${l.id},'restore','${esc(l.title)}')">Restore</button>`:''}
+            ${l.status==='boosted'?`<button class="btn btn-ghost btn-sm" onclick="listingAction(${l.id},'unboost','${esc(l.title)}')">Unboost</button>`:`<button class="btn btn-gold btn-sm" onclick="listingAction(${l.id},'boost','${esc(l.title)}')">Boost</button>`}
             ${IS_SUPERUSER?`<button class="btn btn-ghost btn-sm" onclick="confirmDeleteListing(${l.id},'${esc(l.title)}')">Delete</button>`:''}
           </div></td>
         </tr>`).join('');

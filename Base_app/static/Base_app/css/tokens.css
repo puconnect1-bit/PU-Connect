@@ -133,51 +133,114 @@ button {
 .t-3xl  { font-size: 2.4rem;  font-weight: 800; letter-spacing: -.8px; }
 .t-muted { color: var(--text-2); }
 
-/* ── Verified badge (blue rosette — Instagram-style) — global ── */
+/* ═══════════════════════════════════════════
+   Verified badge — Instagram-style blue rosette
+   ═══════════════════════════════════════════ */
 .pu-verified {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #0095f6 100%);
-  border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .25);
   flex-shrink: 0;
   vertical-align: middle;
   position: relative;
   top: -1px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
+  /* Rosette ribbing via conic-gradient overlay */
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.2),
+    inset 0 0 0 0.5px rgba(255,255,255,.3);
+}
+.pu-verified::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    rgba(255,255,255,0) 0deg,
+    rgba(255,255,255,0.18) 3deg,
+    rgba(255,255,255,0) 6deg
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+.pu-verified::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.35) 0%, transparent 60%);
+  z-index: 1;
+  pointer-events: none;
 }
 .pu-verified:hover {
   transform: scale(1.15);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .35);
 }
 [data-theme="dark"] .pu-verified {
-  border-color: #0F1117;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .45), 0 0 0 1px rgba(79, 172, 254, 0.3);
+  box-shadow:
+    0 1px 4px rgba(0,0,0,.45),
+    0 0 0 1px rgba(79,172,254,.25),
+    inset 0 0 0 0.5px rgba(255,255,255,.2);
 }
 [data-theme="dark"] .pu-verified:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .55), 0 0 0 2px rgba(79, 172, 254, 0.5);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.55),
+    0 0 0 2px rgba(79,172,254,.4),
+    inset 0 0 0 0.5px rgba(255,255,255,.2);
 }
+/* Checkmark icon */
 .pu-verified svg {
   display: block;
-  fill: white;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+  width: 65%;
+  height: 65%;
+  stroke: white;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
+  position: relative;
+  z-index: 2;
 }
 [data-theme="dark"] .pu-verified svg {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
 }
 /* Sizes */
-.pu-verified-sm { width: 13px; height: 13px; }
-.pu-verified-lg { width: 20px; height: 20px; }
+.pu-verified-sm { width: 14px; height: 14px; }
+.pu-verified-lg { width: 22px; height: 22px; }
+.pu-verified-sm svg { stroke-width: 2.5; }
+.pu-verified-lg svg { stroke-width: 3; }
 
-/* Rosette shape for verified badge - 10 spines */
-.pu-verified svg {
-  width: 60%;
-  height: 60%;
-  display: block;
+/* Gold badge variant for staff / admin */
+.pu-verified-gold {
+  background: linear-gradient(135deg, #f5c842 0%, #e8c96a 50%, #d4a830 100%);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.2),
+    inset 0 0 0 0.5px rgba(255,255,255,.4);
+}
+[data-theme="dark"] .pu-verified-gold {
+  box-shadow:
+    0 1px 4px rgba(0,0,0,.45),
+    0 0 0 1px rgba(232,201,106,.25),
+    inset 0 0 0 0.5px rgba(255,255,255,.2);
+}
+[data-theme="dark"] .pu-verified-gold:hover {
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.55),
+    0 0 0 2px rgba(232,201,106,.4);
+}
+.pu-verified-gold::before {
+  background: repeating-conic-gradient(
+    rgba(255,255,255,0) 0deg,
+    rgba(255,255,255,0.22) 3deg,
+    rgba(255,255,255,0) 6deg
+  ) !important;
+}
+.pu-verified-gold svg {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)) !important;
 }
 
 /* ── Utility buttons ── */

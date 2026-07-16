@@ -369,6 +369,7 @@ def _user_to_dict(u):
     except Exception:
         pass
     from Listings_app.models import Listing
+    from .models import user_is_verified
     listing_count = Listing.objects.filter(user=u).count()
     return {
         'id': u.id,
@@ -382,6 +383,7 @@ def _user_to_dict(u):
         'is_active': u.is_active,
         'is_staff': u.is_staff,
         'is_superuser': u.is_superuser,
+        'is_verified': user_is_verified(u),
         'status': 'active' if u.is_active else 'suspended',
     }
 
@@ -557,6 +559,24 @@ def admin_api_user_action(request, user_id):
             u.is_staff = False
             u.save()
             return JsonResponse({'status': 'ok', 'message': f'@{u.username} staff removed'})
+        elif action == 'grant_badge':
+            from Base_app.models import VerificationRequest
+            from django.utils import timezone
+            vr, _ = VerificationRequest.objects.get_or_create(
+                user=u,
+                defaults={'fee_paid': 0, 'status': 'approved'}
+            )
+            vr.approve(reviewed_by_user=request.user)
+            return JsonResponse({'status': 'ok', 'message': f'✓ Badge granted to @{u.username}'})
+        elif action == 'remove_badge':
+            from Base_app.models import VerificationRequest
+            try:
+                vr = u.verification_request
+                vr.status = 'rejected'
+                vr.save()
+                return JsonResponse({'status': 'ok', 'message': f'✗ Badge removed from @{u.username}'})
+            except Exception:
+                return JsonResponse({'status': 'error', 'message': 'No badge to remove'}, status=400)
         elif action == 'delete':
             if not request.user.is_superuser:
                 return JsonResponse({'status': 'error', 'message': 'Superuser required'}, status=403)
@@ -590,6 +610,16 @@ def admin_api_listing_action(request, listing_id):
             l.is_available = True
             l.save()
             return JsonResponse({'status': 'ok', 'message': f'Listing "{l.title}" restored'})
+        elif action == 'boost':
+            l.status = 'boosted'
+            l.is_available = True
+            l.save()
+            return JsonResponse({'status': 'ok', 'message': f'⚡ Listing "{l.title}" boosted to featured'})
+        elif action == 'unboost':
+            l.status = 'active'
+            l.is_available = True
+            l.save()
+            return JsonResponse({'status': 'ok', 'message': f'Listing "{l.title}" unboosted'})
         elif action == 'delete':
             if not request.user.is_superuser:
                 return JsonResponse({'status': 'error', 'message': 'Superuser required'}, status=403)
