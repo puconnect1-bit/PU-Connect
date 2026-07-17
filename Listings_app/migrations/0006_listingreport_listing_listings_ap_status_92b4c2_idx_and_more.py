@@ -26,21 +26,27 @@ class Migration(migrations.Migration):
                 'ordering': ['-created_at'],
             },
         ),
-        migrations.AddIndex(
-            model_name='listing',
-            index=models.Index(fields=['status'], name='Listings_ap_status_92b4c2_idx'),
-        ),
-        migrations.AddIndex(
-            model_name='listing',
-            index=models.Index(fields=['user'], name='Listings_ap_user_id_972a1c_idx'),
-        ),
-        migrations.AddIndex(
-            model_name='listing',
-            index=models.Index(fields=['-created_at'], name='Listings_ap_created_e07a4d_idx'),
-        ),
-        migrations.AddIndex(
-            model_name='listing',
-            index=models.Index(fields=['status', '-created_at'], name='Listings_ap_status_b31e4c_idx'),
+        # The indexes already exist in production database, so we use SeparateDatabaseAndState
+        # to update Django's model state without attempting to create them again
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.AddIndex(
+                    model_name='listing',
+                    index=models.Index(fields=['status'], name='Listings_ap_status_92b4c2_idx'),
+                ),
+                migrations.AddIndex(
+                    model_name='listing',
+                    index=models.Index(fields=['user'], name='Listings_ap_user_id_972a1c_idx'),
+                ),
+                migrations.AddIndex(
+                    model_name='listing',
+                    index=models.Index(fields=['-created_at'], name='Listings_ap_created_e07a4d_idx'),
+                ),
+                migrations.AddIndex(
+                    model_name='listing',
+                    index=models.Index(fields=['status', '-created_at'], name='Listings_ap_status_b31e4c_idx'),
+                ),
+            ],
         ),
         migrations.AddField(
             model_name='listingreport',
