@@ -134,7 +134,7 @@ button {
 .t-muted { color: var(--text-2); }
 
 /* ═══════════════════════════════════════════
-   Verified badge — Instagram-style blue rosette
+   Verified badge — Rosette style with spines
    ═══════════════════════════════════════════ */
 .pu-verified {
   display: inline-flex;
@@ -148,53 +148,64 @@ button {
   vertical-align: middle;
   position: relative;
   top: -1px;
-  transition: transform 0.2s ease;
-  /* Rosette spines via conic-gradient overlay */
-  box-shadow:
-    0 1px 3px rgba(0,0,0,.2),
-    inset 0 0 0 0.5px rgba(255,255,255,.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
+/* Rosette spines using conic-gradient for a 3D petal effect */
 .pu-verified::before {
   content: '';
   position: absolute;
-  inset: 0;
+  inset: -2px;
   border-radius: 50%;
-  background: repeating-conic-gradient(
+  background: conic-gradient(
     from 0deg,
     rgba(255,255,255,0) 0deg,
-    rgba(255,255,255,0.22) 2deg,
-    rgba(255,255,255,0) 4deg,
-    rgba(255,255,255,0) 6deg,
-    rgba(255,255,255,0.22) 8deg,
-    rgba(255,255,255,0) 10deg
+    rgba(255,255,255,0.35) 15deg,
+    rgba(255,255,255,0) 30deg,
+    rgba(255,255,255,0) 35deg,
+    rgba(255,255,255,0.35) 50deg,
+    rgba(255,255,255,0) 65deg,
+    rgba(255,255,255,0) 70deg,
+    rgba(255,255,255,0.35) 85deg,
+    rgba(255,255,255,0) 100deg,
+    rgba(255,255,255,0) 105deg,
+    rgba(255,255,255,0.35) 120deg,
+    rgba(255,255,255,0) 135deg,
+    rgba(255,255,255,0) 140deg,
+    rgba(255,255,255,0.35) 155deg,
+    rgba(255,255,255,0) 170deg,
+    rgba(255,255,255,0) 175deg,
+    rgba(255,255,255,0.35) 190deg,
+    rgba(255,255,255,0) 205deg,
+    rgba(255,255,255,0) 210deg,
+    rgba(255,255,255,0.35) 225deg,
+    rgba(255,255,255,0) 240deg,
+    rgba(255,255,255,0) 245deg,
+    rgba(255,255,255,0.35) 260deg,
+    rgba(255,255,255,0) 275deg,
+    rgba(255,255,255,0) 280deg,
+    rgba(255,255,255,0.35) 295deg,
+    rgba(255,255,255,0) 310deg,
+    rgba(255,255,255,0) 315deg,
+    rgba(255,255,255,0.35) 330deg,
+    rgba(255,255,255,0) 360deg
   );
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
+  filter: blur(0.5px);
 }
+
+/* Inner highlight for depth */
 .pu-verified::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.35) 0%, transparent 60%);
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45) 0%, transparent 70%);
   z-index: 1;
   pointer-events: none;
 }
-.pu-verified:hover {
-  transform: scale(1.15);
-}
-[data-theme="dark"] .pu-verified {
-  box-shadow:
-    0 1px 4px rgba(0,0,0,.45),
-    0 0 0 1px rgba(79,172,254,.25),
-    inset 0 0 0 0.5px rgba(255,255,255,.2);
-}
-[data-theme="dark"] .pu-verified:hover {
-  box-shadow:
-    0 2px 8px rgba(0,0,0,.55),
-    0 0 0 2px rgba(79,172,254,.4),
-    inset 0 0 0 0.5px rgba(255,255,255,.2);
-}
+
 /* Checkmark icon */
 .pu-verified svg {
   display: block;
@@ -209,14 +220,56 @@ button {
   position: relative;
   z-index: 2;
 }
+
+.pu-verified:hover {
+  transform: scale(1.15);
+}
+
+/* Dark mode enhancements */
+[data-theme="dark"] .pu-verified {
+  box-shadow:
+    0 1px 4px rgba(0,0,0,.45),
+    0 0 0 1px rgba(79,172,254,.25),
+    inset 0 0 0 0.5px rgba(255,255,255,.2);
+}
+
+[data-theme="dark"] .pu-verified:hover {
+  box-shadow:
+    0 2px 8px rgba(0,0,0,.55),
+    0 0 0 2px rgba(79,172,254,.4),
+    inset 0 0 0 0.5px rgba(255,255,255,.2);
+}
+
 [data-theme="dark"] .pu-verified svg {
   filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
 }
+
+/* Light mode enhancements */
+[data-theme="light"] .pu-verified {
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.2),
+    0 0 0 1px rgba(79,172,254,.35),
+    inset 0 0 0 0.5px rgba(255,255,255,.4);
+}
+
+[data-theme="light"] .pu-verified:hover {
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.25),
+    0 0 0 2px rgba(79,172,254,.5),
+    inset 0 0 0 0.5px rgba(255,255,255,.4);
+}
+
 /* Sizes */
 .pu-verified-sm { width: 14px; height: 14px; }
 .pu-verified-lg { width: 22px; height: 22px; }
 .pu-verified-sm svg { stroke-width: 2.5; }
 .pu-verified-lg svg { stroke-width: 3; }
+
+/* Responsive sizes for different viewports */
+@media (max-width: 380px) {
+  .pu-verified-sm { width: 12px; height: 12px; }
+  .pu-verified-lg { width: 18px; height: 18px; }
+}
 
 /* Gold badge variant for staff / admin */
 .pu-verified-gold {
@@ -225,28 +278,56 @@ button {
     0 1px 3px rgba(0,0,0,.2),
     inset 0 0 0 0.5px rgba(255,255,255,.4);
 }
+
 [data-theme="dark"] .pu-verified-gold {
   box-shadow:
     0 1px 4px rgba(0,0,0,.45),
     0 0 0 1px rgba(232,201,106,.25),
     inset 0 0 0 0.5px rgba(255,255,255,.2);
 }
+
 [data-theme="dark"] .pu-verified-gold:hover {
   box-shadow:
     0 2px 8px rgba(0,0,0,.55),
     0 0 0 2px rgba(232,201,106,.4);
 }
+
 .pu-verified-gold::before {
-  background: repeating-conic-gradient(
+  background: conic-gradient(
     from 0deg,
     rgba(255,255,255,0) 0deg,
-    rgba(255,255,255,0.28) 2deg,
-    rgba(255,255,255,0) 4deg,
-    rgba(255,255,255,0) 6deg,
-    rgba(255,255,255,0.28) 8deg,
-    rgba(255,255,255,0) 10deg
+    rgba(255,255,255,0.45) 15deg,
+    rgba(255,255,255,0) 30deg,
+    rgba(255,255,255,0) 35deg,
+    rgba(255,255,255,0.45) 50deg,
+    rgba(255,255,255,0) 65deg,
+    rgba(255,255,255,0) 70deg,
+    rgba(255,255,255,0.45) 85deg,
+    rgba(255,255,255,0) 100deg,
+    rgba(255,255,255,0) 105deg,
+    rgba(255,255,255,0.45) 120deg,
+    rgba(255,255,255,0) 135deg,
+    rgba(255,255,255,0) 140deg,
+    rgba(255,255,255,0.45) 155deg,
+    rgba(255,255,255,0) 170deg,
+    rgba(255,255,255,0) 175deg,
+    rgba(255,255,255,0.45) 190deg,
+    rgba(255,255,255,0) 205deg,
+    rgba(255,255,255,0) 210deg,
+    rgba(255,255,255,0.45) 225deg,
+    rgba(255,255,255,0) 240deg,
+    rgba(255,255,255,0) 245deg,
+    rgba(255,255,255,0.45) 260deg,
+    rgba(255,255,255,0) 275deg,
+    rgba(255,255,255,0) 280deg,
+    rgba(255,255,255,0.45) 295deg,
+    rgba(255,255,255,0) 310deg,
+    rgba(255,255,255,0) 315deg,
+    rgba(255,255,255,0.45) 330deg,
+    rgba(255,255,255,0) 360deg
   ) !important;
 }
+
 .pu-verified-gold svg {
   filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)) !important;
 }
