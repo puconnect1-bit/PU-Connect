@@ -40,3 +40,35 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
+
+
+class ListingReport(models.Model):
+    """Report a listing for policy violations."""
+    REASON_CHOICES = [
+        ('spam', 'Spam'),
+        ('scam', 'Scam / Fraud'),
+        ('fake', 'Fake / Misleading'),
+        ('prohibited', 'Prohibited Item'),
+        ('harassment', 'Harassment'),
+        ('inappropriate', 'Inappropriate Content'),
+        ('off_platform', 'Off-Platform Payment Request'),
+        ('other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('open', 'Open'),
+        ('investigating', 'Investigating'),
+        ('resolved', 'Resolved'),
+    ]
+
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='reports')
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name='listing_reports')
+    reason = models.CharField(max_length=30, choices=REASON_CHOICES)
+    details = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Report #{self.id}: {self.listing.title} by @{self.reporter.username}"

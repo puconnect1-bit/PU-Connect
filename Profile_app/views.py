@@ -12,6 +12,8 @@ from django.utils import timezone
 
 from django.contrib import messages
 from Listings_app.models import Listing
+from chat_app.signals import _send_web_push
+from chat_app.models import Notification
 import json
 
 
@@ -313,13 +315,30 @@ def report_user(request, username):
     if Report.objects.filter(reporter=request.user, reported=target, status='open').exists():
         return JsonResponse({'status': 'error', 'message': 'You already have an open report against this user'}, status=400)
     priority = 'high' if reason in ('scam', 'harassment') else 'medium'
-    Report.objects.create(
+    report = Report.objects.create(
         reporter=request.user,
         reported=target,
         reason=reason,
         details=details,
         priority=priority,
     )
+    # Notify all superusers/staff about the report
+    from django.contrib.auth.models import User as StaffUser
+    admins = StaffUser.objects.filter(is_superuser=True) | StaffUser.objects.filter(is_staff=True)
+    for admin in admins.distinct():
+        Notification.objects.create(
+            user=admin,
+            type='system',
+            title='New user report',
+            content=f'@{request.user.username} reported @{target.username} for {reason}',
+            link=f'/admin/Profile_app/report/{report.id}/change/',
+        )
+        _send_web_push(
+            user=admin,
+            title='New user report',
+            body=f'@{request.user.username} reported @{target.username} for {reason}',
+            url='/admin/Profile_app/report/',
+        )
     return JsonResponse({'status': 'success', 'message': 'Report submitted. Our team will review it shortly.'})
 
 
@@ -479,6 +498,83 @@ def following_list(request):
             'name': u.get_full_name() or u.username,
             'avatar': avatar,
             'is_verified': user_is_verified(u),
+        })
+    return JsonResponse({'results': data})
+
+
+@never_cache
+def followers_list_for_user(request, username):
+    """GET /profile/api/followers/<username>/ — list of users who follow the given user."""
+    target = get_object_or_404(User, username=username, is_active=True)
+    rows = (
+        Follow.objects.filter(following=target)
+        .select_related('follower', 'follower__profile')
+        .order_by('-created_at')
+    )
+    # Pre-fetch follow state for the requesting user
+    current_user = request.user
+    if current_user.is_authenticated:
+        followed_usernames = set(
+            Follow.objects.filter(follower=current_user)
+            .values_list('following__username', flat=True)
+        )
+    else:
+        followed_usernames = set()
+
+    data = []
+    for f in rows:
+        u = f.follower
+        try:
+            avatar = u.profile.avatar_url or ''
+        except Exception:
+            avatar = ''
+        from Base_app.models import user_is_verified
+        is_own = current_user.is_authenticated and current_user == u
+        data.append({
+            'username': u.username,
+            'name': u.get_full_name() or u.username,
+            'avatar': avatar,
+            'is_verified': user_is_verified(u),
+            'is_following': u.username in followed_usernames,
+            'is_own': is_own,
+        })
+    return JsonResponse({'results': data})
+
+
+@never_cache
+def following_list_for_user(request, username):
+    """GET /profile/api/following/<username>/ — list of users the given user follows."""
+    target = get_object_or_404(User, username=username, is_active=True)
+    rows = (
+        Follow.objects.filter(follower=target)
+        .select_related('following', 'following__profile')
+        .order_by('-created_at')
+    )
+    current_user = request.user
+    if current_user.is_authenticated:
+        followed_usernames = set(
+            Follow.objects.filter(follower=current_user)
+            .values_list('following__username', flat=True)
+        )
+    else:
+        followed_usernames = set()
+
+    data = []
+    for f in rows:
+        u = f.following
+        try:
+            avatar = u.profile.avatar_url or ''
+        except Exception:
+            avatar = ''
+        from Base_app.models import user_is_verified
+        is_own = current_user.is_authenticated and current_user == u
+        data.append({
+            'username': u.username,
+            'name': u.get_full_name() or u.username,
+            'avatar': avatar,
+            'is_verified': user_is_verified(u),
+            'is_following': u.username in followed_usernames,
+            'is_own': is_own,
         })
     return JsonResponse({'results': data})
 

@@ -663,6 +663,127 @@
 </div>
 {% endif %}
 
+<!-- ── Report Listing Modal ── -->
+<div class="modal-overlay" id="listingReportModal" onclick="closeListingReportModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="report-modal-header">
+      <span class="report-modal-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+      <div>
+        <div class="modal-title">Report Listing</div>
+        <div class="modal-sub" id="listingReportModalSub">Tell us what's wrong with this listing</div>
+      </div>
+    </div>
+    <!-- Reason pills -->
+    <div class="report-sect-lbl">Select a reason <span class="report-req">*</span></div>
+    <div class="report-reasons" id="listingReportReasons">
+      <div class="report-pill" onclick="selectListingReason(this,'spam')">Spam</div>
+      <div class="report-pill" onclick="selectListingReason(this,'scam')">Scam / Fraud</div>
+      <div class="report-pill" onclick="selectListingReason(this,'fake')">Fake / Misleading</div>
+      <div class="report-pill" onclick="selectListingReason(this,'prohibited')">Prohibited Item</div>
+      <div class="report-pill" onclick="selectListingReason(this,'harassment')">Harassment</div>
+      <div class="report-pill" onclick="selectListingReason(this,'inappropriate')">Inappropriate Content</div>
+      <div class="report-pill" onclick="selectListingReason(this,'off_platform')">Off-Platform Payment</div>
+      <div class="report-pill" onclick="selectListingReason(this,'other')">Other</div>
+    </div>
+    <div class="report-err" id="listingReasonErr">Please select a reason</div>
+    <!-- Details textarea -->
+    <div class="report-sect-lbl" style="margin-top:.9rem">Additional details <span style="font-weight:300;color:var(--m);font-size:.72rem">(optional)</span></div>
+    <div class="report-textarea-wrap">
+      <textarea id="listingReportDetails" class="report-textarea" maxlength="500"
+        placeholder="Describe what happened — the more detail, the faster our team can act…"
+        oninput="updateListingReportCount(this)"></textarea>
+      <span class="report-char-count" id="listingReportCharCount">0 / 500</span>
+    </div>
+    <div class="report-info-box">
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+      <span>Reports are anonymous. Our safety team reviews every report within 2 hours.</span>
+    </div>
+    <button class="modal-confirm-btn report-submit-btn" id="listingReportSubmitBtn" onclick="submitListingReport()">Submit Report</button>
+  </div>
+</div>
+
+<style>
+/* ── Report modal styles (reuse from chat) ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal-sheet {
+  width: 100%; max-width: 400px;
+  background: var(--surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom,0px));
+  transform: translateY(100%);
+  transition: transform .28s var(--ease-out);
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border-2); border-radius: 99px;
+  margin: 0 auto .75rem;
+}
+.report-modal-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.report-modal-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--danger-dim); color: var(--danger);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 1.1rem;
+}
+.modal-title { font-size: 1rem; font-weight: 700; }
+.modal-sub { font-size: .78rem; color: var(--text-2); margin-top: .15rem; }
+.report-sect-lbl { font-size: .78rem; font-weight: 600; margin-bottom: .5rem; }
+.report-req { color: var(--danger); }
+.report-reasons { display: flex; flex-wrap: wrap; gap: .4rem; }
+.report-pill {
+  padding: .4rem .75rem; border-radius: var(--radius-full);
+  font-size: .78rem; font-weight: 500;
+  background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; transition: all .14s;
+}
+.report-pill:hover { border-color: var(--accent); }
+.report-pill.selected { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.report-err {
+  font-size: .72rem; color: var(--danger); margin-top: .35rem;
+  display: none;
+}
+.report-err.show { display: block; }
+.report-textarea-wrap { position: relative; margin-top: .35rem; }
+.report-textarea {
+  width: 100%; min-height: 100px; resize: vertical;
+  background: var(--surface-2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: .7rem;
+  color: var(--text); font-family: var(--font-sans); font-size: .85rem;
+  outline: none; transition: border-color .18s;
+}
+.report-textarea:focus { border-color: var(--accent); }
+.report-char-count {
+  position: absolute; bottom: .5rem; right: .6rem;
+  font-size: .65rem; color: var(--text-2);
+}
+.report-info-box {
+  display: flex; align-items: flex-start; gap: .5rem;
+  margin-top: .75rem; padding: .6rem .75rem;
+  background: var(--surface-2); border-radius: var(--radius-sm);
+  font-size: .72rem; color: var(--text-2); line-height: 1.5;
+}
+.report-info-box svg { flex-shrink: 0; margin-top: 1px; }
+.modal-confirm-btn {
+  width: 100%; margin-top: 1rem;
+  padding: .75rem; border-radius: var(--radius-sm);
+  font-size: .9rem; font-weight: 700; font-family: var(--font-sans);
+  border: none; cursor: pointer; transition: opacity .14s;
+}
+.report-submit-btn { background: var(--danger); color: #fff; }
+.report-submit-btn:hover { opacity: .85; }
+.report-submit-btn:disabled { opacity: .5; cursor: default; }
+</style>
+
 <div class="dtp-toast" id="toast"></div>
 
 <script>
@@ -863,6 +984,86 @@ if(msgBtn){
     }
   });
 }
+
+/* ── Report Listing ── */
+let _selectedListingReason = '';
+
+function openListingReportModal(){
+  _selectedListingReason = '';
+  document.querySelectorAll('#listingReportReasons .report-pill').forEach(p=>p.classList.remove('selected'));
+  document.getElementById('listingReportDetails').value = '';
+  document.getElementById('listingReportCharCount').textContent = '0 / 500';
+  document.getElementById('listingReasonErr').classList.remove('show');
+  document.getElementById('listingReportSubmitBtn').textContent = 'Submit Report';
+  document.getElementById('listingReportSubmitBtn').disabled = false;
+  document.getElementById('listingReportModal').classList.add('open');
+}
+
+function closeListingReportModal(e){
+  if(!e || e.target === document.getElementById('listingReportModal'))
+    document.getElementById('listingReportModal').classList.remove('open');
+}
+
+function selectListingReason(el, reason){
+  document.querySelectorAll('#listingReportReasons .report-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  _selectedListingReason = reason;
+  document.getElementById('listingReasonErr').classList.remove('show');
+}
+
+function updateListingReportCount(el){
+  const n = el.value.length;
+  document.getElementById('listingReportCharCount').textContent = n + ' / 500';
+}
+
+async function submitListingReport(){
+  if(!_selectedListingReason){
+    document.getElementById('listingReasonErr').classList.add('show');
+    return;
+  }
+  const btn = document.getElementById('listingReportSubmitBtn');
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+  try {
+    const csrf = document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1] || '';
+    const res = await fetch(`/listings/${LISTING_ID}/report/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+      body: JSON.stringify({ reason: _selectedListingReason, details: document.getElementById('listingReportDetails').value })
+    });
+    const d = await res.json();
+    document.getElementById('listingReportModal').classList.remove('open');
+    showToast(d.message || 'Report submitted');
+  } catch(e){
+    showToast('Network error. Try again.');
+    btn.textContent = 'Submit Report';
+    btn.disabled = false;
+  }
+}
+
+/* ── Add report button to top bar ── */
+(function(){
+  const bar = document.querySelector('.dtp-bar');
+  if(!bar) return;
+  const themeBtn = document.getElementById('themeBtn');
+  {% if user.is_authenticated %}
+  const reportBtn = document.createElement('button');
+  reportBtn.className = 'dtp-theme-btn';
+  reportBtn.setAttribute('aria-label', 'Report listing');
+  reportBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  reportBtn.addEventListener('click', openListingReportModal);
+  if(themeBtn) bar.insertBefore(reportBtn, themeBtn);
+  else bar.appendChild(reportBtn);
+  {% else %}
+  const reportLink = document.createElement('a');
+  reportLink.className = 'dtp-theme-btn';
+  reportLink.setAttribute('aria-label', 'Report listing');
+  reportLink.setAttribute('href', '{% url "auth:auth_view" %}');
+  reportLink.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  if(themeBtn) bar.insertBefore(reportLink, themeBtn);
+  else bar.appendChild(reportLink);
+  {% endif %}
+})();
 </script>
 {% if user.is_authenticated %}
 <script src="{% static 'Base_app/js/notifications.js' %}"></script>

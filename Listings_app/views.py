@@ -453,3 +453,34 @@ def toggle_listing_status_api(request, listing_id):
         return JsonResponse({'status': 'error', 'message': 'Listing not found'}, status=404)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required(login_url='auth:auth_view')
+@require_POST
+def report_listing(request, pk):
+    """POST /listings/<pk>/report/ — report a listing."""
+    listing = get_object_or_404(Listing, pk=pk)
+    if listing.user == request.user:
+        return JsonResponse({'status': 'error', 'message': 'Cannot report your own listing'}, status=400)
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    reason = data.get('reason', '').strip()
+    details = data.get('details', '').strip()
+    valid_reasons = {'spam', 'scam', 'fake', 'prohibited', 'harassment', 'inappropriate', 'off_platform', 'other'}
+    if reason not in valid_reasons:
+        return JsonResponse({'status': 'error', 'message': 'Invalid reason'}, status=400)
+    from .models import ListingReport
+    if ListingReport.objects.filter(listing=listing, reporter=request.user, status='open').exists():
+        return JsonResponse({'status': 'error', 'message': 'You already have an open report for this listing'}, status=400)
+    report = ListingReport.objects.create(
+        listing=listing,
+        reporter=request.user,
+        reason=reason,
+        details=details,
+    )
+    # Notify admins
+    from .signals import send_listing_report_notifications
+    send_listing_report_notifications(report)
+    return JsonResponse({'status': 'success', 'message': 'Report submitted. Our team will review it shortly.'})

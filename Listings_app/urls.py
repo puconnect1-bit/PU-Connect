@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/all/', views.get_all_listings, name='all_listings_api'),
     path('api/delete/<int:listing_id>/', views.delete_listing_api, name='delete_api'),
     path('api/toggle-status/<int:listing_id>/', views.toggle_listing_status_api, name='toggle_status_api'),
+    path('<int:pk>/report/', views.report_listing, name='report_listing'),
 ]

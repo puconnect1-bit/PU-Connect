@@ -276,11 +276,11 @@
         <span class="pub-stat-num" id="pubPosts">—</span>
         <span class="pub-stat-lbl">Posts</span>
       </div>
-      <div class="pub-stat">
+      <div class="pub-stat" onclick="openFollowModal('followers')" style="cursor:pointer">
         <span class="pub-stat-num" id="pubFollowers">—</span>
         <span class="pub-stat-lbl">Followers</span>
       </div>
-      <div class="pub-stat">
+      <div class="pub-stat" onclick="openFollowModal('following')" style="cursor:pointer">
         <span class="pub-stat-num" id="pubFollowing">—</span>
         <span class="pub-stat-lbl">Following</span>
       </div>
@@ -295,6 +295,96 @@
   <div class="pub-grid" id="pubGrid"></div>
   <div class="pub-empty" id="pubEmpty" style="display:none">No active listings yet</div>
 </main>
+
+<!-- ── Follow List Modal ── -->
+<div class="modal-overlay" id="followModal" onclick="closeFollowModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="report-modal-header">
+      <span class="report-modal-icon" id="followModalIcon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg></span>
+      <div>
+        <div class="modal-title" id="followModalTitle">Followers</div>
+        <div class="modal-sub" id="followModalSub">@{{ target_username }}</div>
+      </div>
+    </div>
+    <div id="followModalList" style="max-height:50vh;overflow-y:auto">
+      <div style="text-align:center;padding:2rem 0;color:var(--text-2);font-size:.85rem">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── Follow modal styles (reuse report modal pattern) ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal-sheet {
+  width: 100%; max-width: 400px;
+  background: var(--surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom,0px));
+  transform: translateY(100%);
+  transition: transform .28s var(--ease-out);
+  max-height: 80vh; overflow-y: auto;
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border-2); border-radius: 99px;
+  margin: 0 auto .75rem;
+}
+.report-modal-header { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.report-modal-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--accent-dim); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 1.1rem;
+}
+.modal-title { font-size: 1rem; font-weight: 700; }
+.modal-sub { font-size: .78rem; color: var(--text-2); margin-top: .15rem; }
+.follow-user-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .6rem .5rem; border-radius: var(--radius-sm);
+  text-decoration: none; color: var(--text);
+  transition: background .14s;
+}
+.follow-user-item:hover { background: var(--surface-2); }
+.follow-user-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  overflow: hidden; flex-shrink: 0;
+  background: var(--surface-2);
+}
+.follow-user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.follow-user-avatar svg { width: 100%; height: 100%; display: block; }
+.follow-user-name { font-weight: 600; font-size: .88rem; }
+.follow-user-un { font-size: .75rem; color: var(--text-2); }
+.follow-modal-btn {
+  flex-shrink: 0;
+  padding: .25rem .7rem;
+  border-radius: var(--radius-full);
+  font-size: .72rem; font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: 1.5px solid var(--accent);
+  background: var(--accent); color: #fff;
+  transition: all .18s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.follow-modal-btn.following {
+  background: transparent;
+  color: var(--text-2);
+  border-color: var(--border-2);
+}
+.follow-modal-btn:hover { opacity: .85; }
+.follow-modal-btn:disabled { opacity: .6; cursor: default; }
+</style>
 
 <div class="pub-toast" id="toast"></div>
 
@@ -312,6 +402,84 @@ function showToast(msg){
   clearTimeout(t._tid);
   t._tid = setTimeout(() => t.classList.remove('show'), 2200);
 }
+
+/* ── Follow List Modal ── */
+function openFollowModal(type){
+  const isFollowers = type === 'followers';
+  document.getElementById('followModalTitle').textContent = isFollowers ? 'Followers' : 'Following';
+  document.getElementById('followModalIcon').innerHTML = isFollowers
+    ? '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>'
+    : '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="9" x2="17" y2="9"/></svg>';
+  document.getElementById('followModalList').innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text-2);font-size:.85rem">Loading…</div>';
+  document.getElementById('followModal').classList.add('open');
+
+  const apiUrl = isFollowers
+    ? `/profile/api/followers/${TARGET_USERNAME}/`
+    : `/profile/api/following/${TARGET_USERNAME}/`;
+
+  fetch(apiUrl)
+    .then(r => r.json())
+    .then(d => {
+      const list = document.getElementById('followModalList');
+      if(!d.results || !d.results.length){
+        list.innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text-2);font-size:.85rem">Nothing to show yet</div>';
+        return;
+      }
+      list.innerHTML = d.results.map(u => {
+        const avatarHtml = u.avatar
+          ? `<img src="${esc(u.avatar)}" alt="${esc(u.name)}">`
+          : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="20" fill="#e4e6ea"/><circle cx="20" cy="16" r="7.5" fill="#bcc0c4"/><path d="M5 36.5C5 29 11.7 23 20 23s15 6 15 13.5" fill="#bcc0c4"/></svg>';
+        const badge = u.is_verified
+          ? ' <span class="pu-verified" style="width:14px;height:14px;display:inline-flex;vertical-align:middle"><svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 6"/></svg></span>'
+          : '';
+        const followBtn = u.is_own ? '' : (
+          u.is_following
+            ? `<button class="follow-modal-btn following" data-username="${esc(u.username)}" onclick="event.preventDefault();event.stopPropagation();toggleFollowInModal(this,'${esc(u.username)}')">Following</button>`
+            : `<button class="follow-modal-btn" data-username="${esc(u.username)}" onclick="event.preventDefault();event.stopPropagation();toggleFollowInModal(this,'${esc(u.username)}')">Follow</button>`
+        );
+        return `<a class="follow-user-item" href="/profile/${esc(u.username)}/">
+          <div class="follow-user-avatar">${avatarHtml}</div>
+          <div style="flex:1;min-width:0">
+            <div class="follow-user-name">${esc(u.name)}${badge}</div>
+            <div class="follow-user-un">@${esc(u.username)}</div>
+          </div>
+          ${followBtn}
+        </a>`;
+      }).join('');
+    })
+    .catch(() => {
+      document.getElementById('followModalList').innerHTML = '<div style="text-align:center;padding:2rem 0;color:var(--text-2);font-size:.85rem">Could not load</div>';
+    });
+}
+
+function closeFollowModal(e){
+  if(!e || e.target === document.getElementById('followModal'))
+    document.getElementById('followModal').classList.remove('open');
+}
+
+{% if user.is_authenticated %}
+async function toggleFollowInModal(btn, username){
+  if(btn.disabled) return;
+  btn.disabled = true;
+  try {
+    const csrf = document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1] || '';
+    const res  = await fetch(`/profile/api/follow/${username}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrf }
+    });
+    const d = await res.json();
+    if(d.following){
+      btn.textContent = 'Following';
+      btn.classList.add('following');
+    } else {
+      btn.textContent = 'Follow';
+      btn.classList.remove('following');
+    }
+    showToast(d.following ? 'Following @' + username : 'Unfollowed @' + username);
+  } catch(e){ showToast('Could not update follow'); }
+  btn.disabled = false;
+}
+{% endif %}
 
 /* ── Follow state ── */
 function renderActionBtn(isOwn, isFollowing, followsYou){
