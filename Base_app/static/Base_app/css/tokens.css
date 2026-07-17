@@ -149,7 +149,7 @@ button {
   position: relative;
   top: -1px;
   transition: transform 0.2s ease;
-  /* Rosette ribbing via conic-gradient overlay */
+  /* Rosette spines via conic-gradient overlay */
   box-shadow:
     0 1px 3px rgba(0,0,0,.2),
     inset 0 0 0 0.5px rgba(255,255,255,.3);
@@ -160,9 +160,13 @@ button {
   inset: 0;
   border-radius: 50%;
   background: repeating-conic-gradient(
+    from 0deg,
     rgba(255,255,255,0) 0deg,
-    rgba(255,255,255,0.18) 3deg,
-    rgba(255,255,255,0) 6deg
+    rgba(255,255,255,0.22) 2deg,
+    rgba(255,255,255,0) 4deg,
+    rgba(255,255,255,0) 6deg,
+    rgba(255,255,255,0.22) 8deg,
+    rgba(255,255,255,0) 10deg
   );
   z-index: 1;
   pointer-events: none;
@@ -234,9 +238,13 @@ button {
 }
 .pu-verified-gold::before {
   background: repeating-conic-gradient(
+    from 0deg,
     rgba(255,255,255,0) 0deg,
-    rgba(255,255,255,0.22) 3deg,
-    rgba(255,255,255,0) 6deg
+    rgba(255,255,255,0.28) 2deg,
+    rgba(255,255,255,0) 4deg,
+    rgba(255,255,255,0) 6deg,
+    rgba(255,255,255,0.28) 8deg,
+    rgba(255,255,255,0) 10deg
   ) !important;
 }
 .pu-verified-gold svg {
@@ -371,7 +379,7 @@ button {
 
 /* ══════════════════════════════════════════
    Notification bell dot
-══════════════════════════════════════════ */
+   ══════════════════════════════════════════ */
 .notif-dot {
   position: absolute;
   top: 4px; right: 4px;
@@ -395,7 +403,7 @@ button {
 
 /* ══════════════════════════════════════════
    Notification panel dropdown
-══════════════════════════════════════════ */
+   ══════════════════════════════════════════ */
 .notif-panel {
   position: absolute;
   top: calc(100% + 8px);
@@ -524,7 +532,7 @@ button {
    Single source of truth — override per-page
    tokens at known breakpoints so every page
    inherits fluid sizing without hardcoding.
-══════════════════════════════════════════ */
+   ══════════════════════════════════════════ */
 
 /* Fluid font-size base: 14px → 16px over 320–768px */
 html { font-size: clamp(14px, 0.875rem + 0.5vw, 16px); }
