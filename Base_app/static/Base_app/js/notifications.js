@@ -12,7 +12,7 @@
 (function () {
   'use strict';
 
-  const POLL_MS    = 30000; // refresh every 30 s while page is open
+  const POLL_MS    = 10000; // refresh every 10 s while page is open
   const API_LIST   = '/chat/api/notifications/';
   const API_MARK   = '/chat/api/notifications/mark-read/';
 
