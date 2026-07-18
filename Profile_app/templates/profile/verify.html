@@ -481,6 +481,17 @@
 <script src="https://js.paystack.co/v1/inline.js"></script>
 
 <script>
+/* Check if Paystack loaded */
+if (typeof PaystackPop === 'undefined') {
+  document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('paySubmitBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = 'Payment system unavailable — refresh page';
+    }
+  });
+}
+
 /* ════════════════════════════════════════════
    STATE
    ════════════════════════════════════════════ */

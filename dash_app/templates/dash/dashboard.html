@@ -18,7 +18,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'Base_app/css/tokens.css' %}">
   <link rel="stylesheet" href="{% static 'Base_app/css/shell.css' %}">
-  <link rel="stylesheet" href="{% static 'dash_app/css/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'dash_app/css/dashboard.css' %}">
+{% if user.is_authenticated %}
+<script src="https://js.paystack.co/v1/inline.js"></script>
+{% endif %}
 </head>
 <body>
 
@@ -522,6 +525,12 @@ async function submitDashBoost(){
   const btn=document.getElementById('dashBoostSubmitBtn');
   btn.disabled=true;btn.textContent='Creating payment…';
   try{
+    // Check if Paystack is loaded
+    if(typeof PaystackPop==='undefined'){
+      _dashToast('Payment system not loaded. Please refresh the page.');
+      btn.disabled=false;btn.textContent='Pay & Boost →';
+      return;
+    }
     const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
     const res=await fetch('/api/boost/initiate/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify({listing_id:parseInt(listingId)})});
     if(!res.ok){throw new Error('Failed to initiate payment');}
@@ -529,7 +538,7 @@ async function submitDashBoost(){
     if(d.status==='ok'&&d.authorization_url){
       // Use Paystack popup instead of redirect
       const handler = PaystackPop.setup({
-        key:      '{{ PAYSTACK_PUBLIC_KEY }}',
+        key:      '{{ PAYSTACK_PUBLIC_KEY }}' || d.public_key,
         email:    '{{ request.user.email }}',
         amount:   Math.round(parseFloat(d.amount) * 100),
         currency: 'GHS',
@@ -594,7 +603,6 @@ loadListings();
 
 {% if user.is_authenticated %}
 <script src="{% static 'Base_app/js/notifications.js' %}"></script>
-<script src="https://js.paystack.co/v1/inline.js"></script>
 {% endif %}
 
 {% if user.is_authenticated %}

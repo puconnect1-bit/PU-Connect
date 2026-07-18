@@ -900,6 +900,7 @@ def initiate_boost_payment(request):
         'status': 'ok',
         'authorization_url': result['data']['authorization_url'],
         'reference': reference,
+        'amount': cfg.boost_fee,
     })
 
 
