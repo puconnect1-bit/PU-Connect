@@ -189,7 +189,7 @@
 
 <!-- Boost modal -->
 <div id="dashBoostOv" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);align-items:flex-end;justify-content:center" onclick="closeDashBoost(event)">
-  <div id="dashBoostSheet" style="width:100%;max-width:500px;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--border);padding:1.3rem 1.4rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)">
+  <div id="dashBoostSheet" style="width:100%;max-width:500px;background:var(--surface);border-radius:22px 22px 0 0;border-top:1px solid var(--border);padding:1.3rem 1.4rem 2.5rem;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)" onclick="event.stopPropagation()">
     <div style="width:38px;height:4px;border-radius:2px;background:var(--border-2);margin:0 auto .9rem"></div>
     <div style="font-size:1.1rem;font-weight:700;margin-bottom:.25rem">⚡ Feature Your Listing</div>
     <div style="font-size:.82rem;color:var(--text-2);margin-bottom:1rem;line-height:1.6">Boosted listings appear in the <strong>Featured carousel</strong> on the home screen and reach more campus buyers.</div>
@@ -494,33 +494,42 @@ async function _loadDashBoostConfig(){
 }
 
 async function openBoostModal(){
+  console.log('openBoostModal called');
   await _loadDashBoostConfig();
   // fetch user's active listings to populate select
   const sel=document.getElementById('dashBoostSelect');
   try{
     const data=await fetch('/listings/api/me/').then(r=>r.json());
+    console.log('listings data:', data);
     const active=(data.listings||[]).filter(l=>l.status==='active');
+    console.log('active listings:', active);
     sel.innerHTML='<option value="">— Choose an active listing —</option>'+
       active.map(l=>`<option value="${l.id}">${_escB(l.title)}</option>`).join('');
   }catch(e){
+    console.error('Failed to load listings:', e);
     sel.innerHTML='<option value="">— Could not load listings —</option>';
   }
   const ov=document.getElementById('dashBoostOv');
   const sheet=document.getElementById('dashBoostSheet');
+  console.log('Modal overlay:', ov, 'Modal sheet:', sheet);
   ov.style.display='flex';
   requestAnimationFrame(()=>sheet.style.transform='translateY(0)');
   document.body.style.overflow='hidden';
 }
 
 function closeDashBoost(e){
-  if(e&&e.target!==document.getElementById('dashBoostOv'))return;
+  // Only close if called without event (from button) or if clicking the overlay background
+  if(e && e.target !== document.getElementById('dashBoostOv')) return;
   const sheet=document.getElementById('dashBoostSheet');
-  sheet.style.transform='translateY(100%)';
-  setTimeout(()=>{document.getElementById('dashBoostOv').style.display='none';document.body.style.overflow='';},350);
+  if(sheet) sheet.style.transform='translateY(100%)';
+  const ov=document.getElementById('dashBoostOv');
+  if(ov) setTimeout(()=>{ov.style.display='none';document.body.style.overflow='';},350);
 }
 
 async function submitDashBoost(){
+  console.log('submitDashBoost called');
   const listingId=document.getElementById('dashBoostSelect').value;
+  console.log('listingId:', listingId);
   if(!listingId){_dashToast('Please select a listing');return;}
   const btn=document.getElementById('dashBoostSubmitBtn');
   btn.disabled=true;btn.textContent='Creating payment…';
@@ -533,12 +542,26 @@ async function submitDashBoost(){
     }
     const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
     const res=await fetch('/api/boost/initiate/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify({listing_id:parseInt(listingId)})});
-    if(!res.ok){throw new Error('Failed to initiate payment');}
+    if(!res.ok){
+      const errText = await res.text();
+      console.error('API error:', res.status, errText);
+      _dashToast('Failed to initiate payment: ' + (res.status));
+      btn.disabled=false;btn.textContent='Pay & Boost →';
+      return;
+    }
     const d=await res.json();
+    console.log('API response:', d);
     if(d.status==='ok'&&d.authorization_url){
       // Use Paystack popup instead of redirect
+      const publicKey = '{{ PAYSTACK_PUBLIC_KEY }}';
+      console.log('Paystack public key:', publicKey ? 'set' : 'missing');
+      if(!publicKey){
+        _dashToast('Payment key not configured. Contact support.');
+        btn.disabled=false;btn.textContent='Pay & Boost →';
+        return;
+      }
       const handler = PaystackPop.setup({
-        key:      '{{ PAYSTACK_PUBLIC_KEY }}' || d.public_key,
+        key:      publicKey,
         email:    '{{ request.user.email }}',
         amount:   Math.round(parseFloat(d.amount) * 100),
         currency: 'GHS',
@@ -553,9 +576,15 @@ async function submitDashBoost(){
           btn.disabled=false;btn.textContent='Pay & Boost →';
         },
       });
-      handler.open();
+      try {
+        handler.open();
+      } catch(popupErr) {
+        console.error('Paystack popup failed, falling back to redirect:', popupErr);
+        // Fallback: redirect to authorization URL
+        window.location.href = d.authorization_url;
+      }
     }else{_dashToast(d.message||'Could not initiate payment');btn.disabled=false;btn.textContent='Pay & Boost →';}
-  }catch(e){_dashToast('Could not connect — try again');btn.disabled=false;btn.textContent='Pay & Boost →';}
+  }catch(e){console.error('submitDashBoost error:', e);_dashToast('Could not connect — try again: ' + e.message);btn.disabled=false;btn.textContent='Pay & Boost →';}
 }
 
 let _dashToastTimer;
