@@ -533,6 +533,11 @@ async function submitDashBoost(){
   if(!listingId){_dashToast('Please select a listing');return;}
   const btn=document.getElementById('dashBoostSubmitBtn');
   btn.disabled=true;btn.textContent='Creating payment…';
+  
+  // Add timeout to prevent hanging
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  
   try{
     // Check if Paystack is loaded
     if(typeof PaystackPop==='undefined'){
@@ -541,11 +546,19 @@ async function submitDashBoost(){
       return;
     }
     const csrf=document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))?.split('=')[1]||'';
-    const res=await fetch('/api/boost/initiate/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':csrf},body:JSON.stringify({listing_id:parseInt(listingId)})});
+    console.log('CSRF token found:', csrf ? 'yes' : 'no');
+    const res=await fetch('/api/boost/initiate/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':csrf},
+      body:JSON.stringify({listing_id:parseInt(listingId)}),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    console.log('Response status:', res.status);
     if(!res.ok){
       const errText = await res.text();
       console.error('API error:', res.status, errText);
-      _dashToast('Failed to initiate payment: ' + (res.status));
+      _dashToast('Failed to initiate payment: ' + (res.status) + ' - ' + errText);
       btn.disabled=false;btn.textContent='Pay & Boost →';
       return;
     }
@@ -560,6 +573,7 @@ async function submitDashBoost(){
         btn.disabled=false;btn.textContent='Pay & Boost →';
         return;
       }
+      console.log('Opening Paystack popup with amount:', d.amount);
       const handler = PaystackPop.setup({
         key:      publicKey,
         email:    '{{ request.user.email }}',
@@ -578,17 +592,32 @@ async function submitDashBoost(){
       });
       try {
         handler.open();
+        console.log('Paystack popup opened');
       } catch(popupErr) {
         console.error('Paystack popup failed, falling back to redirect:', popupErr);
         // Fallback: redirect to authorization URL
         window.location.href = d.authorization_url;
       }
-    }else{_dashToast(d.message||'Could not initiate payment');btn.disabled=false;btn.textContent='Pay & Boost →';}
-  }catch(e){console.error('submitDashBoost error:', e);_dashToast('Could not connect — try again: ' + e.message);btn.disabled=false;btn.textContent='Pay & Boost →';}
+    }else{
+      console.log('Unexpected response:', d);
+      _dashToast(d.message||'Could not initiate payment');
+      btn.disabled=false;btn.textContent='Pay & Boost →';
+    }
+  }catch(e){
+    clearTimeout(timeoutId);
+    console.error('submitDashBoost error:', e);
+    if(e.name === 'AbortError'){
+      _dashToast('Request timed out. Check your connection.');
+    }else{
+      _dashToast('Could not connect — try again: ' + e.message);
+    }
+    btn.disabled=false;btn.textContent='Pay & Boost →';
+  }
 }
 
 let _dashToastTimer;
 function _dashToast(msg){
+  console.log('Toast:', msg);
   let t=document.getElementById('dash-boost-toast');
   if(!t){t=document.createElement('div');t.id='dash-boost-toast';t.style.cssText='position:fixed;bottom:calc(var(--bh,78px)+18px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.6rem 1.2rem;font-size:.82rem;font-weight:500;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.6);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;z-index:999;white-space:nowrap';document.body.appendChild(t);}
   t.textContent=msg;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
