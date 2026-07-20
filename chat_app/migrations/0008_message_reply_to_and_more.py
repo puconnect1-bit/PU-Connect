@@ -18,12 +18,4 @@ class Migration(migrations.Migration):
             name='reply_to',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='replies', to='chat_app.message'),
         ),
-        migrations.AddIndex(
-            model_name='message',
-            index=models.Index(fields=['conversation', 'timestamp'], name='chat_app_me_convers_789a14_idx'),
-        ),
-        migrations.AddIndex(
-            model_name='message',
-            index=models.Index(fields=['is_read'], name='chat_app_me_is_read_644327_idx'),
-        ),
     ]
