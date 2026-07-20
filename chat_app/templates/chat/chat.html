@@ -20,9 +20,9 @@
 
 <div class="shell" id="shell">
 
-  <!-- ════════════════════════════════
+  <!-- --------------------------------
        LEFT — Conversation list
-  ════════════════════════════════ -->
+  -------------------------------- -->
   <div class="left" id="leftPanel">
 
     <div class="left-head">
@@ -57,9 +57,9 @@
 
   </div>
 
-  <!-- ════════════════════════════════
+  <!-- --------------------------------
        RIGHT — Active chat
-  ════════════════════════════════ -->
+  -------------------------------- -->
   <div class="right" id="rightPanel">
 
     <!-- No chat selected (desktop default) -->
@@ -109,7 +109,7 @@
           <div class="pinned-bar-label">Pinned Message</div>
           <div class="pinned-bar-text" id="pinnedBarText"></div>
         </div>
-        <button class="pinned-bar-close" onclick="unpinMessage(event)" title="Unpin">✕</button>
+        <button class="pinned-bar-close" onclick="unpinMessage(event)" title="Unpin">?</button>
       </div>
 
       <!-- Messages -->
@@ -128,7 +128,7 @@
             <div class="reply-name" id="replyName"></div>
             <div class="reply-text" id="replyText"></div>
           </div>
-          <button class="reply-close" onclick="cancelReply()" title="Cancel reply">✕</button>
+          <button class="reply-close" onclick="cancelReply()" title="Cancel reply">?</button>
         </div>
         <!-- Normal input row -->
         <div class="input-row" id="inputRow">
@@ -159,7 +159,7 @@
         </div>
         <!-- Recording bar — shown while recording -->
         <div class="rec-bar" id="recBar">
-          <button class="rec-cancel" onclick="cancelRecording()" title="Cancel">✕</button>
+          <button class="rec-cancel" onclick="cancelRecording()" title="Cancel">?</button>
           <div class="rec-indicator">
             <div class="rec-dot"></div>
             <span class="rec-timer" id="recTimer">0:00</span>
@@ -176,9 +176,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      NEW CHAT MODAL — search by username
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="modal-overlay" id="newChatModal" onclick="closeNewChat(event)">
   <div class="modal-sheet" onclick="e=>e.stopPropagation()">
     <div class="modal-handle"></div>
@@ -196,9 +196,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      SCHEDULER MODAL — date + time picker
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="modal-overlay" id="schedulerModal" onclick="closeScheduler(event)">
   <div class="modal-sheet" onclick="e=>e.stopPropagation()">
     <div class="modal-handle"></div>
@@ -229,9 +229,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      MORE OPTIONS MENU
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="more-menu" id="moreMenu">
   <div class="more-item" onclick="viewProfile()">
     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -261,9 +261,9 @@
 </div>
 <div class="more-overlay" id="moreOverlay" onclick="closeMoreMenu()"></div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      LISTING VIEWER MODAL
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="modal-overlay" id="listingModal" onclick="closeListingModal(event)">
   <div class="modal-sheet listing-modal-sheet" onclick="e=>e.stopPropagation()">
     <div class="modal-handle"></div>
@@ -283,12 +283,12 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      PHOTO PREVIEW MODAL
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="modal-overlay" id="photoPreviewModal" onclick="closePhotoPreview(event)">
   <div class="photo-preview-sheet" onclick="e=>e.stopPropagation()">
-    <button class="photo-close-btn" onclick="closePhotoPreview()">✕</button>
+    <button class="photo-close-btn" onclick="closePhotoPreview()">?</button>
     <div class="photo-preview-grid" id="photoPreviewGrid"></div>
     <div class="photo-preview-actions">
       <button class="modal-cancel-btn" onclick="closePhotoPreview()">Cancel</button>
@@ -299,9 +299,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      USER PROFILE SHEET
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="modal-overlay" id="userProfileModal" onclick="closeUserProfile(event)">
   <div class="modal-sheet" style="padding:0;overflow:hidden" onclick="event.stopPropagation()">
 
@@ -363,9 +363,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      REPORT USER MODAL
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="modal-overlay" id="reportModal" onclick="closeReportModal(event)">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
@@ -413,9 +413,9 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- --------------------------------------
      MESSAGE CONTEXT MENU
-══════════════════════════════════════ -->
+-------------------------------------- -->
 <div class="ctx-overlay" id="ctxOverlay" onclick="closeCtxMenu()" style="display:none"></div>
 <div class="ctx-menu" id="ctxMenu" style="display:none">
   <div class="ctx-item" id="ctxReply" onclick="ctxAction('reply')">
@@ -445,7 +445,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- ── Modern confirm dialog ── -->
+<!-- -- Modern confirm dialog -- -->
 <div id="puDlgOv" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem">
   <div id="puDlgBox" style="background:var(--bubble-in,#202c33);border:1px solid rgba(255,255,255,.1);border-radius:20px;max-width:340px;width:100%;padding:1.6rem 1.5rem 1.3rem;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:dlgIn .2s cubic-bezier(.34,1.56,.64,1)">
     <div id="puDlgIcon" style="font-size:2rem;text-align:center;margin-bottom:.75rem"></div>
@@ -463,7 +463,7 @@
 </style>
 
 <script>
-/* ── THEME ── */
+/* -- THEME -- */
 (function(){
   var _H = document.documentElement;
   var _TB = document.getElementById('thbtn');
@@ -501,11 +501,11 @@ async function uploadToR2(file, resourceType) {
 }
 
 
-/* ── CONVERSATION DATA ── */
+/* -- CONVERSATION DATA -- */
 const AV_SVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" style="width:100%;height:100%;border-radius:50%;display:block"><circle cx="20" cy="20" r="20" fill="#e4e6ea"/><circle cx="20" cy="16" r="7.5" fill="#bcc0c4"/><path d="M5 36.5C5 29 11.7 23 20 23s15 6 15 13.5" fill="#bcc0c4"/></svg>';
 let CONVS=[];
 
-/* ── Modern confirm dialog ── */
+/* -- Modern confirm dialog -- */
 function puConfirm(msg, onYes, opts={}){
   const ov=document.getElementById('puDlgOv');
   document.getElementById('puDlgMsg').innerHTML=msg;
@@ -526,10 +526,10 @@ const QUICK_REPLIES=[
 ];
 
 let activeConv=null,activeTab='all',msgs={},chatSocket=null,presenceSocket=null;
-// userId → 'online' | 'offline'  (keyed by the OTHER user's id)
+// userId ? 'online' | 'offline'  (keyed by the OTHER user's id)
 const onlineStatus={};
 
-/* ── INIT ── */
+/* -- INIT -- */
 async function init(){
   await fetchConversations();
 
@@ -572,7 +572,7 @@ async function init(){
               username: username,
               avatar_url: '',
               listing: parsed.listing || 'General',
-              listingEmoji: '💬',
+              listingEmoji: '??',
               price: '',
               time: 'Now',
               badge: 0,
@@ -612,7 +612,7 @@ function connectPresence(){
 
       // Update conversation list entry for this user
       CONVS.forEach(c=>{
-        // We need to match conv to user — store username→userId map
+        // We need to match conv to user — store username?userId map
         if(c._other_user_id===uid){
           c.status=status;
         }
@@ -660,6 +660,17 @@ async function fetchMessages(cid){
   try{
     const res = await fetch(`/chat/api/messages/${cid}/`);
     msgs[cid] = await res.json();
+    // Populate vnAudioMap for server-side voice notes
+    (msgs[cid]||[]).forEach(m=>{
+      if(m.voice_url && m.id){
+        const stableId = 'srv-'+cid+'-'+m.id;
+        vnAudioMap[stableId] = {
+          url: m.voice_url,
+          duration: m.voice_duration || 0,
+          waveform: generateFlatWaveform(28)
+        };
+      }
+    });
     renderMsgs(cid);
   }catch(e){console.error('Failed to fetch messages', e);}
 }
@@ -685,7 +696,7 @@ function connectWebSocket(cid){
   chatSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
 
-    // ── Typing indicator ──
+    // -- Typing indicator --
     if(data.type === 'typing'){
       if(data.sender_id !== currentUserId){
         if(data.is_typing) showTyping(); else removeTyping();
@@ -693,7 +704,7 @@ function connectWebSocket(cid){
       return;
     }
 
-    // ── Recording indicator ──
+    // -- Recording indicator --
     if(data.type === 'recording'){
       if(data.sender_id !== currentUserId){
         if(data.is_recording) showRecording(); else removeTyping();
@@ -701,7 +712,7 @@ function connectWebSocket(cid){
       return;
     }
 
-    // ── Read receipt ──
+    // -- Read receipt --
     if(data.type === 'read_receipt'){
       const ids = new Set(data.message_ids);
       if(msgs[cid]){
@@ -711,7 +722,17 @@ function connectWebSocket(cid){
       return;
     }
 
-    // ── Normal chat message ──
+    // -- Message deleted (delete for everyone) --
+    if(data.type === 'message_deleted'){
+      const delId = data.message_id;
+      if(msgs[cid]){
+        msgs[cid].forEach(m=>{if(m.id==delId)m.is_deleted=true;});
+        if(activeConv?.id===cid)renderMsgs(cid);
+      }
+      return;
+    }
+
+    // -- Normal chat message --
     const m = {
       id: data.msg_id || null,
       from: data.sender_id === currentUserId ? 'out' : 'in',
@@ -724,6 +745,17 @@ function connectWebSocket(cid){
       time: data.timestamp,
       is_read: false,
     };
+    
+    // Store voice note in vnAudioMap for playback
+    if(m.voice_url && m.id){
+      const stableId = 'srv-'+cid+'-'+m.id;
+      vnAudioMap[stableId] = {
+        url: m.voice_url,
+        duration: m.voice_duration || 0,
+        waveform: generateFlatWaveform(28)
+      };
+    }
+    
     if(!msgs[cid]) msgs[cid]=[];
 
     // Resolve optimistic pending message (upgrade it with server id + tick)
@@ -763,7 +795,7 @@ function connectWebSocket(cid){
 // Get current user ID from Django context (added to body dataset)
 const currentUserId = parseInt(document.body.dataset.userId);
 
-/* ── CONVERSATION LIST ── */
+/* -- CONVERSATION LIST -- */
 function renderConvList(filter='',tab=activeTab){
   const list=document.getElementById('convList');
   let data=CONVS.filter(c=>{
@@ -777,7 +809,7 @@ function renderConvList(filter='',tab=activeTab){
   }
   list.innerHTML=data.map(c=>{
     const lastMsg=msgs[c.id]?.[msgs[c.id].length-1];
-    const preview=lastMsg?(lastMsg.text||(lastMsg.image_url?'📷 Photo':lastMsg.voice_url?'🎤 Voice note':lastMsg.offer?`Offer: ${lastMsg.offer.amount}`:lastMsg.meetup_spot?`📍 ${lastMsg.meetup_spot}`:''))||'':'';
+    const preview=lastMsg?(lastMsg.text||(lastMsg.image_url?'?? Photo':lastMsg.voice_url?'?? Voice note':lastMsg.offer?`Offer: ${lastMsg.offer.amount}`:lastMsg.meetup_spot?`?? ${lastMsg.meetup_spot}`:''))||'':'';
     const isUnread=c.badge>0;
     const avatarHTML=c.avatar_url
       ?`<img src="${c.avatar_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`
@@ -815,7 +847,7 @@ function switchTab(el,tab){
   renderConvList(document.getElementById('srchInput').value,tab);
 }
 
-/* ── OPEN CONVERSATION ── */
+/* -- OPEN CONVERSATION -- */
 function openConv(c){
   if(!c)return;
   activeConv=c;
@@ -890,7 +922,7 @@ function showLeft(){
   lastConvY=0;
 }
 
-/* ── RENDER MESSAGES ── */
+/* -- RENDER MESSAGES -- */
 function renderMsgs(cid){
   const area=document.getElementById('msgArea');
   const list=msgs[cid]||[];
@@ -919,10 +951,10 @@ function renderMsgs(cid){
     wrap.dataset.cid=cid;
     if(m.pinned)wrap.id=`pinmsg-${cid}-${idx}`;
 
-    // ── Action button (⋯) ──
-    const actionBtn=`<button class="msg-action-btn" onclick="openCtxMenu(event,${idx},'${cid}')" title="Message options">⋯</button>`;
+    // -- Action button (?) --
+    const actionBtn=`<button class="msg-action-btn" onclick="openCtxMenu(event,${idx},'${cid}')" title="Message options">?</button>`;
 
-    // ── Reply quote ──
+    // -- Reply quote --
     let replyQuote='';
     if(m.reply_to && m.reply_to_name && m.reply_to_text){
       // Server-side reply (loaded from API or incoming WebSocket)
@@ -940,10 +972,10 @@ function renderMsgs(cid){
       </div>`;
     }
 
-    // ── Pinned indicator ──
+    // -- Pinned indicator --
     const pinnedTag=m.pinned?`<div class="pinned-indicator">Pinned</div>`:'';
 
-    // ── Edited tag ──
+    // -- Edited tag --
     const editedTag=m.edited?`<span class="edited-tag">(edited)</span>`:'';
 
     console.log('Rendering message (debug):', m);
@@ -957,8 +989,10 @@ function renderMsgs(cid){
       </div>`;
     }
 
-    let inner='';
-    if(m.offer){
+    // -- Deleted message placeholder --
+    if(m.is_deleted){
+      inner = `<div class="bubble deleted-msg">${m.from === 'out' ? 'You deleted this message' : 'This message was deleted'}</div>`;
+    } else if(m.offer){
       const isPending=m.offer.status==='pending';
       const isDeclined=m.offer.status==='declined';
       const isAccepted=m.offer.status==='accepted';
@@ -968,9 +1002,9 @@ function renderMsgs(cid){
           <div class="offer-label">Price Offer</div>
           <div class="offer-amount">${m.offer.amount}</div>
           <div class="offer-item">${m.offer.item}</div>
-          ${isPending&&m.from==='in'?`<div class="offer-btns"><button class="offer-btn accept" onclick="acceptOffer(this,'${cid}')">✓ Accept</button><button class="offer-btn decline" onclick="declineOffer(this)">✕ Decline</button></div>`:''}
+          ${isPending&&m.from==='in'?`<div class="offer-btns"><button class="offer-btn accept" onclick="acceptOffer(this,'${cid}')">? Accept</button><button class="offer-btn decline" onclick="declineOffer(this)">? Decline</button></div>`:''}
           ${isAccepted?'<div class="offer-accepted">Offer accepted</div>':''}
-          ${isDeclined?'<div style="font-size:.74rem;color:var(--red);margin-top:.4rem">✕ Offer declined</div>':''}
+          ${isDeclined?'<div style="font-size:.74rem;color:var(--red);margin-top:.4rem">? Offer declined</div>':''}
         </div>
       </div>`;
     } else if(m.meetup_spot){
@@ -999,8 +1033,8 @@ function renderMsgs(cid){
         if(id && url && !vnAudioMap[id])
           vnAudioMap[id] = {url, duration, waveform};
       } else {
-        // Server-side voice_url — assign a stable id based on position
-        id = 'srv-'+cid+'-'+idx;
+        // Server-side voice_url — use the message ID for consistent lookup
+        id = m.id ? 'srv-'+cid+'-'+m.id : 'srv-'+cid+'-'+idx;
         url = m.voice_url;
         duration = m.voice_duration || 0;
         waveform = m.voice_waveform || generateFlatWaveform(28);
@@ -1053,18 +1087,78 @@ function renderMsgs(cid){
     }
     inner+=`${pinnedTag}<div class="msg-meta"><span class="msg-time">${m.time}</span>${tickHTML}</div>`;
     wrap.innerHTML=inner;
+    
+    // Add swipe-to-reply touch handlers
+    wrap.addEventListener('touchstart', handleTouchStart, {passive: true});
+    wrap.addEventListener('touchmove', handleTouchMove, {passive: false});
+    wrap.addEventListener('touchend', handleTouchEnd);
+    
     area.appendChild(wrap);
   });
 
   area.scrollTop=area.scrollHeight;
 }
 
-function escHtml(s){
-  if(s === null || s === undefined) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* -- SWIPE TO REPLY -- */
+let swipeStartX = 0;
+let swipeStartY = 0;
+let swipeTarget = null;
+let swipeThreshold = 50; // minimum distance to trigger reply
+
+function handleTouchStart(e){
+  if(e.touches.length > 1) return;
+  const touch = e.touches[0];
+  swipeStartX = touch.clientX;
+  swipeStartY = touch.clientY;
+  swipeTarget = e.currentTarget;
 }
 
-/* ── TYPING / RECORDING INDICATORS (incoming — shown for the OTHER user) ── */
+function handleTouchMove(e){
+  if(!swipeTarget) return;
+  const touch = e.touches[0];
+  const deltaX = touch.clientX - swipeStartX;
+  const deltaY = touch.clientY - swipeStartY;
+  
+  // Only consider horizontal swipes (ignore vertical scrolling)
+  if(Math.abs(deltaY) > Math.abs(deltaX) * 1.5) return;
+  
+  // Prevent scrolling when swiping horizontally
+  if(Math.abs(deltaX) > 10) {
+    e.preventDefault();
+  }
+}
+
+function handleTouchEnd(e){
+  if(!swipeTarget) return;
+  const touch = e.changedTouches[0];
+  const deltaX = touch.clientX - swipeStartX;
+  const deltaY = touch.clientY - swipeStartY;
+  
+  // Check if it's a valid horizontal swipe
+  if(Math.abs(deltaX) > swipeThreshold && Math.abs(deltaY) < 80) {
+    // Swipe right on incoming messages, left on outgoing messages
+    const isIncoming = swipeTarget.classList.contains('in');
+    const isOutgoing = swipeTarget.classList.contains('out');
+    
+    if((isIncoming && deltaX > 0) || (isOutgoing && deltaX < 0)) {
+      // Trigger reply
+      const idx = parseInt(swipeTarget.dataset.idx);
+      const cid = swipeTarget.dataset.cid;
+      startReply(idx, cid);
+    }
+  }
+  
+  swipeTarget = null;
+}
+
+/* -- TYPING / RECORDING INDICATORS (incoming — shown for the OTHER user) -- */
+
+function escHtml(s){
+  if(s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');
+}
+
+/* -- TYPING / RECORDING INDICATORS (incoming — shown for the OTHER user) -- */
 let typingTimeout=null;
 
 function showTyping(){
@@ -1096,7 +1190,7 @@ function removeTyping(){
   if(t)t.remove();
 }
 
-/* ── SEND TYPING SIGNAL (outgoing — tells the other user we're typing) ── */
+/* -- SEND TYPING SIGNAL (outgoing — tells the other user we're typing) -- */
 let _typingSent=false,_typingStopTimer=null;
 
 function sendTypingSignal(isTyping){
@@ -1120,7 +1214,7 @@ function onInputChange(){
   }
 }
 
-/* ── QUICK CHIPS ── */
+/* -- QUICK CHIPS -- */
 function renderChips(){
   const wrap=document.getElementById('quickChips');
   wrap.innerHTML=QUICK_REPLIES.map(r=>`<div class="chip" onclick="useChip('${r}')">${r}</div>`).join('');
@@ -1132,7 +1226,7 @@ function useChip(text){
   document.getElementById('msgInput').focus();
 }
 
-/* ── SEND MESSAGE ── */
+/* -- SEND MESSAGE -- */
 function sendMessage(){
   const inp=document.getElementById('msgInput');
   const text=inp.value.trim();
@@ -1169,7 +1263,7 @@ function toggleSend(){
   document.getElementById('sendBtn').disabled=!v;
 }
 
-/* ── OFFER / MEETUP SHORTCUTS ── */
+/* -- OFFER / MEETUP SHORTCUTS -- */
 function insertOffer(){
   document.getElementById('msgInput').value='I\'d like to offer you ';
   autoResize(document.getElementById('msgInput'));
@@ -1177,9 +1271,9 @@ function insertOffer(){
   document.getElementById('msgInput').focus();
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    PHOTO SHARING
-══════════════════════════════════════ */
+-------------------------------------- */
 let pendingPhotos=[];
 
 function triggerPhotoUpload(){
@@ -1240,9 +1334,9 @@ function previewFullImg(src){
   document.getElementById('photoPreviewModal').classList.add('open');
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    SCHEDULER
-══════════════════════════════════════ */
+-------------------------------------- */
 function openScheduler(){
   closeMoreMenu();
   // Default to tomorrow
@@ -1275,9 +1369,9 @@ function confirmSchedule(){
   sendMeetup(fullSpot, dateStr);
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    NEW CONVERSATION SEARCH
-══════════════════════════════════════ */
+-------------------------------------- */
 let _searchTimer = null;
 
 function openNewChat(){
@@ -1367,7 +1461,7 @@ async function startChat(user){
         username: user.username,
         avatar_url: user.avatar_url || '',
         listing: 'General',
-        listingEmoji: '💬',
+        listingEmoji: '??',
         price: '',
         time: 'Now',
         badge: 0,
@@ -1387,9 +1481,9 @@ async function startChat(user){
   }
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    MORE OPTIONS MENU
-══════════════════════════════════════ */
+-------------------------------------- */
 function toggleMoreMenu(){
   const menu=document.getElementById('moreMenu');
   const ov=document.getElementById('moreOverlay');
@@ -1411,7 +1505,7 @@ function closeMoreMenu(){
   document.getElementById('moreOverlay').classList.remove('open');
 }
 
-/* ── USER PROFILE SHEET ── */
+/* -- USER PROFILE SHEET -- */
 const UP_DATA={};
 
 function viewProfile(){
@@ -1477,7 +1571,7 @@ function clearChat(){
   puConfirm(
     `Clear all messages with <strong>${activeConv.name}</strong>? This cannot be undone.`,
     ()=>{ msgs[activeConv.id]=[]; renderMsgs(activeConv.id); showToast('Chat cleared'); },
-    {icon:'🗑️', okLabel:'Clear', danger:true}
+    {icon:'???', okLabel:'Clear', danger:true}
   );
 }
 
@@ -1500,7 +1594,7 @@ function blockUser(){
         document.getElementById('micBtn').disabled=false;
         showToast(`${activeConv.name} has been unblocked`);
       },
-      {icon:'🔓', okLabel:'Unblock'}
+      {icon:'??', okLabel:'Unblock'}
     );
   } else {
     // BLOCK
@@ -1518,7 +1612,7 @@ function blockUser(){
         document.getElementById('micBtn').disabled=true;
         showToast(`${activeConv.name} has been blocked`);
       },
-      {icon:'🚫', okLabel:'Block', danger:true}
+      {icon:'??', okLabel:'Block', danger:true}
     );
   }
 }
@@ -1571,9 +1665,9 @@ function submitReport(){
   },900);
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    LISTING MODAL
-══════════════════════════════════════ */
+-------------------------------------- */
 const LISTING_DETAILS={};
 
 function openListing(){
@@ -1601,7 +1695,7 @@ function closeListingModal(e){
   }
 }
 
-/* ── OFFER ACTIONS ── */
+/* -- OFFER ACTIONS -- */
 function acceptOffer(btn,cid){
   const card=btn.closest('.offer-card');
   card.querySelector('.offer-btns').innerHTML='<div class="offer-accepted">Offer accepted</div>';
@@ -1615,30 +1709,30 @@ function acceptOffer(btn,cid){
 function declineOffer(btn){
   const card=btn.closest('.offer-card');
   card.querySelector('.offer-btns').remove();
-  const d=document.createElement('div');d.style.cssText='font-size:.74rem;color:var(--red);margin-top:.4rem';d.textContent='✕ Offer declined';
+  const d=document.createElement('div');d.style.cssText='font-size:.74rem;color:var(--red);margin-top:.4rem';d.textContent='? Offer declined';
   card.appendChild(d);
   showToast('Offer declined.');
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    VOICE NOTE ENGINE — FIXED
-══════════════════════════════════════ */
+-------------------------------------- */
 let mediaRecorder=null,recChunks=[],recStream=null;
 let recTimerInterval=null,recSeconds=0;
 let analyserNode=null,audioCtxRec=null,animFrameRec=null;
 let waveformAmps=[];
-const vnAudioMap={};   // stableId → {url, duration, waveform}
+const vnAudioMap={};   // stableId ? {url, duration, waveform}
 let currentVnId=null;
 let currentAudio=null;
 let vnCounter=0;       // monotonic counter — never changes on re-render
 
-/* ── FORMAT DURATION ── */
+/* -- FORMAT DURATION -- */
 function fmtDur(secs){
   const s=Math.max(0,Math.round(secs));
   return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0');
 }
 
-/* ── TOGGLE RECORDING ── */
+/* -- TOGGLE RECORDING -- */
 async function toggleRecording(){
   if(mediaRecorder&&mediaRecorder.state==='recording'){
     stopAndSend();
@@ -1647,7 +1741,7 @@ async function toggleRecording(){
   }
 }
 
-/* ── START RECORDING ── */
+/* -- START RECORDING -- */
 async function startRecording(){
   try{
     recStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
@@ -1676,7 +1770,7 @@ async function startRecording(){
   mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size>0)recChunks.push(e.data);};
   mediaRecorder.start(100); // collect every 100ms
 
-  // UI → recording bar
+  // UI ? recording bar
   document.getElementById('inputRow').style.display='none';
   document.getElementById('recBar').classList.add('active');
 
@@ -1701,7 +1795,7 @@ async function startRecording(){
   animateRecWaveform();
 }
 
-/* ── LIVE WAVEFORM ANIMATION ── */
+/* -- LIVE WAVEFORM ANIMATION -- */
 function animateRecWaveform(){
   if(!analyserNode)return;
   const bars=document.getElementById('recWaveform').querySelectorAll('.rec-bar-el');
@@ -1723,7 +1817,7 @@ function animateRecWaveform(){
   animFrameRec=requestAnimationFrame(draw);
 }
 
-/* ── STOP AND SEND ── */
+/* -- STOP AND SEND -- */
 function stopAndSend(){
   if(!mediaRecorder||mediaRecorder.state==='inactive')return;
 
@@ -1760,7 +1854,7 @@ function stopAndSend(){
   cleanupRecording();
 }
 
-/* ── CANCEL ── */
+/* -- CANCEL -- */
 function cancelRecording(){
   if(chatSocket&&chatSocket.readyState===WebSocket.OPEN)
     chatSocket.send(JSON.stringify({type:'recording',is_recording:false}));
@@ -1772,7 +1866,7 @@ function cancelRecording(){
   cleanupRecording();
 }
 
-/* ── CLEANUP (UI + hardware only — not the recorder object) ── */
+/* -- CLEANUP (UI + hardware only — not the recorder object) -- */
 function cleanupRecording(){
   clearInterval(recTimerInterval);
   if(animFrameRec){cancelAnimationFrame(animFrameRec);animFrameRec=null;}
@@ -1783,26 +1877,47 @@ function cleanupRecording(){
   document.getElementById('inputRow').style.display='flex';
 }
 
-/* ── SEND VOICE NOTE ── */
+/* -- SEND VOICE NOTE -- */
 function sendVoiceNote(url,duration,waveform){
   if(!activeConv)return;
-  // Stable ID — never regenerated on re-render
+
+  // Optimistic local bubble so sender sees it immediately
   const stableId='vn'+(++vnCounter);
   vnAudioMap[stableId]={url,duration,waveform};
-
   const now=new Date();
   const time=now.toLocaleTimeString('en-GH',{hour:'numeric',minute:'2-digit',hour12:true});
-  msgs[activeConv.id].push({from:'out',voice:{stableId,duration,waveform},time});
-
+  msgs[activeConv.id].push({from:'out',voice:{stableId,url,duration,waveform},time});
   const ci=CONVS.find(x=>x.id===activeConv.id);
   if(ci)ci.time='Just now';
   renderMsgs(activeConv.id);
   renderConvList(document.getElementById('srchInput').value);
+
+  // Upload voice note to R2 before sending to receiver
+  if(chatSocket && chatSocket.readyState === WebSocket.OPEN){
+    // Convert blob URL to blob and upload
+    fetch(url)
+      .then(res => res.blob())
+      .then(blob => uploadToR2(blob, 'voice'))
+      .then(publicUrl => {
+        chatSocket.send(JSON.stringify({
+          message: null,
+          image_url: null,
+          voice_url: publicUrl,
+          voice_duration: duration,
+        }));
+      })
+      .catch(err => {
+        console.error('Voice note upload failed:', err);
+        showToast('Voice note upload failed — try again');
+      });
+  } else {
+    showToast('Not connected — voice note saved locally');
+  }
 }
 
-/* ══════════════════════════════════════
+/* --------------------------------------
    VOICE NOTE PLAYBACK ENGINE
-══════════════════════════════════════ */
+-------------------------------------- */
 
 const VN_SPEEDS = [1, 1.5, 2, 0.5];
 
@@ -1815,13 +1930,13 @@ function playVoice(id){
   const data=vnAudioMap[id];
   if(!data){showToast('Voice note not ready');return;}
 
-  // Same note playing → pause
+  // Same note playing ? pause
   if(currentVnId===id&&currentAudio&&!currentAudio.paused){
     currentAudio.pause();
     return;
   }
 
-  // Same note paused → resume
+  // Same note paused ? resume
   if(currentVnId===id&&currentAudio&&currentAudio.paused&&currentAudio.currentTime>0){
     currentAudio.playbackRate=data._speed||1;
     currentAudio.play().catch(()=>showToast('Playback failed'));
@@ -1830,7 +1945,7 @@ function playVoice(id){
     return;
   }
 
-  // Different note playing → reset it first
+  // Different note playing ? reset it first
   if(currentAudio&&!currentAudio.paused){
     currentAudio.pause();
     if(currentVnId&&currentVnId!==id)resetVnUI(currentVnId);
@@ -1869,26 +1984,34 @@ function playVoice(id){
     if(!audio.ended) data._resumeAt=audio.currentTime;
   };
 
-  audio.onended=()=>{
-    setPlayIcon(id);
-    document.getElementById('pwrap-'+id)?.classList.remove('playing');
-    if(data._raf){cancelAnimationFrame(data._raf);data._raf=null;}
-    data._resumeAt=0;
-    const prog=document.getElementById('prog-'+id);
-    const durEl=document.getElementById('dur-'+id);
-    if(prog)prog.style.width='0%';
-    if(durEl)durEl.textContent=fmtDur(data.duration);
-    resetVnBars(id);
-    currentVnId=null;currentAudio=null;
-  };
+   audio.onended=()=>{
+     setPlayIcon(id);
+     document.getElementById('pwrap-'+id)?.classList.remove('playing');
+     if(data._raf){cancelAnimationFrame(data._raf);data._raf=null;}
+     data._resumeAt=0;
+     const prog=document.getElementById('prog-'+id);
+     const durEl=document.getElementById('dur-'+id);
+     if(prog)prog.style.width='0%';
+     if(durEl)durEl.textContent=fmtDur(data.duration);
+     resetVnBars(id);
+     currentVnId=null;currentAudio=null;
+   };
 
-  audio.onerror=()=>{
-    showToast('Could not load voice note');
-    setPlayIcon(id);
-    currentAudio=null;currentVnId=null;
-  };
+   audio.onerror=(e)=>{
+     console.error('Voice note playback error:', e);
+     showToast('Could not load voice note');
+     setPlayIcon(id);
+     currentAudio=null;currentVnId=null;
+   };
 
-  audio.load();
+    // Start playback immediately - no need for load() as Audio() auto-loads
+    audio.play().catch(err=>{
+      console.error('Playback failed:', err);
+      showToast('Playback failed — try again');
+      setPlayIcon(id);
+      currentAudio=null;currentVnId=null;
+    });
+  }
 }
 
 function animateVnProgress(id){
@@ -1954,7 +2077,7 @@ function vnSeekLeave(id){
   if(tip)tip.style.display='none';
 }
 
-/* ── SPEED CONTROL ── */
+/* -- SPEED CONTROL -- */
 function cycleSpeed(id){
   const data=vnAudioMap[id];
   if(!data)return;
@@ -1997,7 +2120,7 @@ function resetVnBars(id){
   if(barsEl)barsEl.querySelectorAll('.vn-bar').forEach(b=>b.classList.remove('played'));
 }
 
-/* ── MIME TYPE SUPPORT ── */
+/* -- MIME TYPE SUPPORT -- */
 function getSupportedMime(){
   const types=[
     'audio/webm;codecs=opus',
@@ -2009,9 +2132,9 @@ function getSupportedMime(){
   ];
   return types.find(t=>{try{return MediaRecorder.isTypeSupported(t)}catch{return false}})||'';
 }
-/* ══════════════════════════════════════
+/* --------------------------------------
    MESSAGE CONTEXT MENU & ACTIONS
-══════════════════════════════════════ */
+-------------------------------------- */
 let ctxMsgIdx=null,ctxMsgCid=null;
 
 function openCtxMenu(e,idx,cid){
@@ -2101,18 +2224,80 @@ function ctxAction(action){
     inp.dataset.editCid=cid;
     document.getElementById('sendBtn').innerHTML=
       '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#0d0e11;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg>';
-    showToast('Editing — press ✓ to save');
+    showToast('Editing — press ? to save');
   }
   else if(action==='delete'){
-    puConfirm(
-      'Delete this message? This cannot be undone.',
-      ()=>{ msgs[cid].splice(idx,1); renderMsgs(cid); showToast('Message deleted'); },
-      {icon:'🗑️', okLabel:'Delete', danger:true}
-    );
+    // Show delete submenu with "Delete for me" and "Delete for everyone"
+    showDeleteSubmenu(idx, cid, m);
+  }
+  else if(action==='delete_for_me'){
+    msgs[cid].splice(idx,1);
+    renderMsgs(cid);
+    showToast('Message deleted');
+  }
+  else if(action==='delete_for_everyone'){
+    if(chatSocket && chatSocket.readyState === WebSocket.OPEN && m.id){
+      chatSocket.send(JSON.stringify({type:'delete', message_id: m.id}));
+      m.is_deleted = true;
+      renderMsgs(cid);
+      showToast('Message deleted for everyone');
+    } else {
+      showToast('Cannot delete — not connected or message not saved');
+    }
   }
 }
 
-/* ── REPLY ── */
+/* -- DELETE SUBMENU -- */
+function showDeleteSubmenu(idx, cid, m){
+  // Create a simple submenu for delete options
+  const existing = document.getElementById('deleteSubmenu');
+  if(existing) existing.remove();
+  
+  const submenu = document.createElement('div');
+  submenu.id = 'deleteSubmenu';
+  submenu.className = 'ctx-menu';
+  submenu.style.display = 'block';
+  submenu.style.left = '0';
+  submenu.style.top = '0';
+  
+  // Position near the message
+  const wrap = document.querySelector(`.msg-wrap[data-idx="${idx}"][data-cid="${cid}"]`);
+  if(wrap){
+    const rect = wrap.getBoundingClientRect();
+    submenu.style.left = (rect.right + 10) + 'px';
+    submenu.style.top = rect.top + 'px';
+  }
+  
+  submenu.innerHTML = `
+    <div class="ctx-item" onclick="ctxAction('delete_for_me');closeDeleteSubmenu();">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      Delete for me
+    </div>
+    <div class="ctx-item" onclick="ctxAction('delete_for_everyone');closeDeleteSubmenu();">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      Delete for everyone
+    </div>
+  `;
+  
+  document.body.appendChild(submenu);
+  
+  // Add overlay to close submenu
+  const overlay = document.createElement('div');
+  overlay.id = 'deleteSubmenuOverlay';
+  overlay.className = 'ctx-overlay';
+  overlay.style.display = 'block';
+  overlay.onclick = closeDeleteSubmenu;
+  document.body.appendChild(overlay);
+}
+
+function closeDeleteSubmenu(){
+  const submenu = document.getElementById('deleteSubmenu');
+  const overlay = document.getElementById('deleteSubmenuOverlay');
+  if(submenu) submenu.remove();
+  if(overlay) overlay.remove();
+}
+
+/* -- REPLY -- */
 let replyIdx=null,replyCid=null;
 
 function startReply(idx,cid){
@@ -2131,7 +2316,7 @@ function cancelReply(){
   document.getElementById('replyBanner').classList.remove('show');
 }
 
-/* ── OVERRIDE sendMessage to handle edit & reply ── */
+/* -- OVERRIDE sendMessage to handle edit & reply -- */
 const _origSendMsg=sendMessage;
 sendMessage=function(){
   const inp=document.getElementById('msgInput');
@@ -2190,50 +2375,6 @@ sendMessage=function(){
     showToast('Not connected to chat server');
   }
 };
-
-/* ── UPDATE MEDIA SEND ── */
-function sendPhotos(){
-  if(!pendingPhotos.length||!activeConv)return;
-  if(chatSocket && chatSocket.readyState === WebSocket.OPEN){
-    pendingPhotos.forEach(url => {
-      chatSocket.send(JSON.stringify({
-        message: null,
-        image_url: url,
-        voice_url: null
-      }));
-    });
-    pendingPhotos=[];
-    document.getElementById('photoPreviewModal').classList.remove('open');
-  } else {
-    showToast('Not connected');
-  }
-}
-
-function sendVoiceNote(url,duration,waveform){
-  if(!activeConv)return;
-
-  // Optimistic local bubble so sender sees it immediately
-  const stableId='vn'+(++vnCounter);
-  vnAudioMap[stableId]={url,duration,waveform};
-  const now=new Date();
-  const time=now.toLocaleTimeString('en-GH',{hour:'numeric',minute:'2-digit',hour12:true});
-  msgs[activeConv.id].push({from:'out',voice:{stableId,url,duration,waveform},time});
-  const ci=CONVS.find(x=>x.id===activeConv.id);
-  if(ci)ci.time='Just now';
-  renderMsgs(activeConv.id);
-  renderConvList(document.getElementById('srchInput').value);
-
-  if(chatSocket && chatSocket.readyState === WebSocket.OPEN){
-    chatSocket.send(JSON.stringify({
-      message: null,
-      image_url: null,
-      voice_url: url,
-      voice_duration: duration,
-    }));
-  } else {
-    showToast('Not connected — voice note saved locally');
-  }
-}
 
 function sendMeetup(spot, time){
   if(!activeConv)return;
@@ -2296,14 +2437,14 @@ function scrollToReply(cid,replyId){
 
 function setNi(el){document.querySelectorAll('.ni').forEach(i=>i.classList.remove('on'));el.classList.add('on');}
 
-/* ── TOAST ── */
+/* -- TOAST -- */
 let toastTimer;
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-/* ── RESIZE HANDLER ── */
+/* -- RESIZE HANDLER -- */
 window.addEventListener('resize',()=>{
   if(window.innerWidth>=768){
     document.getElementById('leftPanel').classList.remove('hidden');
@@ -2312,7 +2453,7 @@ window.addEventListener('resize',()=>{
   }
 });
 
-/* ── START ── */
+/* -- START -- */
 init();
 
 // Show own online dot in the header (we're always online while on this page)
@@ -2345,3 +2486,4 @@ init();
 <script src="{% static 'Base_app/js/notifications.js' %}"></script>
 </body>
 </html>
+

@@ -14,4 +14,6 @@ urlpatterns = [
     path('api/push-unsubscribe/', views.push_unsubscribe, name='push_unsubscribe'),
     path('api/notifications/', views.get_notifications, name='get_notifications'),
     path('api/notifications/mark-read/', views.mark_notifications_read, name='mark_notifications_read'),
+    path('api/delete-for-everyone/', views.delete_for_everyone, name='delete_for_everyone'),
+    path('api/delete-for-me/', views.delete_for_me, name='delete_for_me'),
 ]

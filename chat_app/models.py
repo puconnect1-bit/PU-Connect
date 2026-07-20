@@ -40,6 +40,8 @@ class Message(models.Model):
     
     # Metadata
     is_read = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -47,6 +49,7 @@ class Message(models.Model):
         indexes = [
             models.Index(fields=['conversation', 'timestamp']),
             models.Index(fields=['is_read']),
+            models.Index(fields=['is_deleted']),
         ]
 
     def __str__(self):

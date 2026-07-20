@@ -2,6 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
+from django.utils import timezone
 from .models import Conversation, Message
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -86,6 +87,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     )
                 return
 
+            # ── Delete message ──
+            if msg_type == 'delete':
+                message_id = data.get('message_id')
+                if message_id:
+                    deleted = await self.delete_message(message_id, user.id)
+                    if deleted:
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'message_deleted',
+                                'message_id': message_id,
+                            }
+                        )
+                return
+
             # ── Normal message ──
             reply_to_id = data.get('reply_to_id')
             saved_msg = await self.save_message(
@@ -161,12 +177,32 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'is_recording': event['is_recording'],
         }))
 
+    async def message_deleted(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'message_deleted',
+            'message_id': event['message_id'],
+        }))
+
     @database_sync_to_async
     def mark_messages_read(self, message_ids, reader_id):
         Message.objects.filter(
             id__in=message_ids,
             conversation_id=self.conv_id
         ).exclude(sender_id=reader_id).update(is_read=True)
+
+    @database_sync_to_async
+    def delete_message(self, message_id, user_id):
+        try:
+            msg = Message.objects.get(id=message_id, conversation_id=self.conv_id)
+            # Only allow sender to delete their own messages
+            if msg.sender_id == user_id:
+                msg.is_deleted = True
+                msg.deleted_at = timezone.now()
+                msg.save(update_fields=['is_deleted', 'deleted_at'])
+                return True
+            return False
+        except Message.DoesNotExist:
+            return False
 
     @database_sync_to_async
     def save_message(self, sender_id, text, image_url, voice_url, voice_duration, meetup_spot, meetup_time, reply_to_id=None):

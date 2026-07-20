@@ -4,6 +4,7 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.utils import timezone
 import json
 from .models import Conversation, Message, Notification, PushSubscription
 
@@ -83,6 +84,7 @@ def get_messages(request, conv_id):
                 'meetup_time': m.meetup_time if m.meetup_time else None,
                 'time': m.timestamp.strftime("%I:%M %p"),
                 'is_read': m.is_read,
+                'is_deleted': m.is_deleted,
                 'reply_to': m.reply_to_id,
             }
             if m.reply_to:
@@ -245,5 +247,55 @@ def push_unsubscribe(request):
         endpoint = data.get('endpoint', '').strip()
         PushSubscription.objects.filter(endpoint=endpoint).delete()
         return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
+@require_POST
+def delete_for_everyone(request):
+    """Delete a message for all participants (sender only)."""
+    try:
+        data = json.loads(request.body)
+        message_id = data.get('message_id')
+        if not message_id:
+            return JsonResponse({'status': 'error', 'message': 'message_id required'}, status=400)
+        
+        msg = Message.objects.get(id=message_id)
+        # Only sender can delete for everyone
+        if msg.sender != request.user:
+            return JsonResponse({'status': 'error', 'message': 'You can only delete your own messages'}, status=403)
+        
+        msg.is_deleted = True
+        msg.deleted_at = timezone.now()
+        msg.save(update_fields=['is_deleted', 'deleted_at'])
+        
+        return JsonResponse({'status': 'ok'})
+    except Message.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
+@require_POST
+def delete_for_me(request):
+    """Delete a message for the current user only (any participant can do this)."""
+    try:
+        data = json.loads(request.body)
+        message_id = data.get('message_id')
+        if not message_id:
+            return JsonResponse({'status': 'error', 'message': 'message_id required'}, status=400)
+        
+        # Check if user is a participant in the conversation
+        msg = Message.objects.select_related('conversation').get(id=message_id)
+        if not msg.conversation.participants.filter(id=request.user.id).exists():
+            return JsonResponse({'status': 'error', 'message': 'Not authorized'}, status=403)
+        
+        # For "delete for me", we just return success - the frontend will handle local removal
+        # In a more advanced implementation, you could create a DeletedMessage model to track this
+        return JsonResponse({'status': 'ok'})
+    except Message.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)

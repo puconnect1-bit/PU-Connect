@@ -230,10 +230,11 @@ def contact(request):
 
 
 ALLOWED_CONTENT_TYPES = {
-    'image': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-    'video': ['video/mp4', 'video/webm', 'video/quicktime'],
+  'image': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  'video': ['video/mp4', 'video/webm', 'video/quicktime'],
+  'voice': ['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'application/octet-stream'],
 }
-MAX_FILE_SIZES = {'image': 10 * 1024 * 1024, 'video': 100 * 1024 * 1024}  # 10 MB / 100 MB
+MAX_FILE_SIZES = {'image': 10 * 1024 * 1024, 'video': 100 * 1024 * 1024, 'voice': 10 * 1024 * 1024}  # 10 MB / 100 MB / 10 MB
 
 
 @login_required(login_url='auth:auth_view')
@@ -312,9 +313,9 @@ def r2_upload(request):
 
     from .models import SiteConfig
     _cfg = SiteConfig.get()
-    dynamic_max = {'image': 10 * 1024 * 1024, 'video': _cfg.max_video_size_mb * 1024 * 1024}
+    dynamic_max = {'image': 10 * 1024 * 1024, 'video': _cfg.max_video_size_mb * 1024 * 1024, 'voice': 10 * 1024 * 1024}
     if uploaded.size > dynamic_max[resource_type]:
-        limit_mb = 10 if resource_type == 'image' else _cfg.max_video_size_mb
+        limit_mb = 10 if resource_type in ('image', 'voice') else _cfg.max_video_size_mb
         return JsonResponse({'error': f'File too large (max {limit_mb} MB)'}, status=400)
 
     ext = os.path.splitext(uploaded.name)[1].lower() or '.bin'

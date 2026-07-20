@@ -375,6 +375,17 @@ button { font-family: inherit; }
 /* Edited tag */
 .edited-tag { font-size: .6rem; color: var(--m); margin-left: .3rem; font-style: italic; }
 
+/* ── Deleted message placeholder ── */
+.deleted-msg {
+  font-style: italic;
+  color: var(--m);
+  opacity: 0.7;
+}
+.deleted-msg::before {
+  content: "🗑️ ";
+  margin-right: 0.25rem;
+}
+
 /* ── Image bubbles ── */
 .img-bubble { max-width: 260px; border-radius: 7.5px; overflow: hidden; cursor: pointer; display: block; }
 .img-bubble img { width: 100%; display: block; border-radius: 7.5px; }
@@ -568,6 +579,33 @@ button { font-family: inherit; }
 [data-theme="light"] .vn-speed { background: rgba(0,0,0,.06); }
 .vn-speed.active { color: var(--teal); }
 
+/* ── Voice note playback enhancements ── */
+.vn-play.playing {
+  background: var(--teal) !important;
+}
+.vn-play.playing svg {
+  stroke: #fff !important;
+}
+.vn-progress-wrap.playing {
+  background: rgba(255,255,255,.25);
+}
+.msg.out .vn-progress-wrap.playing {
+  background: rgba(0,0,0,.15);
+}
+.vn-bubble.playing {
+  animation: pulse-vn 1.5s infinite;
+}
+@keyframes pulse-vn {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,168,132,.3); }
+  50% { box-shadow: 0 0 0 4px rgba(0,168,132,.1); }
+}
+.vn-seek-tooltip {
+  font-family: 'DM Sans', sans-serif;
+}
+.vn-dur.playing {
+  color: var(--teal);
+}
+
 /* ── Reply banner (in input bar) ── */
 .reply-banner {
   display: none; align-items: center; gap: .6rem;
@@ -609,6 +647,39 @@ button { font-family: inherit; }
 .msg-action-btn:hover { color: var(--teal); }
 .msg.in  .msg-action-btn { right: -14px; }
 .msg.out .msg-action-btn { left: -14px; }
+
+/* ── Swipe reply indicator ── */
+.swipe-reply-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .2s;
+  pointer-events: none;
+  z-index: 5;
+}
+.msg.in .swipe-reply-indicator {
+  right: -40px;
+}
+.msg.out .swipe-reply-indicator {
+  left: -40px;
+}
+.swipe-reply-indicator svg {
+  width: 16px;
+  height: 16px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 .pinned-indicator { font-size: .6rem; color: var(--teal); display: flex; align-items: center; gap: .25rem; padding: .1rem 0 0 .25rem; opacity: .8; }
 
 /* ── Context menu ── */
