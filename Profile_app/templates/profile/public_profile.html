@@ -219,6 +219,48 @@
   height: 14px; border-radius: 6px; background: var(--surface-2); margin-bottom: .5rem;
 }
 
+/* ── Avatar Lightbox ── */
+.avatar-lightbox {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,.8);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+  padding: 2rem;
+}
+.avatar-lightbox.open { opacity: 1; pointer-events: auto; }
+.avatar-lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 8px 40px rgba(0,0,0,.5);
+  transform: scale(.92);
+  transition: transform .25s var(--ease-out, cubic-bezier(.22,1,.36,1));
+}
+.avatar-lightbox.open .avatar-lightbox-content { transform: scale(1); }
+.avatar-lightbox-content img {
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto;
+}
+.avatar-lightbox-close {
+  position: absolute; top: .5rem; right: .5rem;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.5); border: none;
+  border-radius: 50%; color: #fff;
+  cursor: pointer; z-index: 10;
+  transition: background .15s;
+}
+.avatar-lightbox-close:hover { background: rgba(0,0,0,.75); }
+
 /* ── Toast ── */
 .pub-toast {
   position: fixed; bottom: 2rem; left: 50%;
@@ -257,7 +299,7 @@
 
   <!-- Avatar + action button -->
   <div class="pub-avatar-row">
-    <div class="pub-avatar" id="pubAvatar">
+    <div class="pub-avatar" id="pubAvatar" onclick="openAvatarLightbox()" style="cursor:pointer">
       <svg width="40%" height="40%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>
     <div id="actionArea"></div>
@@ -294,6 +336,15 @@
   </div>
   <div class="pub-grid" id="pubGrid"></div>
   <div class="pub-empty" id="pubEmpty" style="display:none">No active listings yet</div>
+  <!-- ── Avatar Lightbox ── -->
+  <div class="avatar-lightbox" id="avatarLightbox" onclick="closeAvatarLightbox(event)">
+    <div class="avatar-lightbox-content" onclick="event.stopPropagation()">
+      <button class="avatar-lightbox-close" onclick="closeAvatarLightbox()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <img id="avatarLightboxImg" src="" alt="Profile photo">
+    </div>
+  </div>
 </main>
 
 <!-- ── Follow List Modal ── -->
@@ -392,6 +443,22 @@
 const TARGET_USERNAME = '{{ target_username|escapejs }}';
 let _data = {};
 
+/* ── Avatar Lightbox ── */
+function openAvatarLightbox(){
+  const img = document.querySelector('#pubAvatar img');
+  if(!img || !img.src) return;
+  document.getElementById('avatarLightboxImg').src = img.src;
+  document.getElementById('avatarLightboxImg').alt = img.alt || 'Profile photo';
+  document.getElementById('avatarLightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAvatarLightbox(e){
+  if(e && e.target !== document.getElementById('avatarLightbox')) return;
+  document.getElementById('avatarLightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 /* ── Theme — handled by base/theme.html include below ── */
 
 /* ── Toast ── */
@@ -435,7 +502,7 @@ function openFollowModal(type){
         const followBtn = u.is_own ? '' : (
           u.is_following
             ? `<button class="follow-modal-btn following" data-username="${esc(u.username)}" onclick="event.preventDefault();event.stopPropagation();toggleFollowInModal(this,'${esc(u.username)}')">Following</button>`
-            : `<button class="follow-modal-btn" data-username="${esc(u.username)}" onclick="event.preventDefault();event.stopPropagation();toggleFollowInModal(this,'${esc(u.username)}')">Follow</button>`
+            : `<button class="follow-modal-btn" data-username="${esc(u.username)}" onclick="event.preventDefault();event.stopPropagation();toggleFollowInModal(this,'${esc(u.username)}')">${u.follows_you ? 'Follow Back' : 'Follow'}</button>`
         );
         return `<a class="follow-user-item" href="/profile/${esc(u.username)}/">
           <div class="follow-user-avatar">${avatarHtml}</div>

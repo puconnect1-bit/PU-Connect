@@ -924,7 +924,14 @@ function renderMsgs(cid){
 
     // ── Reply quote ──
     let replyQuote='';
-    if(m.replyTo!==undefined&&msgs[cid][m.replyTo]){
+    if(m.reply_to && m.reply_to_name && m.reply_to_text){
+      // Server-side reply (loaded from API or incoming WebSocket)
+      replyQuote=`<div class="reply-quote" onclick="scrollToReply('${cid}','${m.reply_to}')">
+        <div class="reply-quote-name">${escHtml(m.reply_to_name)}</div>
+        <div>${escHtml(String(m.reply_to_text).slice(0,80))}${m.reply_to_text.length>80?'…':''}</div>
+      </div>`;
+    } else if(m.replyTo!==undefined&&msgs[cid][m.replyTo]){
+      // Local reply (optimistic — array index based before server confirms)
       const orig=msgs[cid][m.replyTo];
       const origText=orig.text||(orig.voice?'Voice note':orig.images?'Photo':'…');
       replyQuote=`<div class="reply-quote" onclick="scrollToMsg(${m.replyTo},'${cid}')">
@@ -2165,7 +2172,13 @@ sendMessage=function(){
     image_url: null,
     voice_url: null
   };
-  // if(replyIdx!==null) msgObj.replyTo=replyIdx; // Backend doesn't support reply yet
+  // Send reply_to_id (the server-side Message.id of the message being replied to)
+  if(replyIdx!==null && replyCid===cid){
+    const replyMsg = msgs[cid][replyIdx];
+    if(replyMsg && replyMsg.id){
+      msgObj.reply_to_id = replyMsg.id;
+    }
+  }
 
   if(chatSocket && chatSocket.readyState === WebSocket.OPEN){
     chatSocket.send(JSON.stringify(msgObj));
@@ -2267,6 +2280,17 @@ function scrollToMsg(idx,cid){
     el.scrollIntoView({behavior:'smooth',block:'center'});
     el.style.outline='2px solid rgba(232,201,106,.5)';
     setTimeout(()=>el.style.outline='',900);
+  }
+}
+
+function scrollToReply(cid,replyId){
+  const el=document.querySelector(`.msg-wrap[data-cid="${cid}"]`); // find first
+  // Find the message by its server id
+  const idx=(msgs[cid]||[]).findIndex(m=>String(m.id)===String(replyId));
+  if(idx!==-1){
+    scrollToMsg(idx,cid);
+  } else {
+    showToast('Original message not found');
   }
 }
 

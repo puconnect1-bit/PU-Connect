@@ -87,6 +87,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 return
 
             # ── Normal message ──
+            reply_to_id = data.get('reply_to_id')
             saved_msg = await self.save_message(
                 user.id,
                 data.get('message'),
@@ -95,6 +96,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 data.get('voice_duration', 0),
                 data.get('meetup_spot'),
                 data.get('meetup_time'),
+                reply_to_id,
             )
 
             await self.channel_layer.group_send(
@@ -108,6 +110,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'voice_duration': data.get('voice_duration'),
                     'meetup_spot': data.get('meetup_spot'),
                     'meetup_time': data.get('meetup_time'),
+                    'reply_to_id': reply_to_id,
                     'sender_id': user.id,
                     'sender_username': user.username,
                     'timestamp': saved_msg.timestamp.strftime("%I:%M %p"),
@@ -127,6 +130,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'voice_duration': event.get('voice_duration'),
             'meetup_spot': event.get('meetup_spot'),
             'meetup_time': event.get('meetup_time'),
+            'reply_to_id': event.get('reply_to_id'),
             'sender_id': event['sender_id'],
             'sender_username': event['sender_username'],
             'timestamp': event['timestamp'],
@@ -165,10 +169,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         ).exclude(sender_id=reader_id).update(is_read=True)
 
     @database_sync_to_async
-    def save_message(self, sender_id, text, image_url, voice_url, voice_duration, meetup_spot, meetup_time):
+    def save_message(self, sender_id, text, image_url, voice_url, voice_duration, meetup_spot, meetup_time, reply_to_id=None):
         user = User.objects.get(id=sender_id)
         conv = Conversation.objects.get(id=self.conv_id)
         conv.save()
+        reply_to_msg = Message.objects.filter(id=reply_to_id).first() if reply_to_id else None
         msg = Message.objects.create(
             conversation=conv,
             sender=user,
@@ -178,5 +183,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             voice_duration=voice_duration or 0,
             meetup_spot=meetup_spot,
             meetup_time=meetup_time,
+            reply_to=reply_to_msg,
         )
         return msg

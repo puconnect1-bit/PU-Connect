@@ -63,15 +63,16 @@ def get_conversations(request):
         })
     return JsonResponse(data, safe=False)
 
+
 @login_required
 def get_messages(request, conv_id):
     """Returns all messages for a specific conversation."""
     try:
         conv = request.user.conversations.get(id=conv_id)
-        messages = conv.messages.all()
+        messages = conv.messages.select_related('reply_to__sender').all()
         data = []
         for m in messages:
-            data.append({
+            msg = {
                 'id': m.id,
                 'from': 'out' if m.sender == request.user else 'in',
                 'text': m.text,
@@ -82,7 +83,12 @@ def get_messages(request, conv_id):
                 'meetup_time': m.meetup_time if m.meetup_time else None,
                 'time': m.timestamp.strftime("%I:%M %p"),
                 'is_read': m.is_read,
-            })
+                'reply_to': m.reply_to_id,
+            }
+            if m.reply_to:
+                msg['reply_to_name'] = 'You' if m.reply_to.sender == request.user else m.reply_to.sender.get_full_name() or m.reply_to.sender.username
+                msg['reply_to_text'] = m.reply_to.text or ''
+            data.append(msg)
         return JsonResponse(data, safe=False)
     except Conversation.DoesNotExist:
         return JsonResponse({'error': 'Conversation not found'}, status=404)

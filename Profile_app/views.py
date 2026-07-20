@@ -521,6 +521,15 @@ def followers_list_for_user(request, username):
     else:
         followed_usernames = set()
 
+    # Pre-fetch who follows the current user (for "Follows you" badge)
+    if current_user.is_authenticated:
+        followers_of_current = set(
+            Follow.objects.filter(following=current_user)
+            .values_list('follower__username', flat=True)
+        )
+    else:
+        followers_of_current = set()
+
     data = []
     for f in rows:
         u = f.follower
@@ -536,6 +545,7 @@ def followers_list_for_user(request, username):
             'avatar': avatar,
             'is_verified': user_is_verified(u),
             'is_following': u.username in followed_usernames,
+            'follows_you': u.username in followers_of_current,
             'is_own': is_own,
         })
     return JsonResponse({'results': data})
@@ -559,6 +569,15 @@ def following_list_for_user(request, username):
     else:
         followed_usernames = set()
 
+    # Pre-fetch who follows the current user (for "Follows you" badge)
+    if current_user.is_authenticated:
+        followers_of_current = set(
+            Follow.objects.filter(following=current_user)
+            .values_list('follower__username', flat=True)
+        )
+    else:
+        followers_of_current = set()
+
     data = []
     for f in rows:
         u = f.following
@@ -574,6 +593,7 @@ def following_list_for_user(request, username):
             'avatar': avatar,
             'is_verified': user_is_verified(u),
             'is_following': u.username in followed_usernames,
+            'follows_you': u.username in followers_of_current,
             'is_own': is_own,
         })
     return JsonResponse({'results': data})

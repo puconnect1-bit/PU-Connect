@@ -22,11 +22,14 @@ class Conversation(models.Model):
 class Message(models.Model):
     """
     An individual message within a conversation.
-    Supports text, images, and voice notes.
+    Supports text, images, voice notes, and inline replies.
     """
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
     
+    # Reply — points to the message being replied to (WhatsApp-style)
+    reply_to = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
+
     # Content types
     text = models.TextField(blank=True, null=True)
     image_url = models.URLField(blank=True, null=True, max_length=500)
@@ -81,4 +84,3 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username}: {self.title}"
-
