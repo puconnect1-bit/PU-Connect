@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat_app', '0002_message_meetup_spot_message_meetup_time'),
+        ('chat_app', '0003_alter_message_meetup_time'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

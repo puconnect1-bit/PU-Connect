@@ -606,6 +606,68 @@ button { font-family: inherit; }
   color: var(--teal);
 }
 
+/* ── Chat Bottom Navigation ── */
+.chat-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--left-head);
+  border-top: 1px solid var(--b);
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+  box-shadow: 0 -2px 10px rgba(0,0,0,.15);
+}
+[data-theme="light"] .chat-bottom-nav {
+  box-shadow: 0 -1px 4px rgba(0,0,0,.08);
+}
+.chat-bottom-nav .nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--m);
+  text-decoration: none;
+  transition: all .15s;
+}
+.chat-bottom-nav .nav-item:hover {
+  background: rgba(255,255,255,.08);
+  color: var(--t);
+}
+[data-theme="light"] .chat-bottom-nav .nav-item:hover {
+  background: rgba(0,0,0,.06);
+}
+.chat-bottom-nav .nav-item.active {
+  color: var(--teal);
+  background: rgba(0,168,132,.12);
+}
+.chat-bottom-nav .nav-item svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.8;
+}
+
+/* Show bottom nav on mobile when chat list is visible */
+@media (max-width: 767px) {
+  .chat-bottom-nav {
+    display: flex;
+  }
+  .left {
+    padding-bottom: 56px;
+  }
+}
+
+/* Hide bottom nav when chat is open (right panel visible) */
+.right.visible ~ .chat-bottom-nav,
+.left.hidden ~ .chat-bottom-nav {
+  display: none;
+}
+
 /* ── Reply banner (in input bar) ── */
 .reply-banner {
   display: none; align-items: center; gap: .6rem;
