@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chat_app', '0009_alter_pushsubscription_options_alter_conversation_id_and_more'),
+        ('chat_app', '0008_message_reply_to_and_more'),
     ]
 
     operations = [
