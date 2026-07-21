@@ -115,6 +115,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 reply_to_id,
             )
 
+            # Resolve reply metadata for broadcast
+            reply_to_name = None
+            reply_to_text = None
+            if saved_msg.reply_to:
+                reply_to_name = 'You' if saved_msg.reply_to.sender_id == user.id else saved_msg.reply_to.sender.username
+                reply_to_text = saved_msg.reply_to.text or ''
+
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -127,9 +134,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'meetup_spot': data.get('meetup_spot'),
                     'meetup_time': data.get('meetup_time'),
                     'reply_to_id': reply_to_id,
+                    'reply_to_name': reply_to_name,
+                    'reply_to_text': reply_to_text,
                     'sender_id': user.id,
                     'sender_username': user.username,
                     'timestamp': saved_msg.timestamp.strftime("%I:%M %p"),
+                    'is_read': False,
+                    'is_deleted': False,
                 }
             )
         except Exception as e:
@@ -147,9 +158,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'meetup_spot': event.get('meetup_spot'),
             'meetup_time': event.get('meetup_time'),
             'reply_to_id': event.get('reply_to_id'),
+            'reply_to_name': event.get('reply_to_name'),
+            'reply_to_text': event.get('reply_to_text'),
             'sender_id': event['sender_id'],
             'sender_username': event['sender_username'],
             'timestamp': event['timestamp'],
+            'is_read': event.get('is_read', False),
+            'is_deleted': event.get('is_deleted', False),
         }))
 
     async def read_receipt(self, event):

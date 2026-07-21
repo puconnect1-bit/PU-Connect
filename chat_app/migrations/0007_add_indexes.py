@@ -12,34 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='pushsubscription',
-            options={},
-        ),
-        migrations.AlterField(
-            model_name='conversation',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        ),
-        migrations.AlterField(
-            model_name='message',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        ),
-        migrations.AlterField(
-            model_name='notification',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
-        ),
         migrations.AlterField(
             model_name='pushsubscription',
             name='auth',
             field=models.TextField(),
-        ),
-        migrations.AlterField(
-            model_name='pushsubscription',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
         ),
         migrations.AlterField(
             model_name='pushsubscription',
