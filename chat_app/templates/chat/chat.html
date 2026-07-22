@@ -55,25 +55,6 @@
 
      <div class="conv-list" id="convList"></div>
  
-     <!-- Bottom Navigation (only visible on chat list view) -->
-     <nav class="chat-bottom-nav" id="chatBottomNav">
-       <a href="{% url 'dashboard:dashboard' %}" class="nav-item" title="Home">
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-       </a>
-       <a href="{% url 'listings:listings' %}" class="nav-item" title="Listings">
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-       </a>
-       <a href="{% url 'chat:chat' %}" class="nav-item active" title="Messages">
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-       </a>
-       <a href="{% url 'reels:reels' %}" class="nav-item" title="Reels">
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 1-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-       </a>
-       <a href="{% url 'profile:public_profile' request.user.username %}" class="nav-item" title="Profile">
-         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-       </a>
-     </nav>
- 
    </div>
 
   <!-- --------------------------------
@@ -128,7 +109,7 @@
           <div class="pinned-bar-label">Pinned Message</div>
           <div class="pinned-bar-text" id="pinnedBarText"></div>
         </div>
-        <button class="pinned-bar-close" onclick="unpinMessage(event)" title="Unpin">?</button>
+        <button class="pinned-bar-close" onclick="unpinMessage(event)" title="Unpin"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
       </div>
 
       <!-- Messages -->
@@ -147,7 +128,7 @@
             <div class="reply-name" id="replyName"></div>
             <div class="reply-text" id="replyText"></div>
           </div>
-          <button class="reply-close" onclick="cancelReply()" title="Cancel reply">?</button>
+          <button class="reply-close" onclick="cancelReply()" title="Cancel reply"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
         <!-- Normal input row -->
         <div class="input-row" id="inputRow">
@@ -178,7 +159,7 @@
         </div>
         <!-- Recording bar — shown while recording -->
         <div class="rec-bar" id="recBar">
-          <button class="rec-cancel" onclick="cancelRecording()" title="Cancel">?</button>
+          <button class="rec-cancel" onclick="cancelRecording()" title="Cancel"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           <div class="rec-indicator">
             <div class="rec-dot"></div>
             <span class="rec-timer" id="recTimer">0:00</span>
@@ -193,6 +174,26 @@
     </div>
 
   </div>
+
+  <!-- Bottom Navigation (shell-level, visible on mobile chat list) -->
+  <nav class="chat-bottom-nav" id="chatBottomNav">
+    <a href="{% url 'dashboard:dashboard' %}" class="nav-item" title="Home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    </a>
+    <a href="{% url 'listings:listings' %}" class="nav-item" title="Listings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </a>
+    <a href="{% url 'chat:chat' %}" class="nav-item active" title="Messages">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </a>
+    <a href="{% url 'reels:reels' %}" class="nav-item" title="Reels">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 1-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+    </a>
+    <a href="{% url 'profile:public_profile' request.user.username %}" class="nav-item" title="Profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </a>
+  </nav>
+
 </div>
 
 <!-- --------------------------------------
@@ -307,7 +308,7 @@
 -------------------------------------- -->
 <div class="modal-overlay" id="photoPreviewModal" onclick="closePhotoPreview(event)">
   <div class="photo-preview-sheet" onclick="event.stopPropagation()">
-    <button class="photo-close-btn" onclick="closePhotoPreview()">?</button>
+    <button class="photo-close-btn" onclick="closePhotoPreview()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <div class="photo-preview-grid" id="photoPreviewGrid"></div>
     <div class="photo-preview-actions">
       <button class="modal-cancel-btn" onclick="closePhotoPreview()">Cancel</button>
@@ -981,7 +982,7 @@ function renderMsgs(cid){
     if(m.pinned)wrap.id=`pinmsg-${cid}-${idx}`;
 
     // -- Action button (?) --
-    const actionBtn=`<button class="msg-action-btn" onclick="openCtxMenu(event,${idx},'${cid}')" title="Message options">?</button>`;
+    const actionBtn=`<button class="msg-action-btn" onclick="openCtxMenu(event,${idx},'${cid}')" title="Message options"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button>`;
 
     // -- Reply quote --
     let replyQuote='';
@@ -1086,8 +1087,9 @@ function renderMsgs(cid){
           <div class="vn-footer">
             <span class="vn-dur" id="dur-${id}">${duration?fmtDur(duration):'0:00'}</span>
             <span class="vn-speed" id="spd-${id}" onclick="cycleSpeed('${id}')" title="Playback speed">1×</span>
-          </div>
-        </div>
+  </div>
+
+  </div>
       </div>`;
     } else if(m.from==='system'){
       const pill=document.createElement('div');
@@ -1182,7 +1184,7 @@ function handleTouchEnd(e){
 
 function escHtml(s){
   if(s === null || s === undefined) return '';
-  return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 /* -- TYPING / RECORDING INDICATORS (incoming — shown for the OTHER user) -- */

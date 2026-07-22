@@ -657,9 +657,6 @@ button { font-family: inherit; }
   .chat-bottom-nav {
     display: flex;
   }
-  .left {
-    padding-bottom: 56px;
-  }
 }
 
 /* Hide bottom nav when chat is open (right panel visible) */
@@ -1080,21 +1077,11 @@ button { font-family: inherit; }
    RESPONSIVE — DESKTOP (>=768px)
 ══════════════════════════════════════ */
 @media (min-width: 768px) {
-  .botnav { display: none; }
   .left { min-width: 300px; max-width: var(--sw); }
   body { padding-bottom: 0; }
 }
 
 /* ── Bottom nav (mobile) ── */
-.botnav { position: fixed; bottom: 13px; left: 50%; transform: translateX(-50%); z-index: 400; display: none; align-items: center; justify-content: space-around; width: min(500px, calc(100vw - 26px)); height: var(--bh); padding: 0 .7rem; background: var(--card); border: 1px solid var(--b); border-radius: 40px; box-shadow: var(--sh); }
-.ni { display: flex; flex-direction: column; align-items: center; gap: .2rem; cursor: pointer; position: relative; flex: 1; padding: .5rem 0; background: none; border: none; color: var(--m); font-family: inherit; transition: color .2s; -webkit-tap-highlight-color: transparent; }
-.ni:hover, .ni.on { color: var(--teal); }
-.ni svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.ni.on::after { content: ''; position: absolute; bottom: .12rem; width: 4px; height: 4px; border-radius: 50%; background: var(--teal); }
-.nlbl { font-size: .58rem; font-weight: 500; }
-.nadd { width: 50px; height: 50px; border-radius: 50%; background: var(--teal); border: 3px solid var(--card); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: transform .2s; }
-.nadd:hover { transform: scale(1.1); }
-.nadd svg { width: 21px; height: 21px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Notification dot */
 .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: var(--red); border-radius: 50%; border: 2px solid var(--left-head); }
