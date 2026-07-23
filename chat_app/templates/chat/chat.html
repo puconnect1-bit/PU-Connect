@@ -175,24 +175,8 @@
 
   </div>
 
-  <!-- Bottom Navigation (shell-level, visible on mobile chat list) -->
-  <nav class="chat-bottom-nav" id="chatBottomNav">
-    <a href="{% url 'dashboard:dashboard' %}" class="nav-item" title="Home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-    </a>
-    <a href="{% url 'listings:listings' %}" class="nav-item" title="Listings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    </a>
-    <a href="{% url 'chat:chat' %}" class="nav-item active" title="Messages">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    </a>
-    <a href="{% url 'reels:reels' %}" class="nav-item" title="Reels">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 1-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-    </a>
-    <a href="{% url 'profile:public_profile' request.user.username %}" class="nav-item" title="Profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </a>
-  </nav>
+  <!-- Bottom Navigation (consistent with dashboard) -->
+  {% include 'dash/bot_nav.html' with active_page='chat' %}
 
 </div>
 
@@ -935,7 +919,7 @@ function openConv(c){
     document.getElementById('leftPanel').classList.add('hidden');
     document.getElementById('rightPanel').classList.add('visible');
     // Hide bottom nav when chat is open
-    const bottomNav = document.getElementById('chatBottomNav');
+    const bottomNav = document.querySelector('.bot-nav');
     if(bottomNav) bottomNav.style.display = 'none';
   }
 
@@ -947,8 +931,8 @@ function showLeft(){
   document.getElementById('leftPanel').classList.remove('hidden');
   document.getElementById('rightPanel').classList.remove('visible');
   // Show bottom nav when returning to chat list
-  const bottomNav = document.getElementById('chatBottomNav');
-  if(bottomNav) bottomNav.style.display = 'flex';
+  const bottomNav = document.querySelector('.bot-nav');
+  if(bottomNav) bottomNav.style.display = '';
   lastConvY=0;
 }
 
