@@ -961,7 +961,8 @@ button { font-family: inherit; }
   body { overflow: hidden; height: 100dvh; }
   .shell { position: relative; overflow: hidden; height: 100dvh; }
   /* Full-screen left panel on mobile */
-  .left { position: absolute; inset: 0; width: 100%; z-index: 10; transform: translateX(0); transition: transform .3s var(--ease); }
+  .left { position: absolute; inset: 0; width: 100%; z-index: 10; transform: translateX(0); transition: transform .3s var(--ease); padding-bottom: 56px; }
+  .left .conv-list { padding-bottom: 56px; }
   .left.hidden { transform: translateX(-100%); }
   /* Full-screen right panel on mobile */
   .right { position: absolute; inset: 0; width: 100%; z-index: 20; transform: translateX(100%); height: 100dvh; padding-bottom: 0; transition: transform .3s var(--ease); }
