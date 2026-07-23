@@ -175,8 +175,31 @@
 
   </div>
 
-  <!-- Bottom Navigation (consistent with dashboard) -->
-  {% include 'dash/bot_nav.html' with active_page='chat' %}
+  <!-- Bottom Navigation (consistent with dashboard style) -->
+  <nav class="bot-nav" id="botNav" aria-label="Bottom navigation">
+    <a href="{% url 'dashboard:dashboard' %}" class="bn-item" aria-label="Browse">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Browse</span>
+    </a>
+    <a href="{% url 'search:search' %}" class="bn-item" aria-label="Search">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <div class="bn-post-wrap">
+      <a href="{% url 'listings:create' %}" class="bn-post" aria-label="Post listing">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </a>
+      <span class="bn-post-label">Post</span>
+    </div>
+    <a href="{% url 'chat:chat' %}" class="bn-item active" aria-label="Messages">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span>Chat</span>
+    </a>
+    <a href="{% url 'profile:profile' %}" class="bn-item" aria-label="Profile">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </nav>
 
 </div>
 
