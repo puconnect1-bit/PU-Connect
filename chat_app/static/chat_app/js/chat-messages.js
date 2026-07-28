@@ -83,10 +83,11 @@ function renderMsgs(cid) {
 
     // -- Reply quote --
     let replyQuote = '';
-    if (m.reply_to && m.reply_to_name && m.reply_to_text) {
+    if (m.reply_to && m.reply_to_name) {
+      const replyText = m.reply_to_text || '';
       replyQuote = `<div class="reply-quote" onclick="scrollToReply('${cid}','${m.reply_to}')">
         <div class="reply-quote-name">${escHtml(m.reply_to_name)}</div>
-        <div>${escHtml(String(m.reply_to_text).slice(0, 80))}${m.reply_to_text.length > 80 ? '…' : ''}</div>
+        <div>${escHtml(String(replyText).slice(0, 80))}${replyText.length > 80 ? '…' : ''}</div>
       </div>`;
     } else if (m.reply_to_idx !== undefined && msgs[cid] && msgs[cid][m.reply_to_idx]) {
       // Local optimistic reply — reference by index

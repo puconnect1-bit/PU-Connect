@@ -124,14 +124,42 @@ function ctxAction(action) {
     msgs[cid].splice(idx, 1);
     renderMsgs(cid);
     showToast('Message deleted');
+    // Also call the REST API so the server knows
+    if (m.id) {
+      const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+      fetch('/chat/api/delete-for-me/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+        body: JSON.stringify({ message_id: m.id }),
+      }).catch(() => {});
+    }
   } else if (action === 'delete_for_everyone') {
-    if (chatSocket && chatSocket.readyState === WebSocket.OPEN && m.id) {
-      chatSocket.send(JSON.stringify({ type: 'delete', message_id: m.id }));
-      m.is_deleted = true;
-      renderMsgs(cid);
-      showToast('Message deleted for everyone');
+    if (m.id) {
+      // Try WebSocket first
+      if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+        chatSocket.send(JSON.stringify({ type: 'delete', message_id: m.id }));
+        m.is_deleted = true;
+        renderMsgs(cid);
+        showToast('Message deleted for everyone');
+      } else {
+        // Fallback to REST API
+        const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+        fetch('/chat/api/delete-for-everyone/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+          body: JSON.stringify({ message_id: m.id }),
+        }).then(res => {
+          if (res.ok) {
+            m.is_deleted = true;
+            renderMsgs(cid);
+            showToast('Message deleted for everyone');
+          } else {
+            showToast('Failed to delete message');
+          }
+        }).catch(() => showToast('Cannot delete — not connected'));
+      }
     } else {
-      showToast('Cannot delete — not connected or message not saved');
+      showToast('Cannot delete — message not saved yet');
     }
   }
 }
