@@ -35,15 +35,8 @@ def get_conversations(request):
     )
     me = request.user
     data = []
-    # Fetch online status for all partners at once
-    from Base_app.models import user_is_online
-    partner_ids = []
     for c in convs:
         other_user = next((p for p in c.participants.all() if p.id != me.id), None)
-        partner_ids.append(other_user.id if other_user else None)
-    
-    # We don't have a user_is_online helper, so keep 'away' as default
-    # The frontend overrides this via the presence WebSocket
         last_msg = c.messages.select_related('sender').last()
         avatar_url = ''
         try:
