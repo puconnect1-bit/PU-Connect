@@ -107,6 +107,44 @@ function connectWebSocket(cid) {
       return;
     }
 
+    // -- Message pinned/unpinned --
+    if (data.type === 'message_pinned') {
+      if (msgs[cid]) {
+        // Unpin all first, then pin the target if is_pinned is true
+        msgs[cid].forEach(m => m.pinned = false);
+        if (data.is_pinned) {
+          const target = msgs[cid].find(m => String(m.id) === String(data.message_id));
+          if (target) {
+            target.pinned = true;
+            const preview = target.text || (target.voice_url ? 'Voice note' : target.image_url ? 'Photo' : 'Message');
+            document.getElementById('pinnedBarText').textContent = preview;
+            const pb = document.getElementById('pinnedBar');
+            pb.classList.add('show');
+            pb.dataset.idx = msgs[cid].indexOf(target);
+          }
+        } else {
+          document.getElementById('pinnedBar').classList.remove('show');
+        }
+        if (activeConv?.id === cid) renderMsgs(cid);
+      }
+      return;
+    }
+
+    // -- Message edited --
+    if (data.type === 'message_edited') {
+      const editId = data.message_id;
+      if (msgs[cid]) {
+        msgs[cid].forEach(m => {
+          if (m.id == editId) {
+            m.text = data.new_text;
+            m.edited = true;
+          }
+        });
+        if (activeConv?.id === cid) renderMsgs(cid);
+      }
+      return;
+    }
+
     // -- Message deleted (delete for everyone) --
     if (data.type === 'message_deleted') {
       const delId = data.message_id;
@@ -176,7 +214,13 @@ function connectWebSocket(cid) {
 
   chatSocket.onclose = function (e) {
     console.warn('Chat socket closed — reconnecting in 3s...');
-    setTimeout(() => { if (activeConv) connectWebSocket(activeConv.id); }, 3000);
+    const closedCid = cid; // Capture the conversation ID at connection time
+    setTimeout(() => {
+      // Only reconnect if the user is still in this same conversation
+      if (activeConv && activeConv.id === closedCid) {
+        connectWebSocket(closedCid);
+      }
+    }, 3000);
   };
 }
 

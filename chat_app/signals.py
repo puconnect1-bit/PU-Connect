@@ -50,8 +50,8 @@ def create_message_notification(sender, instance, created, **kwargs):
     if not created:
         return
 
-    recipient = instance.conversation.participants.exclude(id=instance.sender.id).first()
-    if not recipient:
+    recipients = instance.conversation.participants.exclude(id=instance.sender.id)
+    if not recipients.exists():
         return
 
     preview = (
@@ -62,18 +62,20 @@ def create_message_notification(sender, instance, created, **kwargs):
     sender_name = instance.sender.get_full_name() or instance.sender.username
 
     # 1. In-app notification (shown in the bell dropdown)
-    Notification.objects.create(
-        user=recipient,
-        type='message',
-        title=f"New message from {sender_name}",
-        content=preview,
-        link='/chat/',
-    )
+    for recipient in recipients:
+        Notification.objects.create(
+            user=recipient,
+            type='message',
+            title=f"New message from {sender_name}",
+            content=preview,
+            link='/chat/',
+        )
 
     # 2. Web Push notification (shown as OS notification)
-    _send_web_push(
-        user=recipient,
-        title=f"New message from {sender_name}",
-        body=preview,
-        url='/chat/',
-    )
+    for recipient in recipients:
+        _send_web_push(
+            user=recipient,
+            title=f"New message from {sender_name}",
+            body=preview,
+            url='/chat/',
+        )

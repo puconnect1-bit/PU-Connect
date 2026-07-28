@@ -45,11 +45,25 @@ function renderMsgs(cid) {
   area.appendChild(sys);
 
   list.forEach((m, idx) => {
-    // Date separator
+    // Date separator — use the message timestamp if available
     const timeStr = m.time || '';
-    const datePart = timeStr.includes('Yesterday') ? 'Yesterday'
-      : timeStr.includes('Mon') ? 'Monday'
-      : timeStr.includes('Sun') ? 'Sunday' : 'Today';
+    // We can't reliably derive the date from just a time string like "02:30 PM"
+    // So just use "Today" for all messages from the API since the server only sends times.
+    // The datePart is a flawed heuristic; keep it as a simple grouping label.
+    let datePart = 'Today';
+    if (timeStr.includes('Yesterday')) {
+      datePart = 'Yesterday';
+    } else if (timeStr.includes(',')) {
+      // If the time includes a comma, it likely has a full date like "Mon, 02:30 PM"
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const fullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      for (let i = 0; i < dayNames.length; i++) {
+        if (timeStr.startsWith(dayNames[i])) {
+          datePart = fullDays[i];
+          break;
+        }
+      }
+    }
     if (datePart !== lastDate) {
       lastDate = datePart;
       const sep = document.createElement('div');
@@ -74,10 +88,11 @@ function renderMsgs(cid) {
         <div class="reply-quote-name">${escHtml(m.reply_to_name)}</div>
         <div>${escHtml(String(m.reply_to_text).slice(0, 80))}${m.reply_to_text.length > 80 ? '…' : ''}</div>
       </div>`;
-    } else if (m.replyTo !== undefined && msgs[cid][m.replyTo]) {
-      const orig = msgs[cid][m.replyTo];
+    } else if (m.reply_to_idx !== undefined && msgs[cid] && msgs[cid][m.reply_to_idx]) {
+      // Local optimistic reply — reference by index
+      const orig = msgs[cid][m.reply_to_idx];
       const origText = orig.text || (orig.voice ? 'Voice note' : orig.images ? 'Photo' : '…');
-      replyQuote = `<div class="reply-quote" onclick="scrollToMsg(${m.replyTo},'${cid}')">
+      replyQuote = `<div class="reply-quote" onclick="scrollToMsg(${m.reply_to_idx},'${cid}')">
         <div class="reply-quote-name">${orig.from === 'out' ? 'You' : activeConv?.name || 'Them'}</div>
         <div>${escHtml(String(origText).slice(0, 80))}${origText.length > 80 ? '…' : ''}</div>
       </div>`;
@@ -251,13 +266,22 @@ function sendMessage() {
   const text = inp.value.trim();
   if (!text || !activeConv) return;
 
-  // -- Edit mode --
+  // -- Edit mode -- send edit via WebSocket so the other participant sees it
   if (inp.dataset.editIdx !== undefined && inp.dataset.editIdx !== '') {
     const idx = parseInt(inp.dataset.editIdx);
     const cid = inp.dataset.editCid;
     if (msgs[cid] && msgs[cid][idx]) {
-      msgs[cid][idx].text = text;
-      msgs[cid][idx].edited = true;
+      const origMsg = msgs[cid][idx];
+      origMsg.text = text;
+      origMsg.edited = true;
+      // Send edit over WebSocket if we have a real message ID
+      if (origMsg.id && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+        chatSocket.send(JSON.stringify({
+          type: 'edit',
+          message_id: origMsg.id,
+          new_text: text,
+        }));
+      }
     }
     inp.value = '';
     inp.style.height = '';
@@ -277,15 +301,24 @@ function sendMessage() {
   const cid = activeConv.id;
   if (!msgs[cid]) msgs[cid] = [];
 
-  // Optimistic push
+  // Build optimistic message with reply data
+  const isReply = replyIdx !== null && replyCid === cid;
   const optMsg = { from: 'out', text, time, pending: true };
+  if (isReply) {
+    optMsg.reply_to_idx = replyIdx;
+    const replyMsg = msgs[cid][replyIdx];
+    if (replyMsg) {
+      optMsg.reply_to_name = replyMsg.from === 'out' ? 'You' : activeConv?.name || 'Them';
+      optMsg.reply_to_text = replyMsg.text || (replyMsg.voice ? 'Voice note' : replyMsg.images ? 'Photo' : '…');
+    }
+  }
   msgs[cid].push(optMsg);
   renderMsgs(cid);
 
   const msgObj = { message: text, image_url: null, voice_url: null };
 
   // Attach reply_to_id if replying
-  if (replyIdx !== null && replyCid === cid) {
+  if (isReply) {
     const replyMsg = msgs[cid][replyIdx];
     if (replyMsg && replyMsg.id) {
       msgObj.reply_to_id = replyMsg.id;

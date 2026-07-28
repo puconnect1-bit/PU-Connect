@@ -83,8 +83,9 @@ function ctxAction(action) {
       });
   } else if (action === 'pin') {
     const wasPinned = m.pinned;
+    const newPinned = !wasPinned;
     msgs[cid].forEach(msg => msg.pinned = false);
-    if (!wasPinned) {
+    if (newPinned) {
       m.pinned = true;
       const preview = m.text || (m.voice ? 'Voice note' : m.images ? 'Photo' : 'Message');
       document.getElementById('pinnedBarText').textContent = preview;
@@ -97,6 +98,14 @@ function ctxAction(action) {
       showToast('Message unpinned');
     }
     renderMsgs(cid);
+    // Sync pin state via WebSocket
+    if (m.id && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+      chatSocket.send(JSON.stringify({
+        type: 'pin',
+        message_id: m.id,
+        is_pinned: newPinned,
+      }));
+    }
   } else if (action === 'edit') {
     if (!m.text) return;
     const inp = document.getElementById('msgInput');

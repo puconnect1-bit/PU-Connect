@@ -9,7 +9,12 @@
  */
 function escHtml(s) {
   if (s === null || s === undefined) return '';
-  return String(s).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+  return String(s)
+    .replace(/\x26/g, '\x26amp;')
+    .replace(/\x3c/g, '\x26lt;')
+    .replace(/\x3e/g, '\x26gt;')
+    .replace(/"/g, '\x26quot;')
+    .replace(/'/g, '\x26#039;');
 }
 
 /**

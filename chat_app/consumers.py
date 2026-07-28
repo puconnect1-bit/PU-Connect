@@ -17,6 +17,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.close()
                 return
 
+            # Verify user is a participant of this conversation
+            if not await self._is_participant(user.id, self.conv_id):
+                print(f"Connection rejected: User {user.username} is not a participant of conversation {self.conv_id}")
+                await self.close()
+                return
+
             print(f"User {user.username} connecting to {self.room_group_name}")
 
             # Join room group
@@ -85,6 +91,39 @@ class ChatConsumer(AsyncWebsocketConsumer):
                             'reader_id': user.id,
                         }
                     )
+                return
+
+            # ── Pin/Unpin message ──
+            if msg_type == 'pin':
+                message_id = data.get('message_id')
+                is_pinned = bool(data.get('is_pinned'))
+                if message_id:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'message_pinned',
+                            'message_id': message_id,
+                            'is_pinned': is_pinned,
+                            'sender_id': user.id,
+                        }
+                    )
+                return
+
+            # ── Edit message ──
+            if msg_type == 'edit':
+                message_id = data.get('message_id')
+                new_text = data.get('new_text', '')
+                if message_id and new_text:
+                    edited = await self.edit_message(message_id, user.id, new_text)
+                    if edited:
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'message_edited',
+                                'message_id': message_id,
+                                'new_text': new_text,
+                            }
+                        )
                 return
 
             # ── Delete message ──
@@ -192,6 +231,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'is_recording': event['is_recording'],
         }))
 
+    async def message_pinned(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'message_pinned',
+            'message_id': event['message_id'],
+            'is_pinned': event['is_pinned'],
+            'sender_id': event['sender_id'],
+        }))
+
+    async def message_edited(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'message_edited',
+            'message_id': event['message_id'],
+            'new_text': event['new_text'],
+        }))
+
     async def message_deleted(self, event):
         await self.send(text_data=json.dumps({
             'type': 'message_deleted',
@@ -199,11 +253,33 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
 
     @database_sync_to_async
+    def _is_participant(self, user_id, conv_id):
+        try:
+            return Conversation.objects.filter(
+                id=conv_id, participants__id=user_id
+            ).exists()
+        except Exception:
+            return False
+
+    @database_sync_to_async
     def mark_messages_read(self, message_ids, reader_id):
         Message.objects.filter(
             id__in=message_ids,
             conversation_id=self.conv_id
         ).exclude(sender_id=reader_id).update(is_read=True)
+
+    @database_sync_to_async
+    def edit_message(self, message_id, user_id, new_text):
+        try:
+            msg = Message.objects.get(id=message_id, conversation_id=self.conv_id)
+            # Only allow sender to edit their own messages
+            if msg.sender_id == user_id:
+                msg.text = new_text
+                msg.save(update_fields=['text'])
+                return True
+            return False
+        except Message.DoesNotExist:
+            return False
 
     @database_sync_to_async
     def delete_message(self, message_id, user_id):
@@ -223,7 +299,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, sender_id, text, image_url, voice_url, voice_duration, meetup_spot, meetup_time, reply_to_id=None):
         user = User.objects.get(id=sender_id)
         conv = Conversation.objects.get(id=self.conv_id)
-        conv.save()
         reply_to_msg = Message.objects.filter(id=reply_to_id).first() if reply_to_id else None
         msg = Message.objects.create(
             conversation=conv,
