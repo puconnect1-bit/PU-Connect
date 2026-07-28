@@ -185,11 +185,23 @@ function connectWebSocket(cid) {
 
     if (!msgs[cid]) msgs[cid] = [];
 
-    // Resolve optimistic pending message
-    if (m.from === 'out' && m.text) {
-      const pendingIdx = msgs[cid].findIndex(msg => msg.pending && msg.text === m.text);
+    // Resolve optimistic pending message — match by text, voice_url, or image_url
+    if (m.from === 'out') {
+      let pendingIdx = -1;
+      if (m.text) {
+        pendingIdx = msgs[cid].findIndex(msg => msg.pending && msg.text === m.text);
+      } else if (m.voice_url) {
+        // Match the first pending voice note (no text to compare, so match any pending voice)
+        pendingIdx = msgs[cid].findIndex(msg => msg.pending && msg.voice);
+      } else if (m.image_url) {
+        pendingIdx = msgs[cid].findIndex(msg => msg.pending && msg.image_url);
+      }
       if (pendingIdx !== -1) {
         msgs[cid][pendingIdx] = m;
+        // Preserve the local voice blob URL for playback
+        if (m.voice_url && !m.voice) {
+          m.voice = { url: m.voice_url, duration: m.voice_duration || 0, waveform: generateFlatWaveform(28) };
+        }
         if (activeConv?.id === cid) renderMsgs(cid);
         fetchConversations();
         return;

@@ -538,72 +538,130 @@ button { font-family: inherit; }
 .rec-send:hover { transform: scale(1.07); }
 .rec-send svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 
-/* ── Voice note bubble ── */
+/* ── Voice note bubble (WhatsApp modern style) ── */
 .vn-bubble {
-  display: flex; align-items: center; gap: .65rem;
-  padding: .55rem .75rem; border-radius: 7.5px;
-  min-width: min(210px, 70vw); max-width: min(280px, 80vw); position: relative;
+  display: flex; align-items: center; gap: .5rem;
+  padding: .35rem .5rem .35rem .35rem; border-radius: 7.5px;
+  min-width: min(200px, 65vw); max-width: min(270px, 75vw); position: relative;
   box-shadow: 0 1px 1px rgba(0,0,0,.2);
 }
 .msg.in  .vn-bubble { background: var(--bubble-in); border-top-left-radius: 0; }
 .msg.out .vn-bubble { background: var(--bubble-out); border-top-right-radius: 0; }
+
+/* Play button — larger, with circular progress ring */
 .vn-play {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: rgba(255,255,255,.15); border: none; cursor: pointer;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--teal); border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: transform .12s;
+  flex-shrink: 0; transition: transform .12s, background .2s;
+  position: relative;
 }
-[data-theme="light"] .vn-play { background: rgba(0,0,0,.08); }
+.msg.in .vn-play { background: var(--teal); }
+.msg.out .vn-play { background: rgba(255,255,255,.2); }
+[data-theme="light"] .msg.out .vn-play { background: rgba(0,0,0,.12); }
 .vn-play:hover { transform: scale(1.08); }
-.vn-play svg { width: 14px; height: 14px; stroke: var(--t); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-left: 2px; }
+.vn-play svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-left: 2px; }
 .vn-play.playing svg { margin-left: 0; }
-.vn-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .32rem; }
-.vn-bars { display: flex; align-items: center; gap: 2px; height: 26px; overflow: hidden; cursor: pointer; }
-.vn-bar { width: 3px; border-radius: 2px; background: rgba(255,255,255,.2); flex-shrink: 0; transition: background .08s; }
+/* Circular progress ring around play button */
+.vn-play-ring {
+  position: absolute; inset: -2px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.15);
+  pointer-events: none;
+}
+.vn-play-ring-progress {
+  position: absolute; inset: -2px; border-radius: 50%;
+  border: 2px solid var(--teal);
+  pointer-events: none;
+  clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 50% 0%);
+  opacity: 0;
+  transition: opacity .2s;
+}
+.vn-play.playing .vn-play-ring-progress { opacity: 1; }
+
+.vn-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .2rem; }
+
+/* Waveform — taller, more prominent bars */
+.vn-bars { display: flex; align-items: center; gap: 2px; height: 32px; overflow: hidden; cursor: pointer; padding: 2px 0; }
+.vn-bar { width: 3px; border-radius: 2px; background: rgba(255,255,255,.2); flex-shrink: 0; transition: background .1s, height .1s; }
 .msg.out .vn-bar { background: rgba(255,255,255,.25); }
 [data-theme="light"] .msg.out .vn-bar { background: rgba(0,0,0,.12); }
-.vn-bar.played { background: rgba(255,255,255,.7) !important; }
-[data-theme="light"] .vn-bar.played { background: var(--teal) !important; }
-.vn-seek { position: relative; cursor: pointer; }
-.vn-seek-tooltip { position: absolute; top: -22px; background: var(--card); color: var(--t); font-size: .62rem; padding: .15rem .35rem; border-radius: 5px; pointer-events: none; white-space: nowrap; display: none; z-index: 10; box-shadow: var(--sh); }
-.vn-seek:hover .vn-seek-tooltip { display: block; }
-.vn-progress-wrap { height: 3px; background: rgba(255,255,255,.15); border-radius: 2px; cursor: pointer; overflow: visible; position: relative; }
-[data-theme="light"] .vn-progress-wrap { background: rgba(0,0,0,.1); }
-.vn-progress { height: 100%; border-radius: 2px; background: rgba(255,255,255,.8); width: 0%; transition: width .08s linear; pointer-events: none; }
-[data-theme="light"] .msg.out .vn-progress { background: var(--teal); }
-.vn-progress-thumb { position: absolute; top: 50%; right: -4px; transform: translateY(-50%); width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.9); pointer-events: none; opacity: 0; transition: opacity .15s; }
-.vn-progress-wrap:hover .vn-progress-thumb, .vn-progress-wrap.playing .vn-progress-thumb { opacity: 1; }
-.vn-footer { display: flex; align-items: center; justify-content: space-between; }
-.vn-dur { font-size: .6875rem; color: var(--m); font-variant-numeric: tabular-nums; min-width: 28px; }
-.vn-speed { font-size: .6rem; font-weight: 600; color: var(--m); background: rgba(255,255,255,.1); border: none; border-radius: 4px; padding: .1rem .3rem; cursor: pointer; user-select: none; transition: color .15s; }
-[data-theme="light"] .vn-speed { background: rgba(0,0,0,.06); }
-.vn-speed.active { color: var(--teal); }
+.vn-bar.played { background: var(--teal) !important; }
+[data-theme="light"] .msg.in .vn-bar.played { background: var(--teal) !important; }
+[data-theme="light"] .msg.out .vn-bar.played { background: rgba(0,0,0,.45) !important; }
 
-/* ── Voice note playback enhancements ── */
+.vn-seek { position: relative; cursor: pointer; }
+.vn-seek-tooltip { 
+  position: absolute; top: -24px; 
+  background: var(--card); color: var(--t); 
+  font-size: .62rem; padding: .15rem .4rem; border-radius: 5px; 
+  pointer-events: none; white-space: nowrap; display: none; z-index: 10; 
+  box-shadow: var(--sh); font-family: 'DM Sans', sans-serif;
+}
+.vn-seek:hover .vn-seek-tooltip { display: block; }
+
+/* Progress bar — thicker, with rounded caps */
+.vn-progress-wrap { 
+  height: 4px; background: rgba(255,255,255,.12); border-radius: 3px; 
+  cursor: pointer; overflow: visible; position: relative; 
+}
+[data-theme="light"] .vn-progress-wrap { background: rgba(0,0,0,.08); }
+.vn-progress { 
+  height: 100%; border-radius: 3px; 
+  background: var(--teal); width: 0%; 
+  transition: width .08s linear; pointer-events: none; 
+}
+.msg.out .vn-progress { background: rgba(255,255,255,.7); }
+[data-theme="light"] .msg.out .vn-progress { background: rgba(0,0,0,.35); }
+.vn-progress-thumb { 
+  position: absolute; top: 50%; right: -5px; 
+  transform: translateY(-50%); 
+  width: 10px; height: 10px; border-radius: 50%; 
+  background: var(--teal); pointer-events: none; 
+  opacity: 0; transition: opacity .15s; 
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.msg.out .vn-progress-thumb { background: rgba(255,255,255,.9); }
+.vn-progress-wrap:hover .vn-progress-thumb, 
+.vn-progress-wrap.playing .vn-progress-thumb { opacity: 1; }
+
+/* Footer — time + speed */
+.vn-footer { 
+  display: flex; align-items: center; justify-content: space-between; 
+  margin-top: .05rem;
+}
+.vn-dur { 
+  font-size: .6875rem; color: var(--m); 
+  font-variant-numeric: tabular-nums; min-width: 32px; 
+  font-weight: 500;
+}
+.vn-dur.playing { color: var(--teal); }
+.vn-speed { 
+  font-size: .6rem; font-weight: 700; color: var(--m); 
+  background: rgba(255,255,255,.08); border: none; 
+  border-radius: 4px; padding: .12rem .35rem; 
+  cursor: pointer; user-select: none; transition: all .15s; 
+  letter-spacing: .3px;
+}
+[data-theme="light"] .vn-speed { background: rgba(0,0,0,.05); }
+.vn-speed:hover { background: rgba(255,255,255,.15); color: var(--t); }
+[data-theme="light"] .vn-speed:hover { background: rgba(0,0,0,.1); }
+.vn-speed.active { color: var(--teal); background: rgba(0,168,132,.12); }
+
+/* Playing state enhancements */
 .vn-play.playing {
+  background: var(--teal) !important;
+}
+.msg.out .vn-play.playing {
   background: var(--teal) !important;
 }
 .vn-play.playing svg {
   stroke: #fff !important;
 }
 .vn-progress-wrap.playing {
-  background: rgba(255,255,255,.25);
+  background: rgba(255,255,255,.2);
 }
 .msg.out .vn-progress-wrap.playing {
-  background: rgba(0,0,0,.15);
-}
-.vn-bubble.playing {
-  animation: pulse-vn 1.5s infinite;
-}
-@keyframes pulse-vn {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0,168,132,.3); }
-  50% { box-shadow: 0 0 0 4px rgba(0,168,132,.1); }
-}
-.vn-seek-tooltip {
-  font-family: 'DM Sans', sans-serif;
-}
-.vn-dur.playing {
-  color: var(--teal);
+  background: rgba(0,0,0,.12);
 }
 
 

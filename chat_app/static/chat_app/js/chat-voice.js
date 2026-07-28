@@ -175,12 +175,13 @@ function cleanupRecording() {
 function sendVoiceNote(url, duration, waveform) {
   if (!activeConv) return;
 
-  // Optimistic local bubble
+  // Optimistic local bubble with pending flag so the server response can resolve it
   const stableId = 'vn' + (++vnCounter);
   vnAudioMap[stableId] = { url, duration, waveform };
   const now = new Date();
   const time = now.toLocaleTimeString('en-GH', { hour: 'numeric', minute: '2-digit', hour12: true });
-  msgs[activeConv.id].push({ from: 'out', voice: { stableId, url, duration, waveform }, time });
+  const optMsg = { from: 'out', voice: { stableId, url, duration, waveform }, time, pending: true };
+  msgs[activeConv.id].push(optMsg);
   const ci = CONVS.find(x => x.id === activeConv.id);
   if (ci) ci.time = 'Just now';
   renderMsgs(activeConv.id);
