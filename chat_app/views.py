@@ -187,10 +187,22 @@ def search_users(request):
     return JsonResponse(data, safe=False)
 
 @login_required
+def unread_message_count(request):
+    """Return the number of conversations with unread messages."""
+    total = Conversation.objects.filter(
+        participants=request.user,
+        messages__is_read=False,
+        messages__is_deleted=False,
+    ).exclude(
+        messages__sender=request.user
+    ).distinct().count()
+    return JsonResponse({'unread_count': total})
+
+@login_required
 def get_notifications(request):
-    """Return the 20 most recent notifications for the current user."""
-    notifs = Notification.objects.filter(user=request.user)[:20]
-    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+    """Return the 20 most recent system notifications for the current user (excludes chat messages)."""
+    notifs = Notification.objects.filter(user=request.user, type='system')[:20]
+    unread_count = Notification.objects.filter(user=request.user, type='system', is_read=False).count()
     data = []
     for n in notifs:
         data.append({

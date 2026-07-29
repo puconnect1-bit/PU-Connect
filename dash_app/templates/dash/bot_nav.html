@@ -83,9 +83,10 @@
     <span class="bn-post-label">Post</span>
   </div>
 
-  <a href="{% if user.is_authenticated %}{% url 'chat:chat' %}{% else %}{% url 'auth:auth_view' %}{% endif %}" class="bn-item {% if active_page == 'chat' %}active{% endif %}" aria-label="Messages">
+  <a href="{% if user.is_authenticated %}{% url 'chat:chat' %}{% else %}{% url 'auth:auth_view' %}{% endif %}" class="bn-item {% if active_page == 'chat' %}active{% endif %}" id="bnChatBtn" aria-label="Messages" style="position:relative">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
     <span>Chat</span>
+    <span class="bn-chat-badge" id="bnChatBadge" style="display:none;position:absolute;top:2px;right:2px;min-width:16px;height:16px;border-radius:10px;background:var(--red);color:#fff;font-size:.55rem;font-weight:700;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--surface,#1c1f27);line-height:1"></span>
   </a>
 
   <a href="{% if user.is_authenticated %}{% url 'profile:profile' %}{% else %}{% url 'auth:auth_view' %}{% endif %}" class="bn-item {% if active_page == 'profile' %}active{% endif %}" aria-label="Profile">
@@ -93,3 +94,31 @@
     <span>{% if user.is_authenticated %}Profile{% else %}Login{% endif %}</span>
   </a>
 </nav>
+
+{% if user.is_authenticated %}
+<script>
+(function() {
+  'use strict';
+  const badge = document.getElementById('bnChatBadge');
+  if (!badge) return;
+
+  async function fetchUnreadCount() {
+    try {
+      const res = await fetch('/chat/api/unread-count/');
+      if (!res.ok) return;
+      const data = await res.json();
+      const count = data.unread_count || 0;
+      if (count > 0) {
+        badge.textContent = count > 9 ? '9+' : String(count);
+        badge.style.display = 'flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    } catch (e) { /* silent */ }
+  }
+
+  fetchUnreadCount();
+  setInterval(fetchUnreadCount, 10000);
+})();
+</script>
+{% endif %}

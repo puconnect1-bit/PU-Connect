@@ -95,10 +95,23 @@
       </div>
       <div class="np-list"><div class="np-empty">Loading…</div></div>`;
 
-    // Append after bell button's parent or to body
-    const anchor = btn.closest('header, nav, .top-bar, .dtp-bar, .pub-bar') || document.body;
-    anchor.style.position = anchor.style.position || 'relative';
-    anchor.appendChild(panel);
+    // Append to body and use fixed positioning for reliable display on all pages
+    document.body.appendChild(panel);
+
+    // Position the panel relative to the bell button
+    function positionPanel() {
+      const rect = btn.getBoundingClientRect();
+      panel.style.position = 'fixed';
+      panel.style.top = (rect.bottom + 8) + 'px';
+      panel.style.right = (window.innerWidth - rect.right) + 'px';
+      panel.style.left = 'auto';
+      panel.style.bottom = 'auto';
+    }
+
+    // Reposition on scroll and resize
+    positionPanel();
+    window.addEventListener('scroll', positionPanel, { passive: true });
+    window.addEventListener('resize', positionPanel, { passive: true });
 
     // Close on outside click
     document.addEventListener('click', function outsideClick(e) {
