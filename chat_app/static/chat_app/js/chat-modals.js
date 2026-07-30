@@ -179,66 +179,84 @@ function viewProfile() {
   closeMoreMenu();
   if (!activeConv) return;
   const c = activeConv;
-  const d = UP_DATA[c.id] || {
-    username: c.name.toLowerCase().replace(' ', '_'),
-    bio: 'Campus marketplace member.',
-    faculty: '—',
-    location: '—',
-    listings: 0,
-    sold: 0,
-    rating: '—',
-    badges: [{ cls: 'gold', t: 'Verified Student' }],
-    items: [],
-  };
+  const username = c.username;
+  if (!username) { showToast('Cannot load profile'); return; }
 
-  // Avatar
-  const avEl = document.getElementById('upAvatar');
-  avEl.className = 'up-avatar ' + c.avCls;
-  document.getElementById('upAvatarInitials').innerHTML = AV_SVG;
-  document.getElementById('upAvatarInitials').style.display = '';
-  document.getElementById('upAvatarImg').style.display = 'none';
-
-  // Online dot
-  const myOnline = localStorage.getItem('pu-online-status') !== 'offline';
-  const theirOnline = c.status === 'online' && myOnline;
-  const dot = document.getElementById('upOnlineDot');
-  dot.className = 'up-online-dot' + (theirOnline ? '' : ' offline');
-
-  // Text fields
+  // Show modal immediately with loading state
   document.getElementById('upName').textContent = c.name;
-  document.getElementById('upUsername').textContent = '@' + d.username;
-  document.getElementById('upBio').textContent = d.bio;
-
-  // Tags
-  document.getElementById('upTags').innerHTML =
-    `<span class="up-tag">${d.location}</span>` +
-    `<span class="up-tag">${d.faculty}</span>` +
-    (theirOnline
-      ? '<span class="up-tag" style="color:#22c55e">Online now</span>'
-      : '<span class="up-tag">Last seen recently</span>');
-
-  // Stats
-  document.getElementById('upListings').textContent = d.listings;
-  document.getElementById('upSold').textContent = d.sold;
-  document.getElementById('upRating').textContent = d.rating;
-
-  // Badges
-  document.getElementById('upBadges').innerHTML = d.badges.map(b =>
-    `<span class="up-badge ${b.cls}">${b.t}</span>`
-  ).join('');
-
-  // Mini listing cards
-  document.getElementById('upListingsScroll').innerHTML = d.items.map(item =>
-    `<div class="up-lcard">
-      <div class="up-lcard-img">${item.e}</div>
-      <div class="up-lcard-body">
-        <div class="up-lcard-name">${item.n}</div>
-        <div class="up-lcard-price">${item.p}</div>
-      </div>
-    </div>`
-  ).join('');
-
+  document.getElementById('upUsername').textContent = '@' + username;
+  document.getElementById('upBio').textContent = '';
+  document.getElementById('upListings').textContent = '';
+  document.getElementById('upSold').textContent = '';
+  document.getElementById('upRating').textContent = '';
+  document.getElementById('upBadges').innerHTML = '';
+  document.getElementById('upListingsScroll').innerHTML = '';
   document.getElementById('userProfileModal').classList.add('open');
+
+  // Fetch real profile data from the public profile API
+  fetch(`/profile/api/user/${encodeURIComponent(username)}/`)
+    .then(res => res.ok ? res.json() : Promise.reject())
+    .then(d => {
+      // Avatar
+      const avEl = document.getElementById('upAvatar');
+      const initialsEl = document.getElementById('upAvatarInitials');
+      const imgEl = document.getElementById('upAvatarImg');
+      if (d.avatarSrc) {
+        imgEl.src = d.avatarSrc;
+        imgEl.style.display = 'block';
+        initialsEl.style.display = 'none';
+      } else {
+        initialsEl.innerHTML = AV_SVG;
+        initialsEl.style.display = '';
+        imgEl.style.display = 'none';
+      }
+
+      // Online dot
+      const myOnline = localStorage.getItem('pu-online-status') !== 'offline';
+      const theirOnline = c.status === 'online' && myOnline;
+      const dot = document.getElementById('upOnlineDot');
+      dot.className = 'up-online-dot' + (theirOnline ? '' : ' offline');
+
+      // Text fields — all from API
+      document.getElementById('upName').textContent = d.name;
+      document.getElementById('upUsername').textContent = '@' + d.username;
+      document.getElementById('upBio').textContent = d.bio;
+
+      // Tags — from API data
+      const tags = [];
+      if (d.location) tags.push(`<span class="up-tag">${escHtml(d.location)}</span>`);
+      if (d.faculty) tags.push(`<span class="up-tag">${escHtml(d.faculty)}</span>`);
+      if (theirOnline) tags.push('<span class="up-tag" style="color:#22c55e">Online now</span>');
+      document.getElementById('upTags').innerHTML = tags.join('');
+
+      // Stats — from API
+      document.getElementById('upListings').textContent = d.posts_count;
+      document.getElementById('upSold').textContent = d.sold_count;
+      document.getElementById('upRating').textContent = d.followers_count;
+
+      // Badges — from API data only
+      const badges = [];
+      if (d.is_verified) badges.push({ cls: 'gold', t: 'Verified Student' });
+      if (d.follows_you) badges.push({ cls: 'teal', t: 'Follows you' });
+      document.getElementById('upBadges').innerHTML = badges.map(b =>
+        `<span class="up-badge ${b.cls}">${b.t}</span>`
+      ).join('');
+
+      // Mini listing cards — from API
+      const items = d.active_listings || [];
+      document.getElementById('upListingsScroll').innerHTML = items.slice(0, 6).map(item =>
+        `<div class="up-lcard">
+          <div class="up-lcard-img">${item.image_url ? `<img src="${item.image_url}" alt="" style="width:100%;height:100%;object-fit:cover"/>` : ''}</div>
+          <div class="up-lcard-body">
+            <div class="up-lcard-name">${escHtml(item.title)}</div>
+            <div class="up-lcard-price">${item.contact_for_price ? '' : (parseFloat(item.price) || 0).toLocaleString()}</div>
+          </div>
+        </div>`
+      ).join('');
+    })
+    .catch(() => {
+      // Silent fail — modal stays open with empty fields
+    });
 }
 
 function closeUserProfile(e) {
