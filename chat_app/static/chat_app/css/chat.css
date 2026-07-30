@@ -845,7 +845,9 @@ button { font-family: inherit; }
   background: var(--search-bg); border: none;
   border-radius: 8px; padding: .65rem .85rem;
   color: var(--t); font-family: inherit; font-size: .875rem;
-  outline: none; transition: box-shadow .22s; -webkit-appearance: none;
+  outline: none; transition: box-shadow .22s;
+  -webkit-appearance: none;
+  appearance: none;
   color-scheme: dark;
 }
 [data-theme="light"] .sched-inp { color-scheme: light; }
