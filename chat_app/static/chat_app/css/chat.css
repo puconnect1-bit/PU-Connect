@@ -938,6 +938,15 @@ button { font-family: inherit; }
 .up-actions { display: flex; gap: .6rem; margin-top: .25rem; }
 .up-btn-msg { flex: 1; padding: .75rem; border-radius: 10px; background: var(--teal); color: #fff; border: none; font-family: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; transition: opacity .2s; }
 .up-btn-msg:hover { opacity: .88; }
+
+/* ── Star ratings ── */
+.star { color: rgba(134,150,160,.35); font-size: .85rem; line-height: 1; }
+.star.filled { color: #00a884; }
+.star.half { color: #00a884; opacity: .7; }
+.star-input { display: flex; gap: .15rem; }
+.star-input-star { color: rgba(134,150,160,.35); font-size: 1.1rem; cursor: pointer; transition: color .12s, transform .12s; line-height: 1; }
+.star-input-star:hover { color: #00a884; transform: scale(1.15); }
+.star-input-star.selected { color: #00a884; }
 .up-btn-ghost { padding: .72rem 1rem; border-radius: 10px; background: var(--card2); color: var(--m); border: none; font-family: inherit; font-size: .84rem; font-weight: 500; cursor: pointer; transition: background .2s; white-space: nowrap; display: flex; align-items: center; gap: .4rem; }
 .up-btn-ghost svg { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .up-btn-ghost:hover { background: var(--inp); color: var(--t); }

@@ -232,7 +232,38 @@ function viewProfile() {
       // Stats — from API
       document.getElementById('upListings').textContent = d.posts_count;
       document.getElementById('upSold').textContent = d.sold_count;
-      document.getElementById('upRating').textContent = d.followers_count;
+
+      // Rating — show stars if available
+      const ratingEl = document.getElementById('upRating');
+      if (d.avg_rating) {
+        const fullStars = Math.floor(d.avg_rating);
+        const halfStar = d.avg_rating % 1 >= 0.5;
+        let starsHTML = '';
+        for (let i = 0; i < 5; i++) {
+          if (i < fullStars) starsHTML += '<span class="star filled">★</span>';
+          else if (i === fullStars && halfStar) starsHTML += '<span class="star half">★</span>';
+          else starsHTML += '<span class="star">★</span>';
+        }
+        ratingEl.innerHTML = starsHTML + ` <span style="font-size:.7rem;color:var(--m);margin-left:.3rem">${d.avg_rating} (${d.review_count})</span>`;
+      } else {
+        ratingEl.innerHTML = '<span style="color:var(--m);font-size:.7rem">No ratings yet</span>';
+      }
+
+      // Rating input — allow user to rate if not own profile and not already rated
+      const ratingInputEl = document.getElementById('upRatingInput');
+      if (ratingInputEl && !d.is_own && d.user_rating === null) {
+        ratingInputEl.style.display = 'flex';
+        ratingInputEl.innerHTML = `
+          <span style="font-size:.7rem;color:var(--m);margin-right:.5rem">Your rating:</span>
+          <div class="star-input" id="starInput">
+            ${[1,2,3,4,5].map(i => `<span class="star-input-star" data-rating="${i}" onclick="submitRating(${i})">★</span>`).join('')}
+          </div>
+          <input type="text" id="ratingComment" placeholder="Add a comment (optional)" maxlength="500" style="flex:1;background:var(--search-bg);border:none;border-radius:6px;padding:.4rem .6rem;color:var(--t);font-size:.75rem;outline:none;min-width:120px"/>
+          <button onclick="submitRating(document.querySelector('#starInput .star-input-star.selected')?.dataset.rating)" style="background:var(--teal);color:#fff;border:none;border-radius:6px;padding:.4rem .8rem;font-size:.75rem;font-weight:600;cursor:pointer">Submit</button>
+        `;
+      } else if (ratingInputEl) {
+        ratingInputEl.style.display = 'none';
+      }
 
       // Badges — from API data only
       const badges = [];
@@ -469,4 +500,35 @@ function declineOffer(btn) {
   d.textContent = '❌ Offer declined';
   card.appendChild(d);
   showToast('Offer declined.');
+}
+
+/* ---- RATING ---- */
+
+async function submitRating(rating) {
+  if (!rating || !activeConv) return;
+  const username = activeConv.username;
+  const comment = document.getElementById('ratingComment')?.value?.trim() || '';
+  const btn = document.querySelector('#upRatingInput button');
+  if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+
+  try {
+    const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+    const res = await fetch(`/profile/api/rate/${encodeURIComponent(username)}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+      body: JSON.stringify({ rating: parseInt(rating), comment }),
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast('Rating submitted!');
+      // Refresh profile to show updated rating
+      viewProfile();
+    } else {
+      showToast(data.message || 'Could not submit rating');
+      if (btn) { btn.textContent = 'Submit'; btn.disabled = false; }
+    }
+  } catch (e) {
+    showToast('Could not submit rating — try again');
+    if (btn) { btn.textContent = 'Submit'; btn.disabled = false; }
+  }
 }

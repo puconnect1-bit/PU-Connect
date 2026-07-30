@@ -529,9 +529,10 @@ function removeTyping() {
 function renderChips() {
   const wrap = document.getElementById('quickChips');
   if (!wrap) return;
-  wrap.innerHTML = QUICK_REPLIES.map(r =>
-    `<div class="chip" onclick="useChip('${escHtml(r)}')">${r}</div>`
-  ).join('');
+  wrap.innerHTML = QUICK_REPLIES.map(r => {
+    const escaped = JSON.stringify(r).slice(1, -1); // Remove surrounding quotes
+    return `<div class="chip" onclick="useChip('${escaped}')">${escHtml(r)}</div>`;
+  }).join('');
 }
 
 function useChip(text) {

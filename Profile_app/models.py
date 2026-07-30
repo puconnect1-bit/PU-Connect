@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Report(models.Model):
@@ -65,3 +66,26 @@ class Follow(models.Model):
 
     def __str__(self):
         return f"{self.follower.username} → {self.following.username}"
+
+
+class UserReview(models.Model):
+    """
+    Peer-to-peer reputation system.
+    Users can rate each other after interacting via chat.
+    One review per reviewer-reviewee pair (can be updated).
+    """
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_given')
+    reviewee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_received')
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comment = models.TextField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('reviewer', 'reviewee')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"@{self.reviewer.username} → @{self.reviewee.username}: {self.rating}/5"

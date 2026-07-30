@@ -255,6 +255,23 @@ def public_profile_api(request, username):
         follows_you  = Follow.objects.filter(follower=target, following=request.user).exists()
 
     from Base_app.models import user_is_verified
+    from .models import UserReview
+    from django.db.models import Avg, Count
+    rating_agg = UserReview.objects.filter(reviewee=target).aggregate(
+        avg=Avg('rating'), count=Count('id')
+    )
+    avg_rating = round(float(rating_agg['avg']), 1) if rating_agg['avg'] else None
+    review_count = rating_agg['count']
+
+    # Check if the requesting user has already rated this user
+    user_rating = None
+    if request.user.is_authenticated:
+        try:
+            ur = UserReview.objects.get(reviewer=request.user, reviewee=target)
+            user_rating = ur.rating
+        except UserReview.DoesNotExist:
+            pass
+
     return JsonResponse({
         'username':        target.username,
         'name':            target.get_full_name() or target.username,
@@ -271,6 +288,9 @@ def public_profile_api(request, username):
         'is_own':          is_own,
         'is_verified':     user_is_verified(target),
         'active_listings': active_listings,
+        'avg_rating':      avg_rating,
+        'review_count':    review_count,
+        'user_rating':     user_rating,
     })
 
 
@@ -701,6 +721,47 @@ def twofa_disable(request):
 def twofa_status(request):
     """Returns whether 2FA is currently enabled for the logged-in user."""
     return JsonResponse({'enabled': request.user.profile.totp_enabled})
+
+
+@login_required
+@require_POST
+def rate_user(request, username):
+    """POST /profile/api/rate/<username>/ — submit or update a rating (1-5)."""
+    target = get_object_or_404(User, username=username, is_active=True)
+    if target == request.user:
+        return JsonResponse({'status': 'error', 'message': 'Cannot rate yourself'}, status=400)
+
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+    rating = data.get('rating')
+    comment = data.get('comment', '').strip()[:500]
+
+    if not rating or not isinstance(rating, int) or rating < 1 or rating > 5:
+        return JsonResponse({'status': 'error', 'message': 'Rating must be an integer between 1 and 5'}, status=400)
+
+    from .models import UserReview
+    from django.db.models import Avg, Count
+    review, created = UserReview.objects.update_or_create(
+        reviewer=request.user,
+        reviewee=target,
+        defaults={'rating': rating, 'comment': comment},
+    )
+
+    # Calculate new average
+    agg = UserReview.objects.filter(reviewee=target).aggregate(
+        avg=Avg('rating'), count=Count('id')
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'created': created,
+        'your_rating': rating,
+        'avg_rating': round(float(agg['avg']), 1) if agg['avg'] else None,
+        'review_count': agg['count'],
+    })
 
 
 def logout_view(request):

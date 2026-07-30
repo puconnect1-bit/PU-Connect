@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/2fa/setup/', views.twofa_setup, name='twofa_setup'),
     path('api/2fa/enable/', views.twofa_enable, name='twofa_enable'),
     path('api/2fa/disable/', views.twofa_disable, name='twofa_disable'),
+    path('api/rate/<str:username>/', views.rate_user, name='rate_user'),
     path('<str:username>/', views.public_profile_page, name='public_profile'),
 ]
 
