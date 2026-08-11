@@ -5,12 +5,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Settings — PU-Connect</title>
-  <meta http-equiv="refresh" content="0; url=profile.html#settings"/>
+  <meta http-equiv="refresh" content="0; url={% url 'profile:settings' %}"/>
   <link rel="stylesheet" href="{% static 'Profile_app/css/settings.css' %}">
 </head>
 <body>
   <p>Redirecting to Settings…</p>
-  <p><a href="profile.html#settings">Tap here if not redirected</a></p>
-  <script>location.replace('profile.html#settings');</script>
+  <p><a href="{% url 'profile:settings' %}">Tap here if not redirected</a></p>
+  <script>location.replace('{% url "profile:settings" %}');</script>
 </body>
 </html>

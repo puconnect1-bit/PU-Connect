@@ -224,6 +224,7 @@ def update_profile_api(request):
 # Ensure your Listing model is imported
 
 
+@never_cache
 def public_profile_page(request, username):
     """Renders the public profile page for any user."""
     target = get_object_or_404(User, username=username, is_active=True)
@@ -234,10 +235,7 @@ def public_profile_page(request, username):
 def public_profile_api(request, username):
     """JSON data for a public profile."""
     target = get_object_or_404(User, username=username, is_active=True)
-    try:
-        p = target.profile
-    except Exception:
-        p = None
+    p, _ = Profile.objects.get_or_create(user=target)
 
     listing_qs = Listing.objects.filter(user=target, status__in=['active', 'boosted']).order_by('-created_at')
     active_listings = list(
