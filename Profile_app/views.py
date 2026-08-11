@@ -1,6 +1,6 @@
 ﻿import django
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Profile, Follow
@@ -291,6 +291,8 @@ def public_profile_api(request, username):
             'review_count':    review_count,
             'user_rating':     user_rating,
         })
+    except Http404:
+        raise
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
