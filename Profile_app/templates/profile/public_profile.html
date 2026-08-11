@@ -669,11 +669,18 @@ function renderGrid(items){
 async function loadProfile(){
   try {
     const res  = await fetch(`/profile/api/user/${TARGET_USERNAME}/`);
-    if(!res.ok) throw new Error();
+    if(!res.ok){
+      const txt = await res.text();
+      let msg = `HTTP ${res.status}`;
+      try { const j = JSON.parse(txt); msg = j.message || msg; } catch(e){}
+      throw new Error(msg);
+    }
     const data = await res.json();
     render(data);
   } catch(e){
+    console.error('loadProfile error:', e);
     document.getElementById('pubName').textContent = 'User not found';
+    document.getElementById('pubName').title = e.message || 'Error loading profile';
   }
 }
 

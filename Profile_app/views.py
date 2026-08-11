@@ -234,62 +234,71 @@ def public_profile_page(request, username):
 @never_cache
 def public_profile_api(request, username):
     """JSON data for a public profile."""
-    target = get_object_or_404(User, username=username, is_active=True)
-    p, _ = Profile.objects.get_or_create(user=target)
+    try:
+        target = get_object_or_404(User, username=username, is_active=True)
+        p, _ = Profile.objects.get_or_create(user=target)
 
-    listing_qs = Listing.objects.filter(user=target, status__in=['active', 'boosted']).order_by('-created_at')
-    active_listings = list(
-        listing_qs[:12].values('id', 'title', 'price', 'image_url', 'listing_type', 'status', 'contact_for_price')
-    )
-    for l in active_listings:
-        l['price'] = str(l['price'])
+        listing_qs = Listing.objects.filter(user=target, status__in=['active', 'boosted']).order_by('-created_at')
+        active_listings = list(
+            listing_qs[:12].values('id', 'title', 'price', 'image_url', 'listing_type', 'status', 'contact_for_price')
+        )
+        for l in active_listings:
+            l['price'] = str(l['price'])
 
-    is_following = False
-    follows_you  = False
-    is_own       = False
-    if request.user.is_authenticated:
-        is_own       = request.user == target
-        is_following = Follow.objects.filter(follower=request.user, following=target).exists()
-        follows_you  = Follow.objects.filter(follower=target, following=request.user).exists()
+        is_following = False
+        follows_you  = False
+        is_own       = False
+        if request.user.is_authenticated:
+            is_own       = request.user == target
+            is_following = Follow.objects.filter(follower=request.user, following=target).exists()
+            follows_you  = Follow.objects.filter(follower=target, following=request.user).exists()
 
-    from Base_app.models import user_is_verified
-    from .models import UserReview
-    from django.db.models import Avg, Count
-    rating_agg = UserReview.objects.filter(reviewee=target).aggregate(
-        avg=Avg('rating'), count=Count('id')
-    )
-    avg_rating = round(float(rating_agg['avg']), 1) if rating_agg['avg'] else None
-    review_count = rating_agg['count']
+        from Base_app.models import user_is_verified
+        from .models import UserReview
+        from django.db.models import Avg, Count
+        rating_agg = UserReview.objects.filter(reviewee=target).aggregate(
+            avg=Avg('rating'), count=Count('id')
+        )
+        avg_rating = round(float(rating_agg['avg']), 1) if rating_agg['avg'] else None
+        review_count = rating_agg['count']
 
-    # Check if the requesting user has already rated this user
-    user_rating = None
-    if request.user.is_authenticated:
-        try:
-            ur = UserReview.objects.get(reviewer=request.user, reviewee=target)
-            user_rating = ur.rating
-        except UserReview.DoesNotExist:
-            pass
+        # Check if the requesting user has already rated this user
+        user_rating = None
+        if request.user.is_authenticated:
+            try:
+                ur = UserReview.objects.get(reviewer=request.user, reviewee=target)
+                user_rating = ur.rating
+            except UserReview.DoesNotExist:
+                pass
 
-    return JsonResponse({
-        'username':        target.username,
-        'name':            target.get_full_name() or target.username,
-        'bio':             (p.bio if p else '') or '',
-        'faculty':         (p.faculty if p else '') or '',
-        'location':        (p.location if p else '') or '',
-        'avatarSrc':       (p.avatar_url if p else '') or '',
-        'joined':          target.date_joined.strftime('%B %Y'),
-        'posts_count':     listing_qs.count(),
-        'followers_count': target.followers_set.count(),
-        'following_count': target.following_set.count(),
-        'is_following':    is_following,
-        'follows_you':     follows_you,
-        'is_own':          is_own,
-        'is_verified':     user_is_verified(target),
-        'active_listings': active_listings,
-        'avg_rating':      avg_rating,
-        'review_count':    review_count,
-        'user_rating':     user_rating,
-    })
+        return JsonResponse({
+            'username':        target.username,
+            'name':            target.get_full_name() or target.username,
+            'bio':             (p.bio if p else '') or '',
+            'faculty':         (p.faculty if p else '') or '',
+            'location':        (p.location if p else '') or '',
+            'avatarSrc':       (p.avatar_url if p else '') or '',
+            'joined':          target.date_joined.strftime('%B %Y'),
+            'posts_count':     listing_qs.count(),
+            'followers_count': target.followers_set.count(),
+            'following_count': target.following_set.count(),
+            'is_following':    is_following,
+            'follows_you':     follows_you,
+            'is_own':          is_own,
+            'is_verified':     user_is_verified(target),
+            'active_listings': active_listings,
+            'avg_rating':      avg_rating,
+            'review_count':    review_count,
+            'user_rating':     user_rating,
+        })
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error("public_profile_api error for username='%s': %s", username, str(e), exc_info=True)
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Server error: {str(e)}',
+        }, status=500)
 
 
 @login_required(login_url='auth:auth_view')
