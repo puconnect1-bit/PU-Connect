@@ -11,7 +11,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         self.user_group_name = f'user_{user.id}'
         
         # Join personal group
-        print(f"DEBUG: NotificationConsumer connected for user {user.username}, group {self.user_group_name}")
         await self.channel_layer.group_add(
             self.user_group_name,
             self.channel_name
@@ -19,7 +18,6 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        print(f"DEBUG: NotificationConsumer disconnected for group {getattr(self, 'user_group_name', 'unknown')}")
         if hasattr(self, 'user_group_name'):
             await self.channel_layer.group_discard(
                 self.user_group_name,
@@ -28,6 +26,5 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
     # Receive notification from group
     async def notification_message(self, event):
-        print(f"DEBUG: NotificationConsumer received group message: {event['data'].get('title')}")
         # Send notification to WebSocket
         await self.send(text_data=json.dumps(event['data']))

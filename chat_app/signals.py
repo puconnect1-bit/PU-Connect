@@ -3,6 +3,47 @@ from django.dispatch import receiver
 from django.conf import settings
 from .models import Message, Notification
 import json
+from datetime import datetime
+
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+
+def _ws_send(user_id, data):
+    """Push a live payload to a user's notifications WebSocket group (user_<id>)."""
+    try:
+        channel_layer = get_channel_layer()
+        if channel_layer is None:
+            return
+        async_to_sync(channel_layer.group_send)(
+            f'user_{user_id}',
+            {'type': 'notification_message', 'data': data},
+        )
+    except Exception:
+        # WS push is best-effort; polling fallback still covers cases where it fails.
+        pass
+
+
+def _fmt_dt(dt):
+    return dt.strftime('%d %b, %I:%M %p')
+
+
+def _unread_notification_count(user):
+    return Notification.objects.filter(user=user, type='system', is_read=False).count()
+
+
+def _unread_conversation_count(user):
+    return (
+        Message.objects.filter(
+            conversation__participants=user,
+            is_read=False,
+            is_deleted=False,
+        )
+        .exclude(sender=user)
+        .values('conversation')
+        .distinct()
+        .count()
+    )
 
 
 def _send_web_push(user, title, body, url='/chat/'):
@@ -79,3 +120,35 @@ def create_message_notification(sender, instance, created, **kwargs):
             body=preview,
             url='/chat/',
         )
+
+
+@receiver(post_save, sender=Notification)
+def push_notification_via_ws(sender, instance, created, **kwargs):
+    """Live-push a new in-app notification to the recipient's WebSocket."""
+    if not created:
+        return
+    _ws_send(instance.user_id, {
+        'type': 'notification',
+        'unread_count': _unread_notification_count(instance.user),
+        'notification': {
+            'id': instance.id,
+            'type': instance.type,
+            'title': instance.title,
+            'content': instance.content,
+            'link': instance.link or '',
+            'is_read': instance.is_read,
+            'created_at': _fmt_dt(instance.created_at),
+        },
+    })
+
+
+@receiver(post_save, sender=Message)
+def push_unread_count_via_ws(sender, instance, created, **kwargs):
+    """Live-update the chat unread badge for each recipient when a new message arrives."""
+    if not created:
+        return
+    for participant in instance.conversation.participants.exclude(id=instance.sender_id):
+        _ws_send(participant.id, {
+            'type': 'unread_count',
+            'unread_count': _unread_conversation_count(participant),
+        })

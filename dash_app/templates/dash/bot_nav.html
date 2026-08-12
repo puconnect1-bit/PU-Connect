@@ -118,7 +118,36 @@
   }
 
   fetchUnreadCount();
-  setInterval(fetchUnreadCount, 10000);
+
+  // Live badge via WebSocket. If notifications.js is loaded on the page it owns the
+  // socket and updates #bnChatBadge from it; otherwise we open one here so the badge
+  // stays live without the old 10s polling loop.
+  if (typeof window.initNotifications === 'undefined') {
+    var proto    = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    var notifWS  = null;
+    var retryT   = null;
+    function connectBadgeWS() {
+      if (notifWS && (notifWS.readyState === WebSocket.OPEN || notifWS.readyState === WebSocket.CONNECTING)) return;
+      try { notifWS = new WebSocket(proto + window.location.host + '/ws/notifications/'); }
+      catch (e) { return; }
+      notifWS.onmessage = function (e) {
+        try {
+          var d = JSON.parse(e.data);
+          if (d.type === 'unread_count' && d.unread_count != null) fetchUnreadCount();
+        } catch (err) {}
+      };
+      notifWS.onclose = function () {
+        notifWS = null;
+        if (!retryT) {
+          retryT = setTimeout(function () { retryT = null; connectBadgeWS(); }, 5000);
+        }
+      };
+    }
+    connectBadgeWS();
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && (!notifWS || notifWS.readyState !== WebSocket.OPEN)) connectBadgeWS();
+    });
+  }
 })();
 </script>
 {% endif %}

@@ -12,13 +12,16 @@
 (function () {
   'use strict';
 
-  const POLL_MS    = 10000; // refresh every 10 s while page is open
-  const API_LIST   = '/chat/api/notifications/';
-  const API_MARK   = '/chat/api/notifications/mark-read/';
+  const API_LIST       = '/chat/api/notifications/';
+  const API_MARK       = '/chat/api/notifications/mark-read/';
+  const FALLBACK_MS    = 60000; // slow safety net used only when the socket is down
+  const NOTIF_WS       = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/notifications/';
 
-  let _panel       = null;
-  let _open        = false;
-  let _pollTimer   = null;
+  let _panel           = null;
+  let _open            = false;
+  let _ws              = null;
+  let _wsRetryTimer    = null;
+  let _fallbackTimer   = null;
 
   function csrf() {
     const m = document.cookie.match(/csrftoken=([^;]+)/);
@@ -56,6 +59,54 @@
     } else {
       dot.style.display = 'none';
     }
+  }
+
+  function updateChatBadge(count) {
+    const badge = document.getElementById('bnChatBadge');
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function onNotificationWSMessage(e) {
+    let data;
+    try { data = JSON.parse(e.data); } catch (err) { return; }
+    if (data.type === 'notification') {
+      updateDot(data.unread_count != null ? data.unread_count : 0);
+      if (_open && _panel) fetchNotifications();
+    } else if (data.type === 'unread_count') {
+      updateChatBadge(data.unread_count || 0);
+    }
+  }
+
+  function connectNotifications() {
+    if (!window.WebSocket) return;
+    if (_ws && (_ws.readyState === WebSocket.OPEN || _ws.readyState === WebSocket.CONNECTING)) return;
+    try {
+      _ws = new WebSocket(NOTIF_WS);
+    } catch (err) {
+      scheduleWSReconnect();
+      return;
+    }
+    _ws.onmessage = onNotificationWSMessage;
+    _ws.onopen = function () {
+      if (_wsRetryTimer) { clearTimeout(_wsRetryTimer); _wsRetryTimer = null; }
+    };
+    _ws.onclose = function () { _ws = null; scheduleWSReconnect(); };
+    _ws.onerror = function () { try { _ws.close(); } catch (err) {} };
+  }
+
+  function scheduleWSReconnect() {
+    if (_wsRetryTimer) return;
+    const timer = setTimeout(function () {
+      _wsRetryTimer = null;
+      if (document.visibilityState !== 'hidden') connectNotifications();
+    }, 5000);
+    _wsRetryTimer = timer;
   }
 
   function renderPanel(items) {
@@ -203,11 +254,26 @@
       togglePanel();
     });
 
-    // Initial fetch
+    // Initial fetch (populates state before the socket delivers anything)
     fetchNotifications();
 
-    // Poll
-    _pollTimer = setInterval(fetchNotifications, POLL_MS);
+    // Live updates via WebSocket — no more 10s HTTP polling
+    connectNotifications();
+
+    // Slow safety-net poll: only while the tab is visible AND the socket is down
+    _fallbackTimer = setInterval(function () {
+      if (document.visibilityState === 'hidden') return;
+      if (_ws && _ws.readyState === WebSocket.OPEN) return;
+      fetchNotifications();
+    }, FALLBACK_MS);
+
+    // Refresh state whenever the tab becomes visible again
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        fetchNotifications();
+        if (!_ws || _ws.readyState !== WebSocket.OPEN) connectNotifications();
+      }
+    });
   };
 
   // Auto-init
