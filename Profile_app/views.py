@@ -239,11 +239,20 @@ def public_profile_api(request, username):
         p, _ = Profile.objects.get_or_create(user=target)
 
         listing_qs = Listing.objects.filter(user=target, status__in=['active', 'boosted']).order_by('-created_at')
-        active_listings = list(
-            listing_qs[:12].values('id', 'title', 'price', 'image_url', 'listing_type', 'status', 'contact_for_price')
-        )
-        for l in active_listings:
-            l['price'] = str(l['price'])
+        from Listings_app.views import split_listing_images
+        active_listings = []
+        for item in listing_qs[:12]:
+            image_urls = split_listing_images(item.image_url)
+            active_listings.append({
+                'id': item.id,
+                'title': item.title,
+                'price': str(item.price),
+                'image_url': image_urls[0] if image_urls else '',
+                'images': image_urls,
+                'listing_type': item.listing_type,
+                'status': item.status,
+                'contact_for_price': item.contact_for_price,
+            })
 
         is_following = False
         follows_you  = False
