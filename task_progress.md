@@ -1,8 +1,0 @@
-- [x] Add `is_deleted` field to Message model
-- [x] Create database migration for the new field
-- [x] Update consumer to mark messages as deleted (not hard delete)
-- [x] Add API endpoint for delete_for_everyone
-- [x] Add API endpoint for delete_for_me
-- [x] Update frontend to handle message_deleted WebSocket event
-- [x] Add "This message was deleted" placeholder in message rendering
-- [x] Add CSS styles for deleted message placeholder
