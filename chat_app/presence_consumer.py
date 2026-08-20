@@ -20,18 +20,28 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         self.user_id = user.id
         self.user_group = f'presence_user_{user.id}'
 
-        # Join own presence group (so others can push to us)
-        await self.channel_layer.group_add(self.user_group, self.channel_name)
-        await self.accept()
-
-        # Tell conversation partners we're online
-        await self._broadcast_status('online')
+        # Join own presence group (so others can push to us) — handle Redis failures
+        try:
+            await self.channel_layer.group_add(self.user_group, self.channel_name)
+            await self.accept()
+            # Tell conversation partners we're online
+            await self._broadcast_status('online')
+        except Exception as e:
+            print(f"Failed to join presence group for user {user.id}: {e}")
+            await self.close()
 
     async def disconnect(self, close_code):
         if not hasattr(self, 'user_id'):
             return
-        await self._broadcast_status('offline')
-        await self.channel_layer.group_discard(self.user_group, self.channel_name)
+        # Notify partners and leave group — tolerate Redis failures
+        try:
+            await self._broadcast_status('offline')
+        except Exception as e:
+            print(f"Error broadcasting offline status: {e}")
+        try:
+            await self.channel_layer.group_discard(self.user_group, self.channel_name)
+        except Exception as e:
+            print(f"Error leaving presence group on disconnect: {e}")
 
     async def receive(self, text_data):
         # Client can send a ping to keep the connection alive; we ignore payload

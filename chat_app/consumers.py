@@ -37,11 +37,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.close()
 
     async def disconnect(self, close_code):
-        # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        # Leave room group — handle Redis failures gracefully
+        try:
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
+        except Exception as e:
+            print(f"Error leaving chat group on disconnect: {e}")
 
     # Receive message from WebSocket
     async def receive(self, text_data):

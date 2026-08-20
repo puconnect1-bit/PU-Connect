@@ -97,6 +97,14 @@ if REDIS_URL:
                         # Keep the underlying TCP socket alive so idle
                         # connections aren't dropped by network intermediaries.
                         "socket_keepalive": True,
+                        # Timeout for establishing a new Redis connection so
+                        # a hung Redis server doesn't block the ASGI event loop.
+                        "socket_connect_timeout": 30,
+                        # Maximum number of connections in the pool.
+                        "max_connections": 50,
+                        # Retry connecting with backoff if the initial
+                        # connection fails (e.g. Redis is temporarily down).
+                        "retry_on_timeout": True,
                     },
                 ],
             },
