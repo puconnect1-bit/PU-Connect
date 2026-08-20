@@ -1,14 +1,14 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from django.contrib.auth.models import User
+from .channel_utils import group_add_retry, group_discard_retry, group_send_retry
 
 
 class PresenceConsumer(AsyncWebsocketConsumer):
     """
     One persistent WS connection per browser tab.
-    connect  → mark user online, notify their conversation partners
-    disconnect → mark user offline, notify their conversation partners
+    connect  -> mark user online, notify their conversation partners
+    disconnect -> mark user offline, notify their conversation partners
     """
 
     async def connect(self):
@@ -20,9 +20,10 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         self.user_id = user.id
         self.user_group = f'presence_user_{user.id}'
 
-        # Join own presence group (so others can push to us) — handle Redis failures
+        # Join own presence group (so others can push to us). Retry on
+        # transient Redis errors before giving up on the handshake.
         try:
-            await self.channel_layer.group_add(self.user_group, self.channel_name)
+            await group_add_retry(self.channel_layer, self.user_group, self.channel_name)
             await self.accept()
             # Tell conversation partners we're online
             await self._broadcast_status('online')
@@ -39,7 +40,7 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"Error broadcasting offline status: {e}")
         try:
-            await self.channel_layer.group_discard(self.user_group, self.channel_name)
+            await group_discard_retry(self.channel_layer, self.user_group, self.channel_name)
         except Exception as e:
             print(f"Error leaving presence group on disconnect: {e}")
 
@@ -59,14 +60,18 @@ class PresenceConsumer(AsyncWebsocketConsumer):
     async def _broadcast_status(self, status):
         partner_ids = await self._get_partner_ids()
         for pid in partner_ids:
-            await self.channel_layer.group_send(
-                f'presence_user_{pid}',
-                {
-                    'type': 'presence_update',
-                    'user_id': self.user_id,
-                    'status': status,
-                }
-            )
+            try:
+                await group_send_retry(
+                    self.channel_layer,
+                    f'presence_user_{pid}',
+                    {
+                        'type': 'presence_update',
+                        'user_id': self.user_id,
+                        'status': status,
+                    },
+                )
+            except Exception as e:
+                print(f"Error sending presence update to user {pid}: {e}")
 
     @database_sync_to_async
     def _get_partner_ids(self):

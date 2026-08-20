@@ -4,6 +4,7 @@ from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 from django.utils import timezone
 from .models import Conversation, Message
+from .channel_utils import group_add_retry, group_discard_retry
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -25,8 +26,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             print(f"User {user.username} connecting to {self.room_group_name}")
 
-            # Join room group
-            await self.channel_layer.group_add(
+            # Join room group - retry on transient Redis errors
+            await group_add_retry(
+                self.channel_layer,
                 self.room_group_name,
                 self.channel_name
             )
@@ -39,7 +41,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         # Leave room group — handle Redis failures gracefully
         try:
-            await self.channel_layer.group_discard(
+            await group_discard_retry(
+                self.channel_layer,
                 self.room_group_name,
                 self.channel_name
             )
