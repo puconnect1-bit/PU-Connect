@@ -43,6 +43,9 @@ python manage.py collectstatic --noinput --clear
 echo "Flushing databases to R2..."
 python manage.py shell -c "from pu_mp.r2_db_sync import flush_all; flush_all()"
 
-# Start the application using daphne (ASGI)
-echo "Starting Daphne server..."
-exec daphne pu_mp.asgi:application --port 8000 --bind 0.0.0.0
+# Start the application using the image CMD (Daphne ASGI).
+# exec "$@" forwards the CMD — e.g.
+#   daphne -b 0.0.0.0 -p ${PORT:-8000} pu_mp.asgi:application
+# — so Render's PORT env var is read dynamically at runtime.
+echo "Starting application..."
+exec "$@"

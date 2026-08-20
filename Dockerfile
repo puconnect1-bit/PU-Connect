@@ -1,26 +1,49 @@
-# Base image
+# syntax=docker/dockerfile:1.4
+# Note: this build relies on BuildKit features (pip cache mount). Docker 23+
+# and Render both enable BuildKit by default.
+
+# ── Base image ────────────────────────────────────────────────
 FROM python:3.12-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# ── Python runtime behaviour (no .pyc files, unbuffered logs) ─
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Set work directory
+# ── App directory ─────────────────────────────────────────────
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
+# ── System dependencies (single layer, cleaned, minimal) ──────
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN pip install --upgrade pip
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+# ── Python dependencies ───────────────────────────────────────
+# requirements.txt is copied first so this layer stays cached until
+# dependencies change; the pip cache mount reuses downloaded wheels
+# across builds without adding them to the final image.
+COPY requirements.txt .
 
-# Copy project
-COPY . /app/
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip \
+    && pip install -r requirements.txt
 
-# Run entrypoint script
+# ── Project code ──────────────────────────────────────────────
+COPY . .
+
+# Runtime directory for collectstatic output + ensure entrypoint is executable
+RUN mkdir -p /app/staticfiles \
+    && chmod +x /app/docker/entrypoint.sh
+
+# ── Server configuration ──────────────────────────────────────
+# Daphne (ASGI) — required for Channels/WebSocket support.
+# The entrypoint runs pre-flight steps (R2 sync, migrate, collectstatic),
+# then hands off to the CMD below via `exec "$@"`.
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
+
+# Shell-form CMD so Render's PORT env var is read at runtime (default 8000)
+CMD ["sh", "-c", "daphne -b 0.0.0.0 -p ${PORT:-8000} pu_mp.asgi:application"]
+
+EXPOSE 8000
