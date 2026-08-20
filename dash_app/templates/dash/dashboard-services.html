@@ -348,7 +348,7 @@ function renderProviders(data){
     <div class="pvc" onclick="openProviderDetail('${p.id}')">
       <div class="pvimg">
         ${p.img
-          ?`<img src="${escH(p.img)}" alt="${escH(p.name)}" loading="lazy"/>`
+          ?`<img src="${escH(p.img)}" alt="${escH(p.name)}" loading="lazy" decoding="async"/>`
           :`<div style="width:100%;height:100%;background:var(--card);display:flex;align-items:center;justify-content:center;">${SD.find(s=>s.cat===p.cat)?.icon||''}</div>`
         }
         <span class="pvcat" style="background:${p.bc};color:${p.bt}">${escH(p.badge)}</span>
@@ -445,7 +445,7 @@ function buildSvc(data){
       const countTxt=count>0?count+' provider'+(count!==1?'s':''):'No providers yet';
       pg.innerHTML+=`<div class="svc" onclick="openDr('${s.id}')">
         <button class="svx" onclick="event.stopPropagation();openDr('${s.id}')">+</button>
-        <div class="svi"><img src="${s.img}" alt="${s.name}" loading="lazy"/></div>
+        <div class="svi"><img src="${s.img}" alt="${s.name}" loading="lazy" decoding="async"/></div>
         <div class="svn">${s.name}</div>
         <div class="svc2">${countTxt}</div>
       </div>`;
@@ -468,7 +468,7 @@ function openDr(id){
   document.getElementById('dg').innerHTML=catProviders.length
     ?catProviders.map(p=>`
         <div class="di" onclick="openProviderDetail('${p.id}')">
-          <div class="dth">${p.img?`<img src="${escH(p.img)}" alt="${escH(p.name)}" loading="lazy"/>`:`<div style="width:100%;height:100%;background:var(--card);display:flex;align-items:center;justify-content:center;">${s.icon}</div>`}</div>
+          <div class="dth">${p.img?`<img src="${escH(p.img)}" alt="${escH(p.name)}" loading="lazy" decoding="async"/>`:`<div style="width:100%;height:100%;background:var(--card);display:flex;align-items:center;justify-content:center;">${s.icon}</div>`}</div>
           <div>
             <div class="din">${escH(p.name)}</div>
             <div class="dip">${escH(p.price)}</div>
@@ -578,7 +578,7 @@ function openBoost(){
     }
     function showImg(i){
       gIdx = i;
-      gal.innerHTML = `<img src="${escH(gImgs[i])}" alt="" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+      gal.innerHTML = `<img src="${escH(gImgs[i])}" alt="" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
       dots.innerHTML = gImgs.length > 1
         ? gImgs.map((_,j)=>`<div onclick="window._ldGo(${j})" style="width:${j===i?18:7}px;height:7px;border-radius:99px;background:${j===i?'var(--a)':'rgba(255,255,255,.25)'};cursor:pointer;transition:all .3s"></div>`).join('')
         : '';

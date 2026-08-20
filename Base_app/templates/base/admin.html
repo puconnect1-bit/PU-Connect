@@ -973,7 +973,7 @@ async function loadUsers(page=1){
     if(!d.users||!d.users.length){ body.innerHTML=emptyRow(7,'No users found'); }
     else{
       body.innerHTML = d.users.map(u=>{
-        const av = u.avatar_url?`<img src="${esc(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover">`:`${(u.name||u.username||'U')[0].toUpperCase()}`;
+        const av = u.avatar_url?`<img src="${esc(u.avatar_url)}" loading="lazy" decoding="async" style="width:100%;height:100%;object-fit:cover">`:`${(u.name||u.username||'U')[0].toUpperCase()}`;
         return `<tr>
           <td><div class="av-cell"><div class="av-sm">${av}</div><div><div style="font-weight:600;font-size:.82rem">${esc(u.name)}</div><div style="font-size:.7rem;color:var(--m)">@${esc(u.username)}</div></div></div></td>
           <td style="font-size:.78rem;color:var(--m)">${esc(u.email)}</td>
@@ -1056,7 +1056,7 @@ async function loadListings(page=1){
       body.innerHTML = d.listings.map(l=>`
         <tr>
           <td><div class="av-cell">
-            ${l.image_url?`<img src="${esc(l.image_url)}" class="thumb-sm"/>`:`<div class="thumb-sm-wrap">📦</div>`}
+            ${l.image_url?`<img src="${esc(l.image_url)}" class="thumb-sm" loading="lazy" decoding="async"/>`:`<div class="thumb-sm-wrap">📦</div>`}
             <div style="font-size:.82rem;font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.title)}</div>
           </div></td>
           <td style="font-size:.78rem">@${esc(l.seller)}</td>
@@ -1243,8 +1243,8 @@ function openVerifModal(v){
     ? `<span class="badge badge-green">✓ Passed</span>`
     : `<span class="badge badge-muted">Not confirmed</span>`;
   document.getElementById('vmDocs').innerHTML = `
-    <div>${v.id_photo_url?`<img src="${esc(v.id_photo_url)}" class="doc-img"/>`:`<div class="doc-img" style="display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--m)">No ID photo</div>`}<div class="doc-lbl">Student ID Photo</div></div>
-    <div>${v.selfie_url?`<img src="${esc(v.selfie_url)}" class="doc-img" style="border-radius:50%"/>`:`<div class="doc-img" style="border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--m)">No selfie</div>`}<div class="doc-lbl">Live Selfie</div></div>`;
+    <div>${v.id_photo_url?`<img src="${esc(v.id_photo_url)}" class="doc-img" loading="lazy" decoding="async"/>`:`<div class="doc-img" style="display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--m)">No ID photo</div>`}<div class="doc-lbl">Student ID Photo</div></div>
+    <div>${v.selfie_url?`<img src="${esc(v.selfie_url)}" class="doc-img" loading="lazy" decoding="async" style="border-radius:50%"/>`:`<div class="doc-img" style="border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--m)">No selfie</div>`}<div class="doc-lbl">Live Selfie</div></div>`;
   document.getElementById('vmNote').value = v.admin_note || '';
   document.getElementById('vmActions').innerHTML = `
     ${v.status==='docs_submitted'?`<button class="btn btn-teal" onclick="verifAction(${v.id},'approve',document.getElementById('vmNote').value)">Approve</button><button class="btn btn-red" onclick="verifAction(${v.id},'reject',document.getElementById('vmNote').value)">Reject</button>`:''}
@@ -1279,7 +1279,7 @@ async function loadBoosts(page=1){
       body.innerHTML = d.boosts.map(b=>`
         <tr>
           <td><div class="av-cell">
-            ${b.listing_image?`<img src="${esc(b.listing_image)}" class="thumb-sm"/>`:`<div class="thumb-sm-wrap">⚡</div>`}
+            ${b.listing_image?`<img src="${esc(b.listing_image)}" class="thumb-sm" loading="lazy" decoding="async"/>`:`<div class="thumb-sm-wrap">⚡</div>`}
             <div style="font-size:.82rem;font-weight:500">${esc(b.listing_title)}</div>
           </div></td>
           <td style="font-size:.78rem">@${esc(b.username)}</td>

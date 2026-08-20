@@ -283,7 +283,7 @@ def r2_presign(request):
         ExpiresIn=300,
     )
 
-    public_url = f"{settings.CF_R2_PUBLIC_URL.rstrip('/')}/{key}"
+    public_url = f"{settings.MEDIA_URL.rstrip('/')}/{key}"
     return JsonResponse({'upload_url': upload_url, 'public_url': public_url})
 
 
@@ -339,7 +339,7 @@ def r2_upload(request):
     except Exception as e:
         return JsonResponse({'error': f'Upload failed: {e}'}, status=500)
 
-    public_url = f"{settings.CF_R2_PUBLIC_URL.rstrip('/')}/{key}"
+    public_url = f"{settings.MEDIA_URL.rstrip('/')}/{key}"
     return JsonResponse({'public_url': public_url})
 
 

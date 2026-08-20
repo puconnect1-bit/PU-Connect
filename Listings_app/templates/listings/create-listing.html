@@ -493,7 +493,7 @@ function renderImgs(){
   const g=document.getElementById('ig');g.innerHTML='';
   imgs.forEach((im,i)=>{
     const d=document.createElement('div');d.className='ith'+(i===0?' main':'');
-    d.innerHTML=`<img src="${im.src}" alt=""/><button class="irm" onclick="rmImg(${i})">✕</button>`;
+    d.innerHTML=`<img src="${im.src}" alt="" loading="lazy" decoding="async"/><button class="irm" onclick="rmImg(${i})">✕</button>`;
     g.appendChild(d);
   });
   if(imgs.length<5){
@@ -861,7 +861,7 @@ function buildReview(){
 
   if(imgs.length){
     document.getElementById('rv-ps').style.display='block';
-    document.getElementById('rv-imgs').innerHTML=imgs.map(im=>`<img src="${im.src}" alt="" />`).join('');
+    document.getElementById('rv-imgs').innerHTML=imgs.map(im=>`<img src="${im.src}" alt="" loading="lazy" decoding="async" />`).join('');
   }else{
     document.getElementById('rv-ps').style.display='none';
   }

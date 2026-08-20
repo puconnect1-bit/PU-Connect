@@ -231,7 +231,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-MEDIA_URL = 'media/'
+# Media files — served from R2 via the custom media domain in production.
+# Connect the domain (Cloudflare R2 → bucket → Settings → Custom Domains) to
+# the bucket so every upload (product photos, avatars, voice notes) returns a
+# clean URL like https://media.pentvarsconnect.com/... instead of the raw R2
+# bucket endpoint. Overridable via the MEDIA_URL environment variable.
+MEDIA_URL = os.environ.get('MEDIA_URL', 'https://media.pentvarsconnect.com/')
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Cloudflare R2 — media (images, avatars, voice notes)
@@ -239,7 +244,6 @@ CF_R2_ACCOUNT_ID = os.environ.get('CF_R2_ACCOUNT_ID', '')
 CF_R2_ACCESS_KEY_ID = os.environ.get('CF_R2_ACCESS_KEY_ID', '')
 CF_R2_SECRET_ACCESS_KEY = os.environ.get('CF_R2_SECRET_ACCESS_KEY', '')
 CF_R2_BUCKET_NAME = os.environ.get('CF_R2_BUCKET_NAME', 'puconnect-media')
-CF_R2_PUBLIC_URL = os.environ.get('CF_R2_PUBLIC_URL', '')
 
 # Cloudflare R2 — database backup (separate private bucket, same account credentials)
 CF_R2_DB_BUCKET = os.environ.get('CF_R2_DB_BUCKET', 'puconnect-db')

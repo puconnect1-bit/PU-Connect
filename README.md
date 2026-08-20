@@ -47,7 +47,8 @@ CF_R2_ACCOUNT_ID=your-account-id
 CF_R2_ACCESS_KEY_ID=your-key-id
 CF_R2_SECRET_ACCESS_KEY=your-secret
 CF_R2_BUCKET_NAME=puconnect-media
-CF_R2_PUBLIC_URL=https://pub-xxx.r2.dev
+# Public media domain connected to the R2 bucket (base URL for uploads)
+MEDIA_URL=https://media.pentvarsconnect.com/
 
 # Google OAuth (optional)
 GOOGLE_CLIENT_ID=your-client-id
@@ -81,7 +82,7 @@ Both `global.db` and `user.db` will be stored at `/var/data/` and persist across
 | `CF_R2_ACCESS_KEY_ID` | R2 API key ID |
 | `CF_R2_SECRET_ACCESS_KEY` | R2 API secret |
 | `CF_R2_BUCKET_NAME` | R2 bucket name |
-| `CF_R2_PUBLIC_URL` | Public URL for R2 bucket |
+| `MEDIA_URL` | Public custom domain base URL for media files (e.g. `https://media.pentvarsconnect.com/`) |
 | `DJANGO_SUPERUSER_USERNAME` | Auto-creates admin on first deploy |
 | `DJANGO_SUPERUSER_PASSWORD` | Admin password |
 | `GOOGLE_CLIENT_ID` | Google OAuth2 client ID |

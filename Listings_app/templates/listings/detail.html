@@ -525,7 +525,7 @@
   <div class="dtp-img-wrap" id="galleryWrap">
     <div class="dtp-img-track" id="galleryTrack">
       {% for img in image_urls %}
-      <div class="dtp-img-panel"><img src="{{ img }}" alt="{{ listing.title }}"></div>
+      <div class="dtp-img-panel"><img src="{{ img }}" alt="{{ listing.title }}" loading="lazy" decoding="async"></div>
       {% endfor %}
     </div>
     {% if image_urls|length > 1 %}
@@ -599,7 +599,7 @@
     <a href="{% url 'profile:public_profile' seller.username %}" class="dtp-seller" style="text-decoration:none;color:inherit">
       <div class="dtp-seller-avatar">
         {% if seller_avatar %}
-        <img src="{{ seller_avatar }}" alt="{{ seller.get_full_name }}">
+        <img src="{{ seller_avatar }}" alt="{{ seller.get_full_name }}" loading="lazy" decoding="async">
         {% else %}
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" style="width:100%;height:100%;border-radius:50%;display:block"><circle cx="20" cy="20" r="20" fill="#e4e6ea"/><circle cx="20" cy="16" r="7.5" fill="#bcc0c4"/><path d="M5 36.5C5 29 11.7 23 20 23s15 6 15 13.5" fill="#bcc0c4"/></svg>
         {% endif %}

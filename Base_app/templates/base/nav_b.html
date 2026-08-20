@@ -1,7 +1,7 @@
 {% load static %}
 <nav>
   <a href="{% url 'base:home' %}" class="logo">
-    <img src="{% static 'icons/logo.png' %}" alt="PU Connect" class="logo-img">
+    <img src="{% static 'icons/logo.png' %}" alt="PU Connect" class="logo-img" loading="lazy" decoding="async">
   </a>
   <ul class="nav-links">
     <li><a href="{% url 'base:safety' %}">Safety</a></li>
