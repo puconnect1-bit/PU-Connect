@@ -4,7 +4,6 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.cache import never_cache, cache_control
 from django.utils import timezone
-from datetime import datetime, timezone as dt_timezone
 import json
 import re
 import textwrap
@@ -364,41 +363,39 @@ def get_my_listings(request):
 @never_cache
 def latest_listings_partials(request):
     """
-    HTMX partial — returns only listings created *after* the page initially loaded.
+    HTMX partial — returns only listings with an id greater than the newest
+    listing the client already holds (passed as ?last_id=). Combined with
+    hx-swap="afterbegin", brand-new cards are prepended to the top of the feed
+    without a page refresh.
 
-    The dashboard records the newest listing it already has (via ?since=, a
-    millisecond epoch compatible with the API's `postedAt`) and polls this
-    endpoint every 15s. Combined with hx-swap="afterbegin", brand-new items are
-    prepended smoothly to the top of the feed without a page refresh.
-
-    The client always sends a `since` cutoff; when it's missing or 0 this
-    returns an empty response so nothing is mistakenly prepended.
+    The client tracks the highest listing id it has rendered (window.__puLastId)
+    and sends it on every poll, so this endpoint only ever returns genuinely new
+    rows. When nothing is newer it responds 204 No Content and HTMX leaves the
+    DOM untouched — no empty markup, no repeated cards.
     """
     from django.db.models import Case, When, IntegerField
 
     try:
-        since_int = int(float(request.GET.get('since', 0)))
+        last_id = int(request.GET.get('last_id', 0))
     except (TypeError, ValueError):
-        since_int = 0
+        last_id = 0
 
-    if since_int > 0:
-        since_dt = datetime.fromtimestamp(since_int / 1000, tz=dt_timezone.utc)
-    else:
-        # Default: only fall back if the caller didn't send a cutoff.
-        return HttpResponse('')
-
-    qs = (
+    items = list(
         Listing.objects
-        .filter(status__in=['active', 'boosted'], created_at__gt=since_dt)
+        .filter(status__in=['active', 'boosted'], id__gt=last_id)
         .select_related('user', 'user__profile')
         .order_by(
             Case(When(status='boosted', then=0), default=1, output_field=IntegerField()),
             '-created_at',
-        )
-    )[:40]
+        )[:40]
+    )
+
+    # Nothing newer than the client's cutoff -> 204 so HTMX swaps in nothing.
+    if not items:
+        return HttpResponse(status=204)
 
     cards = []
-    for item in qs:
+    for item in items:
         phone = ''
         try:
             phone = item.user.profile.phone or ''

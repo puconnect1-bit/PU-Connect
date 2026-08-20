@@ -148,7 +148,7 @@
              hx-get="{% url 'listings:latest_partials' %}"
              hx-trigger="every 15s"
              hx-swap="afterbegin"
-             hx-vals='js:{since: (window.__pufeedSince||0)}'
+             hx-vals='js:{last_id: (window.__puLastId||0)}'
              hx-disinherit="true"></div>
         <div class="empty-state" id="emptyState" style="display:none">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".3"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -246,8 +246,8 @@ async function loadListings(){
     const res=await fetch('/listings/api/all/');
     const data=await res.json();
     allListings=Array.isArray(data)?data:(data.listings||[]);
-    // Record the newest timestamp we already have so HTMX only fetches items newer than this.
-    window.__pufeedSince = allListings.reduce((m,l)=>Math.max(m, Number(l.postedAt)||0), 0);
+    // Record the newest id we already have so HTMX only fetches items newer than it.
+    window.__puLastId = allListings.reduce((m,l)=>Math.max(m, Number(l.id)||0), 0);
     const boosted=allListings.filter(l=>l.status==='boosted');
     renderCarousel(boosted);
     renderListings();
@@ -257,18 +257,18 @@ async function loadListings(){
   }
 }
 
-/* ── HTMX: after new cards are prepended, advance the cutoff so the next poll
-   doesn't re-deliver the same items ── */
+/* ── HTMX: after new cards are prepended, advance the newest id so the next
+   poll's ?last_id=55 sorts out the just-delivered items (no duplicates) ── */
 document.addEventListener('htmx:afterSwap', function(evt){
   try{
     const target = evt.detail && evt.detail.target;
     if(!target || target.id !== 'listingsGrid') return;
     let newest = 0;
     target.querySelectorAll('.listing-card').forEach(c=>{
-      const ms = Number(c.dataset.posted || 0);
-      if(ms > newest) newest = ms;
+      const id = Number(c.dataset.id || 0);
+      if(id > newest) newest = id;
     });
-    if(newest > (window.__pufeedSince||0)) window.__pufeedSince = newest;
+    if(newest > (window.__puLastId||0)) window.__puLastId = newest;
   }catch(e){}
 });
 
@@ -417,7 +417,7 @@ function listingCard(l){
   const sellerBadge=l.seller_is_verified
     ?`<span class="pu-verified pu-verified-sm" title="Verified Student" style="margin-left:4px"><svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 6"/></svg></span>`
     :``;
-  return `<div class="listing-card" onclick="location.href='/listings/${l.id}/'" style="cursor:pointer">
+  return `<div class="listing-card" data-id="${l.id}" onclick="location.href='/listings/${l.id}/'" style="cursor:pointer">
     <div class="lc-img">${img}</div>
     <div class="lc-body">
       ${badge}
@@ -658,20 +658,20 @@ loadListings();
     shouldPullToRefresh: function () { return !window.scrollY; },
     onRefresh: function () {
       // Return a promise so the spinner stays live until the fetch settles.
-      return fetch("{% url 'listings:latest_partials' %}?since=" + encodeURIComponent(window.__pufeedSince || 0))
+      return fetch("{% url 'listings:latest_partials' %}?last_id=" + encodeURIComponent(window.__puLastId || 0))
         .then(function (r) { return r.ok ? r.text() : ''; })
         .then(function (html) {
           if (!html || !html.trim()) return;
           var grid = document.getElementById('listingsGrid');
           if (!grid) return;
           grid.insertAdjacentHTML('afterbegin', html);
-          // Advance the cutoff so the next fetch/poll doesn't re-deliver these items.
+          // Advance the newest id so the next fetch/poll doesn't re-deliver these items.
           var newest = 0;
           grid.querySelectorAll('.listing-card').forEach(function (c) {
-            var ms = Number(c.dataset.posted || 0);
-            if (ms > newest) newest = ms;
+            var id = Number(c.dataset.id || 0);
+            if (id > newest) newest = id;
           });
-          if (newest > (window.__pufeedSince || 0)) window.__pufeedSince = newest;
+          if (newest > (window.__puLastId || 0)) window.__puLastId = newest;
         });
     }
   });

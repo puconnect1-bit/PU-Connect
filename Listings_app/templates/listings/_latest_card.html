@@ -5,7 +5,7 @@
   dash_app/templates/dash/dashboard.html so prepended items match existing cards.
 {% endcomment %}
 {% for l in listings %}
-<div class="listing-card" data-posted="{{ l.postedAt }}" onclick="location.href='/listings/{{ l.id }}/'" style="cursor:pointer">
+<div class="listing-card" data-id="{{ l.id }}" data-posted="{{ l.postedAt }}" onclick="location.href='/listings/{{ l.id }}/'" style="cursor:pointer">
   <div class="lc-img">
     {% if l.img %}
       <img src="{{ l.img }}" alt="{{ l.title }}" loading="lazy" decoding="async">
