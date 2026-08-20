@@ -33,6 +33,18 @@ let chatSocket = null;
 /** Presence WebSocket instance */
 let presenceSocket = null;
 
+/** Whether the chat WebSocket is currently open and ready */
+let wsConnected = false;
+
+/** Number of reconnection attempts for the chat socket */
+let wsReconnectAttempts = 0;
+
+/** Maximum reconnection attempts before showing a persistent error */
+const WS_MAX_RECONNECT = 10;
+
+/** Delay (ms) between reconnection attempts */
+const WS_RECONNECT_DELAY = 3000;
+
 /** Online status map: userId -> 'online' | 'offline' */
 const onlineStatus = {};
 

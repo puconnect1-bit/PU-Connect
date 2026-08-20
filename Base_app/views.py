@@ -905,8 +905,15 @@ def initiate_boost_payment(request):
     })
 
 
+@require_http_methods(['GET'])
 def paystack_callback(request):
-    """Redirect target after Paystack checkout. Verifies the transaction."""
+    """Redirect target after Paystack checkout. Verifies the transaction.
+
+    Paystack redirects the browser here with ?ref=<our-reference> after the
+    hosted checkout. Verification is done server-side against the reference
+    created in `initiate_boost_payment`, so no user authentication is required
+    for this redirect target (the previous inline.js popup flow was removed).
+    """
     import urllib.request as urlreq
     from .models import BoostRequest
     from django.utils import timezone

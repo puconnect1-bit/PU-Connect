@@ -205,7 +205,13 @@ function sendVoiceNote(url, duration, waveform) {
         showToast('Voice note upload failed — try again');
       });
   } else {
-    showToast('Not connected — voice note saved locally');
+    // Socket not ready — attempt to reconnect if it was closed
+    if (!wsConnected && (!chatSocket || chatSocket.readyState === WebSocket.CLOSED)) {
+      showToast('Connecting to chat server…');
+      connectWebSocket(activeConv.id);
+    } else {
+      showToast('Cannot send voice note — chat server not connected');
+    }
   }
 }
 

@@ -98,6 +98,7 @@
 
 html {
   scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -107,6 +108,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
 }

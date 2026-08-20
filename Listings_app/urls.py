@@ -15,4 +15,5 @@ urlpatterns = [
     path('api/delete/<int:listing_id>/', views.delete_listing_api, name='delete_api'),
     path('api/toggle-status/<int:listing_id>/', views.toggle_listing_status_api, name='toggle_status_api'),
     path('<int:pk>/report/', views.report_listing, name='report_listing'),
+    path('latest-partials/', views.latest_listings_partials, name='latest_partials'),
 ]

@@ -9,6 +9,18 @@ function connectPresence() {
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   presenceSocket = new WebSocket(`${protocol}://${window.location.host}/ws/presence/`);
 
+  presenceSocket.onopen = function () {
+    console.log('Presence socket connected');
+  };
+
+  presenceSocket.onerror = function (e) {
+    console.error('Presence socket error:', e);
+    // Only alert the user if the socket was previously open (i.e. an unexpected error)
+    if (presenceSocket && presenceSocket.readyState === WebSocket.CLOSED) {
+      showToast('Presence connection lost — reconnecting…');
+    }
+  };
+
   presenceSocket.onmessage = function (e) {
     try {
       const data = JSON.parse(e.data);
@@ -220,19 +232,39 @@ function connectWebSocket(cid) {
     fetchConversations();
   };
 
+  chatSocket.onopen = function () {
+    wsConnected = true;
+    wsReconnectAttempts = 0;
+    console.log('Chat socket connected for conversation', cid);
+  };
+
   chatSocket.onerror = function (e) {
-    console.warn('Chat socket error', e);
+    console.error('Chat socket error:', e);
+    if (wsConnected) {
+      showToast('Connection error — attempting to reconnect…');
+    }
   };
 
   chatSocket.onclose = function (e) {
-    console.warn('Chat socket closed — reconnecting in 3s...');
+    wsConnected = false;
+    wsReconnectAttempts++;
+    console.warn(`Chat socket closed — reconnecting in 3s… (attempt ${wsReconnectAttempts}/${WS_MAX_RECONNECT})`, e);
+
+    // If we've exhausted reconnection attempts, show a persistent error
+    if (wsReconnectAttempts >= WS_MAX_RECONNECT) {
+      console.error('Max reconnection attempts reached');
+      showToast('Unable to connect to chat server. Please refresh the page.');
+      wsReconnectAttempts = 0; // Reset so a future manual reconnect is possible
+      return;
+    }
+
     const closedCid = cid; // Capture the conversation ID at connection time
     setTimeout(() => {
       // Only reconnect if the user is still in this same conversation
       if (activeConv && activeConv.id === closedCid) {
         connectWebSocket(closedCid);
       }
-    }, 3000);
+    }, WS_RECONNECT_DELAY);
   };
 }
 

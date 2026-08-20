@@ -3,10 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.cache import never_cache, cache_control
+from django.utils import timezone
+from datetime import datetime
 import json
 import re
 import textwrap
 from .models import Listing
+from Base_app.models import user_is_verified
 
 @cache_control(max_age=86400, public=True)
 def listing_og_image(request, pk):
@@ -357,6 +360,72 @@ def get_my_listings(request):
             'date': item.created_at.strftime('%d %b, %Y')
         })
     return JsonResponse({'listings': listings_data})
+
+@never_cache
+def latest_listings_partials(request):
+    """
+    HTMX partial — returns only listings created *after* the page initially loaded.
+
+    The dashboard records the newest listing it already has (via ?since=, a
+    millisecond epoch compatible with the API's `postedAt`) and polls this
+    endpoint every 15s. Combined with hx-swap="afterbegin", brand-new items are
+    prepended smoothly to the top of the feed without a page refresh.
+
+    The client always sends a `since` cutoff; when it's missing or 0 this
+    returns an empty response so nothing is mistakenly prepended.
+    """
+    from django.db.models import Case, When, IntegerField
+
+    try:
+        since_int = int(float(request.GET.get('since', 0)))
+    except (TypeError, ValueError):
+        since_int = 0
+
+    if since_int > 0:
+        since_dt = datetime.fromtimestamp(since_int / 1000, tz=timezone.utc)
+    else:
+        # Default: only fall back if the caller didn't send a cutoff.
+        return HttpResponse('')
+
+    qs = (
+        Listing.objects
+        .filter(status__in=['active', 'boosted'], created_at__gt=since_dt)
+        .select_related('user', 'user__profile')
+        .order_by(
+            Case(When(status='boosted', then=0), default=1, output_field=IntegerField()),
+            '-created_at',
+        )
+    )[:40]
+
+    cards = []
+    for item in qs:
+        phone = ''
+        try:
+            phone = item.user.profile.phone or ''
+        except Exception:
+            pass
+        image_urls = split_listing_images(item.image_url)
+        primary_image_url = image_urls[0] if image_urls else ''
+        try:
+            seller_verified = user_is_verified(item.user)
+        except Exception:
+            seller_verified = False
+        cards.append({
+            'id': item.id,
+            'title': item.title,
+            'price': str(item.price),
+            'contact_for_price': item.contact_for_price,
+            'img': primary_image_url,
+            'listing_type': item.listing_type,
+            'type': item.listing_type,
+            'category': item.category,
+            'seller': item.user.get_full_name() or item.user.username,
+            'seller_verified': seller_verified,
+            'postedAt': int(item.created_at.timestamp() * 1000),
+        })
+
+    return render(request, 'listings/_latest_card.html', {'listings': cards})
+
 
 @never_cache
 def get_all_listings(request):
