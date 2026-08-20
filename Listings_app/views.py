@@ -4,7 +4,7 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.cache import never_cache, cache_control
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timezone as dt_timezone
 import json
 import re
 import textwrap
@@ -382,7 +382,7 @@ def latest_listings_partials(request):
         since_int = 0
 
     if since_int > 0:
-        since_dt = datetime.fromtimestamp(since_int / 1000, tz=timezone.utc)
+        since_dt = datetime.fromtimestamp(since_int / 1000, tz=dt_timezone.utc)
     else:
         # Default: only fall back if the caller didn't send a cutoff.
         return HttpResponse('')
