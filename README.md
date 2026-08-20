@@ -82,7 +82,7 @@ Both `global.db` and `user.db` will be stored at `/var/data/` and persist across
 | `CF_R2_ACCESS_KEY_ID` | R2 API key ID |
 | `CF_R2_SECRET_ACCESS_KEY` | R2 API secret |
 | `CF_R2_BUCKET_NAME` | R2 bucket name |
-| `MEDIA_URL` | Public custom domain base URL for media files (e.g. `https://media.pentvarsconnect.com/`) |
+| `MEDIA_URL` | Public custom domain base URL for media files (e.g. `https://media.your-site.com/`) |
 | `DJANGO_SUPERUSER_USERNAME` | Auto-creates admin on first deploy |
 | `DJANGO_SUPERUSER_PASSWORD` | Admin password |
 | `GOOGLE_CLIENT_ID` | Google OAuth2 client ID |

@@ -79,7 +79,26 @@ if REDIS_URL:
         'default': {
             'BACKEND': 'channels_redis.core.RedisChannelLayer',
             'CONFIG': {
-                "hosts": [REDIS_URL],
+                # Pass the Redis URL as a dict entry so the remaining keys are
+                # forwarded to the redis-py asyncio ConnectionPool/connections
+                # (channels_redis.utils.create_pool runs
+                #  ConnectionPool.from_url(address, **rest)).
+                "hosts": [
+                    {
+                        "address": REDIS_URL,
+                        # Health-check pooled connections so a connection that
+                        # the server (or an idle intermediary proxy / load
+                        # balancer) has closed is transparently re-established
+                        # before reuse. Prevents repeated
+                        # "redis.exceptions.ConnectionError:
+                        #  Connection closed by server" tracebacks on WebSocket
+                        # group_add/group_send.
+                        "health_check_interval": 15,
+                        # Keep the underlying TCP socket alive so idle
+                        # connections aren't dropped by network intermediaries.
+                        "socket_keepalive": True,
+                    },
+                ],
             },
         },
     }
