@@ -1,6 +1,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 class Listing(models.Model):
     # Linking the listing to the user who created it
@@ -72,3 +73,35 @@ class ListingReport(models.Model):
 
     def __str__(self):
         return f"Report #{self.id}: {self.listing.title} by @{self.reporter.username}"
+
+
+class Wishlist(models.Model):
+    """
+    Server-side saved listings.
+
+    A user can save a listing to their wishlist. The pair (user, listing) is
+    unique so tapping the heart toggles a single row. Rows live in the default
+    database (the PURouter routes all apps there).
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='wishlist_items',
+    )
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        related_name='wishlisted_by',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'listing')
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'listing']),
+            models.Index(fields=['listing']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} ♥ {self.listing.title}"

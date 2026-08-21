@@ -7,7 +7,7 @@ from django.utils import timezone
 import json
 import re
 import textwrap
-from .models import Listing
+from .models import Listing, Wishlist
 from Base_app.models import user_is_verified
 
 @cache_control(max_age=86400, public=True)
@@ -139,7 +139,44 @@ def split_listing_images(value):
                 urls.append(part)
         return [url for url in dict.fromkeys(urls) if url]
 
-    return [str(value)]
+        return [str(value)]
+
+
+def serialize_listing(item):
+    """Serialize a Listing into the canonical dict shape consumed by the card
+    renderers (search feed, dashboard, detail page, and wishlist).
+
+    Centralised here so the Wishlist API and the listing feed stay in lockstep.
+    Decimal price / timestamps are coerced to JSON-friendly types.
+    """
+    phone = ''
+    try:
+        phone = item.user.profile.phone or ''
+    except Exception:
+        pass
+    image_urls = split_listing_images(item.image_url)
+    primary_image_url = image_urls[0] if image_urls else ''
+    return {
+        'id': item.id,
+        'title': item.title,
+        'price': str(item.price),
+        'img': primary_image_url,
+        'images': image_urls,
+        'description': item.description,
+        'listing_type': item.listing_type,
+        'type': item.listing_type,
+        'category': item.category,
+        'subcategory': item.subcategory,
+        'condition': item.condition,
+        'seller': item.user.get_full_name() or item.user.username,
+        'sellerUsername': item.user.username,
+        'phone': phone,
+        'contact_for_price': item.contact_for_price,
+        'priceLabel': 'Contact for Price' if item.contact_for_price else '',
+        'negotiable': False,
+        'status': item.status,
+        'postedAt': int(item.created_at.timestamp() * 1000),
+    }
 
 
 def listing_detail(request, pk):
@@ -228,22 +265,82 @@ def wishlist(request):
     """
     Wishlist Page
     GET /listings/wishlist/
-    
-    Displays:
-    - Saved favorite items
-    - Wishlist management options
-    - Item details and prices
-    - Option to move items to cart or remove from wishlist
+
+    Server-driven: saved items for the current user are read from the Wishlist
+    model and passed straight to the template. The page JS also fetches the
+    /listings/api/wishlist/ endpoint on load so the grid always matches the
+    database, and removing an item calls /listings/api/wishlist/toggle/.
     """
+    saved = list(
+        Wishlist.objects.filter(user=request.user)
+        .select_related('listing', 'listing__user', 'listing__user__profile')
+        .order_by('-created_at')
+    )
+    saved_items = [serialize_listing(w.listing) for w in saved]
     context = {
         'page_title': 'Wishlist - PU-Marketplace',
         'page_description': 'View and manage your saved favorite items.',
-        # Add any additional context data needed for the wishlist page here
+        'saved_items': saved_items,
     }
     return render(request, 'listings/wishlist.html', context)
 
 
 @login_required(login_url='auth:auth_view')
+@require_POST
+def toggle_wishlist_api(request):
+    """
+    POST /listings/api/wishlist/toggle/
+
+    Accepts {"listing_id": <id>} in JSON or form-encoded body and toggles the
+    current user's saved state for that listing. Responds with the new state so
+    the client can update the UI.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Login required'}, status=401)
+    try:
+        if request.content_type and 'application/json' in request.content_type:
+            data = json.loads(request.body or b'{}')
+        else:
+            data = request.POST.dict()
+    except Exception:
+        data = {}
+
+    try:
+        listing_id = int(data.get('listing_id'))
+    except (TypeError, ValueError):
+        return JsonResponse({'status': 'error', 'message': 'listing_id is required'}, status=400)
+
+    if not Listing.objects.filter(id=listing_id).exists():
+        return JsonResponse({'status': 'error', 'message': 'Listing not found'}, status=404)
+
+    # Race-safe toggle: get_or_create then delete if it already existed.
+    obj, created = Wishlist.objects.get_or_create(user=request.user, listing_id=listing_id)
+    if not created:
+        obj.delete()
+        saved = False
+    else:
+        saved = True
+
+    return JsonResponse({'status': 'success', 'saved': saved, 'listing_id': listing_id})
+
+
+@login_required(login_url='auth:auth_view')
+def wishlist_data_api(request):
+    """
+    GET /listings/api/wishlist/
+
+    Returns the current user's saved listings as JSON, using the same canonical
+    shape (serialize_listing) the card renderers consume.
+    """
+    saved = list(
+        Wishlist.objects.filter(user=request.user)
+        .select_related('listing', 'listing__user', 'listing__user__profile')
+        .order_by('-created_at')
+    )
+    saved_items = [serialize_listing(w.listing) for w in saved]
+    return JsonResponse({'listings': saved_items})
+
+
 @login_required(login_url='auth:auth_view')
 def create_listing(request):
     """
@@ -453,32 +550,7 @@ def get_all_listings(request):
 
     listings_data = []
     for item in listings:
-        phone = ''
-        try:
-            phone = item.user.profile.phone or ''
-        except Exception:
-            pass
-        image_urls = split_listing_images(item.image_url)
-        primary_image_url = image_urls[0] if image_urls else ''
-        listings_data.append({
-            'id': item.id,
-            'title': item.title,
-            'price': str(item.price),
-            'img': primary_image_url,
-            'images': image_urls,
-            'description': item.description,
-            'listing_type': item.listing_type,
-            'type': item.listing_type,
-            'category': item.category,
-            'subcategory': item.subcategory,
-            'condition': item.condition,
-            'seller': item.user.get_full_name() or item.user.username,
-            'sellerUsername': item.user.username,
-            'phone': phone,
-            'contact_for_price': item.contact_for_price,
-            'status': item.status,
-            'postedAt': int(item.created_at.timestamp() * 1000),
-        })
+        listings_data.append(serialize_listing(item))
     return JsonResponse({
         'listings': listings_data,
         'page': page,

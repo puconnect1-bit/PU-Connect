@@ -3,6 +3,8 @@
 <html lang="en" data-theme="dark">
 <head>
 <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+<script>var WISH_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+<script src="{% static 'Listings_app/js/wishlist-client.js' %}"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
@@ -137,10 +139,20 @@ function loadWishlistItems() {
 }
 
 /* ── STATE ── */
-var ITEMS = loadWishlistItems();
+var ITEMS = [];
 var wishIds = {};
-ITEMS.forEach(function(i){ wishIds[String(i.id)] = true; });
 var activeCat = 'all';
+if (window.WISH_AUTH && window.WishlistAPI) {
+  WishlistAPI.loadItems().then(function(items){
+    ITEMS = items || [];
+    wishIds = {};
+    ITEMS.forEach(function(i){ wishIds[String(i.id)] = true; });
+    render();
+  }).catch(function(){ ITEMS = loadWishlistItems(); ITEMS.forEach(function(i){ wishIds[String(i.id)] = true; }); render(); });
+} else {
+  ITEMS = loadWishlistItems();
+  ITEMS.forEach(function(i){ wishIds[String(i.id)] = true; });
+}
 
 /* ── RENDER ── */
 function render() {
@@ -217,6 +229,7 @@ function removeWish(id) {
     delete itemMap[id];
     localStorage.setItem('pu-wish-items', JSON.stringify(itemMap));
   } catch(e) {}
+  if (window.WISH_AUTH && window.WishlistAPI) { WishlistAPI.toggle(id).catch(function(){}); }
   render();
   showToast('Removed from saved');
 }

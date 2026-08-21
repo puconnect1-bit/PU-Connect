@@ -4,7 +4,11 @@
  * Renders a single listing card HTML.
  * Matches the design and logic of the main dashboard.
  */
+// Registry of the most recently rendered listing objects so wishlist saves can
+// persist the FULL item (not just the id) into localStorage.
+var __listingCache = {};
 function listingCardHTML(l) {
+  if (l && l.id != null) __listingCache[String(l.id)] = l;
   const isSvc   = l.type === 'service' || l.listing_type === 'service';
   // Category tag — bright text on a dark translucent pill for contrast on any
   // image/card background (products → yellow, services → teal).
@@ -52,21 +56,51 @@ function listingCardHTML(l) {
  * Wishlist helpers
  */
 function isSavedInWishlist(id) {
+  if (window.WishlistAPI && WishlistAPI.isAuthed() && WishlistAPI.isSaved(id)) return true;
   const saved = JSON.parse(localStorage.getItem('pu-wish-ids') || '[]');
   return saved.includes(String(id));
 }
 
+/* Normalise a listing object into the shape the /wishlist page expects so saved
+   items carry their full data (not just the id) across to the wishlist page. */
+function normalizeWishItem(l){
+  l = l || {};
+  return {
+    id:             l.id,
+    title:          l.title || l.name || 'Untitled',
+    price:          l.price,
+    priceLabel:     l.priceLabel,
+    negotiable:     l.negotiable,
+    img:            l.img || l.image_url || '',
+    category:       l.category || l.cat || '',
+    listing_type:   l.listing_type || l.type,
+    type:           l.type || l.listing_type || (l.price != null ? 'product' : 'service'),
+    seller:         l.seller,
+    sellerUsername: l.sellerUsername || l.seller || '',
+    postedAt:       l.postedAt,
+    status:         l.status,
+  };
+}
+
 function toggleWishlist(id, btn) {
-  let saved = JSON.parse(localStorage.getItem('pu-wish-ids') || '[]');
+  let saved  = JSON.parse(localStorage.getItem('pu-wish-ids') || '[]');
+  let items  = {};
+  try { items = JSON.parse(localStorage.getItem('pu-wish-items') || '{}'); } catch (e) { items = {}; }
   id = String(id);
   if (saved.includes(id)) {
     saved = saved.filter(i => i !== id);
+    delete items[id];
     if (btn) btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
   } else {
     saved.push(id);
+    items[id] = normalizeWishItem(__listingCache[id]);
     if (btn) btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
   }
-  localStorage.setItem('pu-wish-ids', JSON.stringify(saved));
+  try {
+    localStorage.setItem('pu-wish-ids', JSON.stringify(saved));
+    localStorage.setItem('pu-wish-items', JSON.stringify(items));
+  } catch (e) {}
+  if(window.WishlistAPI && WishlistAPI.isAuthed()){ WishlistAPI.toggle(id).then(function(s){ if(s!==null){ var sv=JSON.parse(localStorage.getItem('pu-wish-ids')||'[]'); if(s){ if(sv.indexOf(String(id))===-1) sv.push(String(id)); } else { sv=sv.filter(function(i){return i!==String(id);}); } localStorage.setItem('pu-wish-ids',JSON.stringify(sv)); } }).catch(function(){}); }
 }
 
 /**

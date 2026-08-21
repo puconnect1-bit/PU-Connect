@@ -3,6 +3,8 @@
 <html lang="en">
 <head>
 <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.setAttribute('data-theme','dark');})()</script>
+<script>var WISH_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+<script src="{% static 'Listings_app/js/wishlist-client.js' %}"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>{{ page_title }}</title>
@@ -857,6 +859,7 @@ function updateSaveBtn(){
 const saveBtn = document.getElementById('saveBtn');
 if(saveBtn){
   updateSaveBtn();
+  if(window.WishlistAPI && WishlistAPI.isAuthed()){ WishlistAPI.loadSavedIds().then(function(){ updateSaveBtn(); }); }
   saveBtn.addEventListener('click', function(){
     let list = getWishlist();
     const items = getWishItems();
@@ -871,6 +874,7 @@ if(saveBtn){
     }
     setWishlist(list);
     setWishItems(items);
+    if(window.WishlistAPI && WishlistAPI.isAuthed()){ WishlistAPI.toggle(LISTING_ID).then(function(s){ if(s!==null){ var ll=getWishlist(); if(s){ if(ll.indexOf(LISTING_ID)===-1) ll.push(LISTING_ID); } else { ll=ll.filter(function(i){return i!==LISTING_ID;}); } setWishlist(ll); updateSaveBtn(); } }).catch(function(){}); }
     updateSaveBtn();
   });
 }

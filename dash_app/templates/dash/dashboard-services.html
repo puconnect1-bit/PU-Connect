@@ -3,7 +3,9 @@
 <html lang="en" data-theme="dark">
 <head>
   <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
-  <meta charset="UTF-8"/>
+  <script>var WISH_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+<script src="{% static 'Listings_app/js/wishlist-client.js' %}"></script>
+<meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
   <title>Services — PU-Connect</title>
@@ -540,7 +542,8 @@ function openBoost(){
   let   curId = null;
   let   gIdx  = 0;
   let   gImgs = [];
-  let   wishSet = new Set(JSON.parse(localStorage.getItem('pu-wish-ids')||'[]'));
+  let   wishSet = (window.WishlistAPI ? WishlistAPI.savedIds() : null) || new Set(JSON.parse(localStorage.getItem('pu-wish-ids')||'[]'));
+  if(window.WishlistAPI && WishlistAPI.isAuthed()){ WishlistAPI.loadSavedIds(); }
 
   function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -679,9 +682,23 @@ function openBoost(){
     const wishBtn = document.getElementById('ldWishBtn');
     wishBtn.innerHTML = wishSet.has(id) ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Saved' : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Save';
     wishBtn.onclick = function(){
-      if(wishSet.has(id)){ wishSet.delete(id); wishBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Save'; }
-      else { wishSet.add(id); wishBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Saved'; }
-      try{ localStorage.setItem('pu-wish-ids',JSON.stringify([...wishSet])); }catch(e){}
+      let wItems = {};
+      try{ wItems = JSON.parse(localStorage.getItem('pu-wish-items')||'{}'); }catch(e){}
+      if(wishSet.has(id)){
+        wishSet.delete(id);
+        delete wItems[String(id)];
+        wishBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Save';
+      }
+      else {
+        wishSet.add(id);
+        wItems[String(id)] = l;
+        wishBtn.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Saved';
+      }
+      try{
+        localStorage.setItem('pu-wish-ids',JSON.stringify([...wishSet]));
+        localStorage.setItem('pu-wish-items',JSON.stringify(wItems));
+      }catch(e){}
+      if(window.WishlistAPI && WishlistAPI.isAuthed()){ WishlistAPI.toggle(id).catch(function(){}); }
     };
 
     /* Share */

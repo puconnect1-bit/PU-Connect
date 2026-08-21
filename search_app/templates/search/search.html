@@ -3,6 +3,8 @@
 <html lang="en" data-theme="dark">
 <head>
 <script>(function(){var t=localStorage.getItem('pu-theme');if(t)document.documentElement.setAttribute('data-theme',t);})()</script>
+<script>var WISH_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+<script src="{% static 'Listings_app/js/wishlist-client.js' %}"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta name="theme-color" content="#0d0e11" id="themeColorMeta"/>
@@ -99,6 +101,8 @@
 
 <script>
 'use strict';
+
+  if(window.WishlistAPI && WishlistAPI.isAuthed()){ WishlistAPI.loadSavedIds().catch(function(){}); }
 
 const CATEGORIES = [
   {label:'Electronics', cat:'electronics'},
