@@ -28,9 +28,17 @@
 
   function csrf() {
     try {
-      var m = document.cookie.match(/csrftoken=([^;]+)/);
-      return m ? m[1] : '';
-    } catch (e) { return ''; }
+      var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+      if (m) { return m[1]; }
+      // Fallbacks for when the cookie is unavailable (e.g. CSRF_COOKIE_SECURE
+      // while testing over plain HTTP): use the token Django rendered into
+      // the page instead, so toggles never fail silently with a 403.
+      var inp = document.querySelector('input[name="csrfmiddlewaretoken"]');
+      if (inp && inp.value) { return inp.value; }
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      if (meta && meta.content) { return meta.content; }
+    } catch (e) { /* ignore */ }
+    return '';
   }
 
   function readIds() {
@@ -105,13 +113,13 @@
       }
       return fetch(LIST, { credentials: 'same-origin' })
         .then(function (r) {
-          if (!r.ok) { return []; }
+          if (!r.ok) { console.warn('[WishlistAPI] load failed with HTTP', r.status); return []; }
           return r.json().then(function (j) {
             cacheItems(j.listings || []);
             return (j.listings || []).map(function (x) { return x; });
           });
         })
-        .catch(function () { return []; });
+        .catch(function (err) { console.warn('[WishlistAPI] load request error:', err); return []; });
     },
 
     // Toggle the server row. Returns the resulting saved-state (true/false),
@@ -126,7 +134,7 @@
         body: JSON.stringify({ listing_id: id })
       })
         .then(function (r) {
-          if (!r.ok) { return null; }
+          if (!r.ok) { console.warn('[WishlistAPI] toggle failed with HTTP', r.status); return null; }
           return r.json().then(function (j) {
             var saved = !!j.saved;
             if (saved) { _ids.add(id); } else { _ids.delete(id); }
@@ -134,7 +142,7 @@
             return saved;
           });
         })
-        .catch(function () { return null; });
+        .catch(function (err) { console.warn('[WishlistAPI] toggle request error:', err); return null; });
     }
   };
 

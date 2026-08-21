@@ -18,6 +18,9 @@
   <meta name="apple-mobile-web-app-title" content="PU-Connect">
 </head>
 <body>
+<div style="display:none">{% csrf_token %}</div>
+{{ saved_items|json_script:"wish-server-data" }}
+
 
 <nav class="tnav">
   <button class="hbg" id="hbg"><span></span><span></span><span></span></button>
@@ -142,16 +145,55 @@ function loadWishlistItems() {
 var ITEMS = [];
 var wishIds = {};
 var activeCat = 'all';
+
+/* Local-only saves (made before the server wishlist existed, offline, or when
+   a toggle POST failed). Captured BEFORE WishlistAPI.loadItems() rewrites the
+   localStorage cache from the server, otherwise they would be lost forever.
+   Only real listings (numeric ids) are kept — Reels bookmarks itself into
+   pu-wish-ids with non-numeric reel ids and must not leak onto this page. */
+function loadLocalOnlyItems() {
+  var out = [];
+  try {
+    var raw = JSON.parse(localStorage.getItem('pu-wish-items') || '{}');
+    Object.keys(raw).forEach(function (k) {
+      if (/^\d+$/.test(k)) out.push(raw[k]);
+    });
+  } catch (e) {}
+  return out;
+}
+
 if (window.WISH_AUTH && window.WishlistAPI) {
-  WishlistAPI.loadItems().then(function(items){
-    ITEMS = items || [];
+  var localOnly = loadLocalOnlyItems();
+
+  /* Instant first paint straight from the server-rendered context. */
+  try {
+    var seed = document.getElementById('wish-server-data');
+    if (seed) ITEMS = JSON.parse(seed.textContent) || [];
+  } catch (e) { ITEMS = []; }
+  wishIds = {};
+  ITEMS.forEach(function (i) { wishIds[String(i.id)] = true; });
+  render();
+
+  /* Then reconcile with the live API and rescue local-only items. */
+  WishlistAPI.loadItems().then(function (items) {
+    var server = items || [];
+    var seen = {};
+    server.forEach(function (x) { seen[String(x.id)] = true; });
+    var rescued = [];
+    localOnly.forEach(function (li) {
+      var k = String(li.id);
+      if (!seen[k]) { server.push(li); rescued.push(k); }
+    });
+    ITEMS = server;
     wishIds = {};
-    ITEMS.forEach(function(i){ wishIds[String(i.id)] = true; });
+    ITEMS.forEach(function (i) { wishIds[String(i.id)] = true; });
     render();
-  }).catch(function(){ ITEMS = loadWishlistItems(); ITEMS.forEach(function(i){ wishIds[String(i.id)] = true; }); render(); });
+    /* Converge: persist rescued items server-side (idempotent toggle-on). */
+    rescued.forEach(function (k) { WishlistAPI.toggle(k).catch(function () {}); });
+  }).catch(function () { render(); });
 } else {
   ITEMS = loadWishlistItems();
-  ITEMS.forEach(function(i){ wishIds[String(i.id)] = true; });
+  ITEMS.forEach(function (i){ wishIds[String(i.id)] = true; });
 }
 
 /* ── RENDER ── */
