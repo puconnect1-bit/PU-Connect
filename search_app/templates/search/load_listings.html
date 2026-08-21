@@ -6,8 +6,10 @@
  */
 function listingCardHTML(l) {
   const isSvc   = l.type === 'service' || l.listing_type === 'service';
-  const typeClr = isSvc ? '#5be5c5' : 'var(--a)';
-  const typeBg  = isSvc ? 'rgba(91,229,197,.14)' : 'rgba(232,201,106,.14)';
+  // Category tag — bright text on a dark translucent pill for contrast on any
+  // image/card background (products → yellow, services → teal).
+  const typeClr = isSvc ? '#5be5c5' : '#ffe082';
+  const typeBg  = 'rgba(10,13,18,.66)';
   const price   = (l.contact_for_price || l.contactForPrice) ? 'Contact'
     : (l.priceLabel || (l.price != null ? 'GH₵ ' + Number(l.price).toLocaleString() : ''));
   const isSaved  = isSavedInWishlist(l.id);

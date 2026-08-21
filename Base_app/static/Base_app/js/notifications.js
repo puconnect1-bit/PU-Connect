@@ -146,8 +146,11 @@
       </div>
       <div class="np-list"><div class="np-empty">Loading…</div></div>`;
 
-    // Append to body and use fixed positioning for reliable display on all pages
-    document.body.appendChild(panel);
+    // Render the dropdown ONLY inside the header component (right after the bell
+    // button) and keep it hidden by default so it never leaks raw markup into the
+    // page background. Display is toggled by JS in openPanel/closePanel.
+    btn.insertAdjacentElement('afterend', panel);
+    panel.style.display = 'none';
 
     // Position the panel relative to the bell button
     function positionPanel() {
@@ -176,6 +179,7 @@
 
   function openPanel() {
     if (!_panel) buildPanel();
+    _panel.style.display = 'block';
     _panel.classList.add('np-open');
     _open = true;
     // Mark all read on open after a short delay
@@ -187,7 +191,10 @@
   }
 
   function closePanel() {
-    if (_panel) _panel.classList.remove('np-open');
+    if (_panel) {
+      _panel.classList.remove('np-open');
+      _panel.style.display = 'none';
+    }
     _open = false;
   }
 

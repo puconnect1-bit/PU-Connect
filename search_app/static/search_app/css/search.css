@@ -71,6 +71,47 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overfl
 .lcard-price{font-size:.85rem;font-weight:700;color:var(--a);margin-bottom:.15rem}
 .lcard-seller{font-size:.68rem;color:var(--m)}
 .lcard-type{font-size:.6rem;font-weight:700;padding:.12rem .42rem;border-radius:4px;display:inline-block;margin-bottom:.25rem}
+/* ── SEARCH RESULT CARDS (load_listings.html → .lc / .lcm / .lbd …) ── */
+.lc{
+  background:var(--card);
+  border:1px solid var(--b);
+  border-radius:var(--r);
+  overflow:hidden;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  transition:transform .25s,border-color .25s;
+  position:relative;
+}
+.lc:hover{transform:translateY(-3px);border-color:rgba(232,201,106,.22)}
+/* Uniform square image frame — every listing card gets the same dimensions */
+.lcm{
+  width:100%;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  position:relative;
+  background:var(--inp);
+  flex-shrink:0;
+}
+.lcm img,.lcm > img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.lc:hover .lcm img{transform:scale(1.05)}
+/* Fallback placeholder (no image) inherits the square frame + subtle icon */
+.lcm .placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--inp);color:var(--m)}
+/* Category tag — dark translucent pill so bright/yellow text stays readable */
+.lbg{
+  position:absolute;top:.45rem;left:.45rem;z-index:2;
+  font-size:.58rem;font-weight:700;line-height:1.2;letter-spacing:.2px;
+  padding:.16rem .5rem;border-radius:5px;
+  color:#ffe082;
+  text-shadow:0 1px 2px rgba(0,0,0,.6);
+}
+.lbd{padding:.65rem .8rem .75rem}
+.lnm{font-size:.82rem;font-weight:600;margin-bottom:.18rem;line-height:1.35;color:var(--t);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.lpr{font-size:.85rem;font-weight:700;color:var(--a);margin-bottom:.15rem}
+.lrw{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.3rem}
+.lsl{font-size:.68rem;color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.lfv{width:30px;height:30px;border-radius:50%;background:var(--inp);border:none;color:var(--m);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:color .2s,background .2s}
+.lfv:hover{color:var(--a);background:rgba(232,201,106,.12)}
 
 /* ── USER CARDS ── */
 .user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:.75rem;margin-bottom:1.2rem}
@@ -127,3 +168,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overfl
   body{padding-bottom:calc(var(--bh) + 24px + env(safe-area-inset-bottom))}
   .botnav{bottom:calc(13px + env(safe-area-inset-bottom))}
 }
+
+/* ── FLOATING WIDGETS / MASCOTS ── */
+/* Anchor any floating chat/mascot widget to the bottom-right corner so it stays
+   a fixed overlay layer (z-index:50) instead of displacing or overlapping the
+   results grid cards as the page scrolls. */
+.mascot,
+.floating-widget,
+.chat-assist,
+.support-buddy{
+  position:fixed;
+  bottom:1rem;
+  right:1rem;
+  z-index:50;
+}
+/* The bottom nav is a fixed full-width bar; keep below the grid via body padding,
+   and raise it above overlay widgets so it always stays tappable. */
+.botnav{z-index:400}

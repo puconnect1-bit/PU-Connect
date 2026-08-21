@@ -23,7 +23,7 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--t);overflow-x:hidden;transition:background .25s,color .25s}
+body{font-family:var(--font);background:var(--bg);color:var(--t);overflow-x:hidden;overflow-y:auto;transition:background .25s,color .25s}
 a{color:inherit;text-decoration:none}
 button{font-family:var(--font);cursor:pointer}
 input,textarea,select{font-family:var(--font)}
@@ -34,7 +34,7 @@ img{display:block}
 
 /* ── LAYOUT ── */
 .shell{display:flex;min-height:100vh}
-.sidebar{width:var(--sb);position:fixed;top:0;left:0;bottom:0;z-index:200;background:var(--g);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-right:1px solid var(--b);display:flex;flex-direction:column;transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;overflow-x:hidden}
+.sidebar{width:var(--sb);position:fixed;top:0;left:0;bottom:0;z-index:200;background:var(--g);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-right:1px solid var(--b);display:flex;flex-direction:column;transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-x:hidden}
 .main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh}
 .topbar{height:var(--top);position:sticky;top:0;z-index:100;background:var(--g);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:.75rem;padding:0 1.5rem}
 .content{flex:1;padding:1.5rem;max-width:1400px;width:100%}

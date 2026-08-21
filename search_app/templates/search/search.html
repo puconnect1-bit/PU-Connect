@@ -184,6 +184,10 @@ function onInput(e){
 let _searchUserTimer = null;
 
 async function runSearch(q){
+  // Strip leading/trailing whitespace everywhere the query enters the engine so
+  // the "X results for …" header never shows padded terms.
+  q = String(q||'').trim();
+  state.query = q;
   if(!q) return;
   const qLow = q.toLowerCase();
 

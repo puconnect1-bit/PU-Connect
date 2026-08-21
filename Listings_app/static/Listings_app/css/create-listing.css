@@ -3,7 +3,7 @@
 [data-theme="light"]{--bg:#f0ede8;--bg2:#e8e4de;--card:#fff;--t:#1a1a1a;--m:#888;--b:rgba(0,0,0,.08);--g:rgba(255,255,255,.78);--gb:rgba(0,0,0,.1);--sh:0 8px 32px rgba(0,0,0,.1);--inp:rgba(0,0,0,.05)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;min-height:100dvh;padding-bottom:calc(110px + env(safe-area-inset-bottom));transition:background .3s,color .3s}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);overflow-x:hidden;overflow-y:auto;min-height:100dvh;padding-bottom:calc(110px + env(safe-area-inset-bottom));transition:background .3s,color .3s}
 /* NAV */
 .tnav{position:sticky;top:0;z-index:300;height:var(--nh);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;background:var(--g);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border-bottom:1px solid var(--gb);box-shadow:var(--sh)}
 .nbk{display:flex;align-items:center;gap:.42rem;background:none;border:none;color:var(--m);font-size:.84rem;font-weight:500;cursor:pointer;padding:.38rem .6rem;border-radius:8px;transition:color .2s,background .2s}
@@ -157,3 +157,32 @@ option{background:var(--card);color:var(--t)}
 @media(max-width:480px){.row2{grid-template-columns:1fr}.pw{grid-template-columns:1fr;gap:.5rem}.neg{justify-content:center}.ig{grid-template-columns:repeat(4,1fr)}.st{font-size:1.15rem}.wrap{padding:1rem .85rem 0}}
 @media(max-width:360px){.ig{grid-template-columns:repeat(3,1fr)}.cpills{gap:.3rem}.cp{font-size:.7rem;padding:.3rem .7rem}}
 ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{background:var(--b);border-radius:4px}
+
+/* ── Notification dropdown (bell) ──
+   Standalone pages don't load tokens.css, so the shared .notif-panel styles
+   are reproduced here using this page's own theme tokens. Hidden by default
+   (display:none) so the absolutely-positioned panel never leaks into the page. */
+#notifBtn{position:relative}
+.notif-dot{position:absolute;top:4px;right:4px;min-width:16px;height:16px;border-radius:9999px;background:var(--red);color:#fff;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;pointer-events:none;border:2px solid var(--card);line-height:1}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:320px;max-width:calc(100vw - 1rem);background:var(--card);border:1px solid var(--b);border-radius:var(--r);box-shadow:var(--sh);z-index:200;overflow:hidden;display:none;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+.notif-panel.np-open{display:block;opacity:1;transform:translateY(0);pointer-events:auto}
+.np-head{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem .7rem;border-bottom:1px solid var(--b)}
+.np-heading{font-size:.9rem;font-weight:700;color:var(--t)}
+.np-mark-all{font-size:.75rem;font-weight:600;color:var(--a);background:none;border:none;cursor:pointer;padding:0;font-family:'DM Sans',sans-serif}
+.np-mark-all:hover{opacity:.75}
+.np-list{max-height:360px;overflow-y:auto}
+.np-empty{padding:2rem 1rem;text-align:center;font-size:.85rem;color:var(--m)}
+.np-item{display:flex;align-items:flex-start;gap:.75rem;padding:.8rem 1rem;border-bottom:1px solid var(--b);text-decoration:none;color:var(--t);transition:background .14s;position:relative}
+.np-item:last-child{border-bottom:none}
+.np-item:hover{background:var(--inp)}
+.np-item.np-unread{background:rgba(232,201,106,.08)}
+.np-item.np-unread:hover{background:var(--inp)}
+.np-icon{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--inp);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;color:var(--m)}
+.np-icon.message{background:rgba(232,201,106,.12);color:var(--a);border-color:transparent}
+.np-icon.system{background:rgba(91,229,197,.12);color:var(--a2);border-color:transparent}
+.np-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem}
+.np-title{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t)}
+.np-content{font-size:.78rem;color:var(--m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-time{font-size:.7rem;color:var(--m);opacity:.7}
+.np-badge{flex-shrink:0;width:8px;height:8px;border-radius:50%;background:var(--a);margin-top:.35rem}
+
