@@ -466,7 +466,7 @@ function blockUser() {
         const cid = activeConv.id;
         const now = new Date();
         const time = now.toLocaleTimeString('en-GH', { hour: 'numeric', minute: '2-digit', hour12: true });
-        msgs[cid].push({ from: 'system', text: `You blocked ${activeConv.name}. They can no longer send you messages.`, time, _blockedBanner: cid });
+        msgs[cid].push({ from: 'system', text: `You blocked ${activeConv.name}. They can no longer send you messages.`, time, ts: now.toISOString(), _blockedBanner: cid });
         renderMsgs(cid);
         document.getElementById('msgInput').disabled = true;
         document.getElementById('msgInput').placeholder = `You blocked ${activeConv.name}`;

@@ -86,6 +86,7 @@ def get_messages(request, conv_id):
                 'meetup_spot': m.meetup_spot,
                 'meetup_time': m.meetup_time if m.meetup_time else None,
                 'time': m.timestamp.strftime("%I:%M %p"),
+                'ts': m.timestamp.isoformat(),
                 'is_read': m.is_read,
                 'is_deleted': m.is_deleted,
                 'reply_to': m.reply_to_id,

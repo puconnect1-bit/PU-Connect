@@ -28,6 +28,41 @@ async function fetchMessages(cid) {
 }
 
 /**
+ * Compute a date-divider label + calendar-day key from a message timestamp.
+ * @param {string|number|Date} ts - ISO timestamp, epoch ms, or Date object.
+ * @returns {{key:string,label:string}} A day key ("YYYY-MM-DD") and label.
+ *   Today -> "Today"; yesterday -> "Yesterday"; within 7 days -> weekday
+ *   name (e.g. "Tuesday"); otherwise -> "MMM DD, YYYY". Returns empty key
+ *   when no usable timestamp is available (no divider shown).
+ */
+function getDateDivider(ts) {
+  const d = ts ? new Date(ts) : new Date();
+  if (isNaN(d.getTime())) return { key: '', label: '' };
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dayDiff = Math.round((todayStart - dayStart) / 86400000);
+
+  let label;
+  if (dayDiff <= 0) {
+    label = 'Today';
+  } else if (dayDiff === 1) {
+    label = 'Yesterday';
+  } else if (dayDiff < 7) {
+    label = d.toLocaleDateString('en-US', { weekday: 'long' });
+  } else {
+    label = d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+  }
+
+  const key =
+    d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+  return { key, label };
+}
+
+/**
  * Render messages for a given conversation into the message area.
  * @param {number|string} cid - Conversation ID.
  */
@@ -45,30 +80,15 @@ function renderMsgs(cid) {
   area.appendChild(sys);
 
   list.forEach((m, idx) => {
-    // Date separator — use the message timestamp if available
-    const timeStr = m.time || '';
-    // We can't reliably derive the date from just a time string like "02:30 PM"
-    // So just use "Today" for all messages from the API since the server only sends times.
-    // The datePart is a flawed heuristic; keep it as a simple grouping label.
-    let datePart = 'Today';
-    if (timeStr.includes('Yesterday')) {
-      datePart = 'Yesterday';
-    } else if (timeStr.includes(',')) {
-      // If the time includes a comma, it likely has a full date like "Mon, 02:30 PM"
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const fullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      for (let i = 0; i < dayNames.length; i++) {
-        if (timeStr.startsWith(dayNames[i])) {
-          datePart = fullDays[i];
-          break;
-        }
-      }
-    }
-    if (datePart !== lastDate) {
-      lastDate = datePart;
+    // Date separator — evaluated from the message timestamp and shown only
+    // above the first message of a new calendar day within the thread.
+    const div = getDateDivider(m.ts);
+    const dateKey = div.key;
+    if (dateKey && dateKey !== lastDate) {
+      lastDate = dateKey;
       const sep = document.createElement('div');
       sep.className = 'date-sep';
-      sep.innerHTML = `<span>${datePart}</span>`;
+      sep.innerHTML = `<span>${div.label}</span>`;
       area.appendChild(sep);
     }
 
@@ -304,7 +324,7 @@ function sendMessage() {
 
   // Build optimistic message with reply data
   const isReply = replyIdx !== null && replyCid === cid;
-  const optMsg = { from: 'out', text, time, pending: true };
+  const optMsg = { from: 'out', text, time, ts: now.toISOString(), pending: true };
   if (isReply) {
     optMsg.reply_to_idx = replyIdx;
     const replyMsg = msgs[cid][replyIdx];

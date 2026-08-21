@@ -184,6 +184,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender_id': user.id,
                     'sender_username': user.username,
                     'timestamp': saved_msg.timestamp.strftime("%I:%M %p"),
+                    'timestamp_iso': saved_msg.timestamp.isoformat(),
                     'is_read': False,
                     'is_deleted': False,
                 }
@@ -208,6 +209,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_id': event['sender_id'],
             'sender_username': event['sender_username'],
             'timestamp': event['timestamp'],
+            'timestamp_iso': event.get('timestamp_iso'),
             'is_read': event.get('is_read', False),
             'is_deleted': event.get('is_deleted', False),
         }))

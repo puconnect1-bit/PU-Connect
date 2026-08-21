@@ -178,6 +178,7 @@ function connectWebSocket(cid) {
       meetup_spot: data.meetup_spot,
       meetup_time: data.meetup_time,
       time: data.timestamp,
+      ts: data.timestamp_iso || new Date().toISOString(),
       is_read: data.is_read || false,
       is_deleted: data.is_deleted || false,
       reply_to: data.reply_to_id || null,
